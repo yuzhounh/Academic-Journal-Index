@@ -3,6 +3,7 @@
 import { type Journal } from "@/data/journals";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Award } from "lucide-react";
 
 interface CasPartitionDisplayProps {
   journal: Journal;
@@ -26,6 +27,14 @@ const PartitionBadge = ({ partition }: { partition: string }) => {
 export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProps) {
   return (
     <div className="space-y-4">
+       <div>
+        <h4 className="text-sm font-semibold text-muted-foreground mb-2">Authority Level</h4>
+        <div className="flex items-center gap-2">
+            <Award className="h-6 w-6 text-amber-500" />
+            <p className="text-lg font-semibold">{journal.authorityJournal}</p>
+        </div>
+      </div>
+      <Separator/>
       <div>
         <h4 className="text-sm font-semibold text-muted-foreground mb-2">Major Category</h4>
         <div className="p-3 bg-secondary/50 rounded-lg">
