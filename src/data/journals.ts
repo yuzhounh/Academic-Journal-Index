@@ -43,7 +43,7 @@ function parseJournals(data: any[]): Journal[] {
     }
 
     return {
-      journalName: row['Journal name'] || '',
+      journalName: row['journal name'] || '',
       year: parseInt(row['Year'], 10) || 0,
       issn: row['ISSN/EISSN'] || '',
       review: row['Review'] || '否',
