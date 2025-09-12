@@ -50,7 +50,7 @@ export default function SearchPage() {
     <div className="container mx-auto p-4 md:p-8">
       <div className="flex flex-col items-center text-center mb-8">
         <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">
-          Scholar Search
+          Academic Journal Index
         </h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
           Instantly find detailed information and AI-powered insights for academic journals.

@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Scholar Search',
+  title: 'Academic Journal Index',
   description: 'Search for academic journals and their metrics.',
 };
 
