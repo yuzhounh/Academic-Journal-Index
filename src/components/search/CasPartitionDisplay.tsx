@@ -1,9 +1,16 @@
+
 "use client";
 
 import { type Journal } from "@/data/journals";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Award } from "lucide-react";
+import { Award, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CasPartitionDisplayProps {
   journal: Journal;
@@ -41,7 +48,46 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
   return (
     <div className="space-y-4">
        <div>
-        <h4 className="text-sm font-semibold text-muted-foreground mb-2">Authority Level</h4>
+        <div className="flex items-center gap-2 mb-2">
+            <h4 className="text-sm font-semibold text-muted-foreground">Authority Level</h4>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button aria-label="Authority level rules">
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs md:max-w-sm" side="top" align="center">
+                  <div className="p-2 space-y-3">
+                    <h3 className="font-bold text-base text-center">权威期刊分级规则</h3>
+                    
+                    <div>
+                      <h4 className="font-semibold text-primary">一级权威期刊</h4>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1">
+                        <li>中科院JCR大类分区一区期刊</li>
+                        <li>中科院JCR大类分区二区前50%（含50%）期刊</li>
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold text-primary/80">二级权威期刊</h4>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1">
+                        <li>中科院JCR大类分区二区后50%期刊</li>
+                        <li>中科院JCR大类分区三区期刊</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-primary/60">三级权威期刊</h4>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1">
+                        <li>中科院JCR大类分区四区期刊</li>
+                      </ul>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+        </div>
         <div className="flex items-center gap-2">
             <Award className="h-6 w-6 text-amber-500" />
             <p className="text-lg font-semibold">{journal.authorityJournal}</p>
