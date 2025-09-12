@@ -50,8 +50,8 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
         <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{journal.journalName}</h2>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="lg:col-span-2">
+      <div className="space-y-6">
+        <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl font-headline">
                     <Sparkles className="text-primary"/>
@@ -64,36 +64,38 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
             </CardContent>
         </Card>
 
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                    <BookOpen className="text-primary"/>
-                    Basic Information
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
-                <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
-                <InfoItem icon={TrendingUp} label="Impact Factor" value={journal.impactFactor} />
-                <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
-                <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
-                <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} />
-                <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
-            </CardContent>
-        </Card>
-        
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                    <BookMarked className="text-primary"/>
-                    CAS Partition
-                </CardTitle>
-                <CardDescription>Chinese Academy of Sciences (CAS) journal ranking.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <CasPartitionDisplay journal={journal} />
-            </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-1">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                        <BookOpen className="text-primary"/>
+                        Basic Information
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
+                    <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
+                    <InfoItem icon={TrendingUp} label="Impact Factor" value={journal.impactFactor} />
+                    <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
+                    <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
+                    <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} />
+                    <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
+                </CardContent>
+            </Card>
+            
+            <Card className="lg:col-span-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                        <BookMarked className="text-primary"/>
+                        CAS Partition
+                    </CardTitle>
+                    <CardDescription>Chinese Academy of Sciences (CAS) journal ranking.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <CasPartitionDisplay journal={journal} />
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
