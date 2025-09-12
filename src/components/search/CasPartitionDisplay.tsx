@@ -9,15 +9,28 @@ interface CasPartitionDisplayProps {
   journal: Journal;
 }
 
+const partitionMap: { [key: string]: string } = {
+  "1": "一区",
+  "2": "二区",
+  "3": "三区",
+  "4": "四区",
+};
+
 const PartitionBadge = ({ partition }: { partition: string }) => {
     const match = partition.match(/(\d+)\s*\[(\d+\/\d+)\]/);
     if (!match) return <Badge variant="secondary">{partition}</Badge>;
   
     const [, main, details] = match;
+    const chinesePartition = partitionMap[main] || main;
   
     return (
-      <div className="flex items-center gap-1">
-        <span className="flex items-center justify-center w-6 h-6 bg-primary text-primary-foreground rounded-full text-sm font-bold">{main}</span>
+      <div className="flex items-center gap-2">
+        <Badge 
+            variant={main === '1' ? 'default' : 'secondary'} 
+            className={main === '1' ? 'bg-primary text-primary-foreground' : ''}
+        >
+            {chinesePartition}
+        </Badge>
         <span className="text-xs text-muted-foreground">{details}</span>
       </div>
     );

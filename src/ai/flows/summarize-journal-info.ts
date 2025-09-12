@@ -73,35 +73,35 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   name: 'summarizeJournalInfoPrompt',
   input: {schema: SummarizeJournalInfoInputSchema},
   output: {schema: SummarizeJournalInfoOutputSchema},
-  prompt: `You are an expert at summarizing journal information.
+  prompt: `你是一位专业的期刊信息总结专家。
 
-  Based on the provided journal information, create a concise summary highlighting key metrics such as impact factor, category rankings, and authority level. Focus on the journal's significance and importance in its field.
+  请根据下面提供的期刊信息，用中文生成一段简明扼要的总结。总结应突出期刊的关键指标，如影响因子、学科分区排名和权威等级，并说明该期刊在其研究领域的重要性和地位。
 
-  Journal Name: {{{journalName}}}
-  Year: {{{year}}}
+  期刊名称: {{{journalName}}}
+  年份: {{{year}}}
   ISSN/EISSN: {{{issn}}}
-  Review: {{{review}}}
-  OA Journal Index (OAJ): {{{oaj}}}
-  Open Access: {{{openAccess}}}
-  Web of Science: {{{webOfScience}}}
-  Impact Factor: {{{impactFactor}}}
-  Annotation: {{{annotation}}}
-  Major Category: {{{majorCategory}}}
-  Major Category Partition: {{{majorCategoryPartition}}}
-  Top: {{{top}}}
-  Authority Journal: {{{authorityJournal}}}
-  Minor Category 1: {{{minorCategory1}}}
-  Minor Category 1 Partition: {{{minorCategory1Partition}}}
-  Minor Category 2: {{{minorCategory2}}}
-  Minor Category 2 Partition: {{{minorCategory2Partition}}}
-  Minor Category 3: {{{minorCategory3}}}
-  Minor Category 3 Partition: {{{minorCategory3Partition}}}
-  Minor Category 4: {{{minorCategory4}}}
-  Minor Category 4 Partition: {{{minorCategory4Partition}}}
-  Minor Category 5: {{{minorCategory5}}}
-  Minor Category 5 Partition: {{{minorCategory5Partition}}}
-  Minor Category 6: {{{minorCategory6}}}
-  Minor Category 6 Partition: {{{minorCategory6Partition}}}
+  同行评审: {{{review}}}
+  OAJ收录: {{{oaj}}}
+  开放获取: {{{openAccess}}}
+  Web of Science收录: {{{webOfScience}}}
+  影响因子: {{{impactFactor}}}
+  标注: {{{annotation}}}
+  主要学科: {{{majorCategory}}}
+  主要学科分区: {{{majorCategoryPartition}}}
+  Top期刊: {{{top}}}
+  权威期刊: {{{authorityJournal}}}
+  次要学科1: {{{minorCategory1}}}
+  次要学科1分区: {{{minorCategory1Partition}}}
+  次要学科2: {{{minorCategory2}}}
+  次要学科2分区: {{{minorCategory2Partition}}}
+  次要学科3: {{{minorCategory3}}}
+  次要学科3分区: {{{minorCategory3Partition}}}
+  次要学科4: {{{minorCategory4}}}
+  次要学科4分区: {{{minorCategory4Partition}}}
+  次要学科5: {{{minorCategory5}}}
+  次要学科5分区: {{{minorCategory5Partition}}}
+  次要学科6: {{{minorCategory6}}}
+  次要学科6分区: {{{minorCategory6Partition}}}
   `,
 });
 

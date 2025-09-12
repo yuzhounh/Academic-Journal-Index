@@ -51,19 +51,6 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
       </div>
 
       <div className="space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                    <Sparkles className="text-primary"/>
-                    AI-Powered Summary
-                </CardTitle>
-                <CardDescription>A concise summary of the journal's significance and impact.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <AiSummary journal={journal} />
-            </CardContent>
-        </Card>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-1">
                 <CardHeader>
@@ -96,6 +83,19 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
                 </CardContent>
             </Card>
         </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                    <Sparkles className="text-primary"/>
+                    AI-Powered Summary
+                </CardTitle>
+                <CardDescription>A concise summary of the journal's significance and impact.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <AiSummary journal={journal} />
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
