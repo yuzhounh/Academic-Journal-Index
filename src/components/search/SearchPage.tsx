@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useMemo, ChangeEvent } from "react";
-import { journals, type Journal } from "@/data/journals";
+import { useJournals, type Journal } from "@/data/journals";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
+  const { journals, loading } = useJournals();
 
   const filteredJournals = useMemo(() => {
     if (!searchTerm) {
@@ -19,7 +20,7 @@ export default function SearchPage() {
     return journals.filter((journal) =>
       journal.journalName.toLowerCase().includes(lowercasedTerm)
     );
-  }, [searchTerm]);
+  }, [searchTerm, journals]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -35,6 +36,15 @@ export default function SearchPage() {
   const handleClearSelection = () => {
     setSelectedJournal(null);
   };
+
+  if (loading) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">Loading journal data...</p>
+        </div>
+    )
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-8">

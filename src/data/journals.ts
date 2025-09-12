@@ -1,6 +1,7 @@
+
+"use client"
+import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import path from 'path';
-import fs from 'fs';
 
 export type Journal = {
   journalName: string;
@@ -19,22 +20,8 @@ export type Journal = {
   minorCategories: { name: string; partition: string }[];
 };
 
-function parseJournals(): Journal[] {
-  const csvFilePath = path.resolve('./FQBJCR2025-QWQKFJ-UTF8.csv');
-  let fileContent;
-  try {
-    fileContent = fs.readFileSync(csvFilePath, 'utf8');
-  } catch (error) {
-    console.error('Error reading CSV file:', error);
-    return [];
-  }
-
-  const { data } = Papa.parse(fileContent, {
-    header: true,
-    skipEmptyLines: true,
-  });
-
-  const journals: Journal[] = data.map((row: any) => {
+function parseJournals(data: any[]): Journal[] {
+  return data.map((row: any) => {
     const minorCategories: { name: string; partition: string }[] = [];
     if (row['小类1名称'] && row['小类1分区']) {
       minorCategories.push({ name: row['小类1名称'], partition: row['小类1分区'] });
@@ -72,9 +59,37 @@ function parseJournals(): Journal[] {
       minorCategories,
     };
   }).filter(j => j.journalName);
-
-  return journals;
 }
 
+export function useJournals() {
+    const [journals, setJournals] = useState<Journal[]>([]);
+    const [loading, setLoading] = useState(true);
 
-export const journals: Journal[] = parseJournals();
+    useEffect(() => {
+        async function loadJournals() {
+            try {
+                const response = await fetch('/FQBJCR2025-QWQKFJ-UTF8.csv');
+                const csvText = await response.text();
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        const parsedJournals = parseJournals(results.data);
+                        setJournals(parsedJournals);
+                        setLoading(false);
+                    },
+                    error: (error: any) => {
+                        console.error('Error parsing CSV file:', error);
+                        setLoading(false);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching CSV file:', error);
+                setLoading(false);
+            }
+        }
+        loadJournals();
+    }, []);
+
+    return { journals, loading };
+}

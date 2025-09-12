@@ -29,7 +29,9 @@ export default function AiSummary({ journal }: AiSummaryProps) {
       }
     };
 
-    fetchSummary();
+    if (journal) {
+      fetchSummary();
+    }
   }, [journal]);
 
   if (isLoading) {
