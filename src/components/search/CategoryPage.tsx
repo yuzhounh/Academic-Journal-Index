@@ -16,7 +16,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookText, Loader2, TrendingUp } from "lucide-react";
+import { ArrowLeft, BookText, Loader2, Crown } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 
@@ -29,9 +29,9 @@ const partitionMap: { [key: string]: string } = {
   "4": "四区",
 };
 
-const getPartitionBadgeVariant = (journal: Journal): "level1" | "level2" | "level3" | "level4" | "secondary" => {
-    const partition = journal.majorCategoryPartition.charAt(0);
-    switch (partition) {
+const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
+    const mainPartition = partition.charAt(0);
+    switch (mainPartition) {
         case '1': return "level1";
         case '2': return "level2";
         case '3': return "level3";
@@ -60,7 +60,7 @@ const getPaginationItems = (currentPage: number, totalPages: number, onPageChang
 
     const renderEllipsis = (key: string) => <PaginationItem key={key}><PaginationEllipsis /></PaginationItem>;
 
-    if (totalPages <= pageLimit * 3) {
+    if (totalPages <= pageLimit * 2 + 3) { // Show all pages if total is small enough
         return range(1, totalPages).map(p => renderPage(p));
     }
 
@@ -68,37 +68,30 @@ const getPaginationItems = (currentPage: number, totalPages: number, onPageChang
     const endPages = range(totalPages - pageLimit + 1, totalPages);
     
     let middlePages = [];
-    let showStartEllipsis = false;
-    let showEndEllipsis = false;
+    const middleStart = Math.max(pageLimit + 1, currentPage - 2);
+    const middleEnd = Math.min(totalPages - pageLimit, currentPage + 2);
 
-    if (currentPage <= pageLimit + 2) {
-        middlePages = range(pageLimit + 1, pageLimit + 3);
-        showEndEllipsis = true;
-    } else if (currentPage >= totalPages - pageLimit - 1) {
-        middlePages = range(totalPages - pageLimit - 2, totalPages - pageLimit);
-        showStartEllipsis = true;
-    } else {
-        middlePages = range(currentPage - Math.floor(pageLimit/2), currentPage + Math.floor(pageLimit/2));
-        showStartEllipsis = true;
-        showEndEllipsis = true;
-    }
-    
     pages.push(...startPages.map(p => renderPage(p)));
-    if (showStartEllipsis) {
+    
+    if (middleStart > pageLimit + 1) {
         pages.push(renderEllipsis("start-ellipsis"));
     }
+
+    middlePages = range(middleStart, middleEnd);
     pages.push(...middlePages.map(p => renderPage(p)));
-    if (showEndEllipsis) {
+
+    if (middleEnd < totalPages - pageLimit) {
         pages.push(renderEllipsis("end-ellipsis"));
     }
-    pages.push(...endPages.map(p => renderPage(p)));
 
-    return pages.filter((item, index, self) => 
-        // Remove duplicate page numbers that might appear if ranges overlap
-        index === self.findIndex((t) => (
-            (t.key === item.key)
-        ))
+    pages.push(...endPages.map(p => renderPage(p)));
+    
+    // De-duplicate pages
+    const uniquePages = pages.filter((item, index, self) => 
+        index === self.findIndex((t) => t.key === item.key)
     );
+
+    return uniquePages;
 };
 
 const extractRank = (partition: string): number => {
@@ -216,11 +209,11 @@ export default function CategoryPage() {
         </div>
       </div>
      
-      {view === 'search' && <SearchPage onJournalSelect={handleJournalSelect} />}
+      {view === 'search' && <div className="max-w-4xl mx-auto"><SearchPage onJournalSelect={handleJournalSelect} /></div>}
 
       {view === 'categories' && !selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="animate-in fade-in-50 duration-300 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {sortedCategories.map(([category, count]) => (
                 <Card
                 key={category}
@@ -257,23 +250,22 @@ export default function CategoryPage() {
                     className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
                     onClick={() => handleJournalSelect(journal)}
                 >
-                  <CardContent className="p-4 flex items-center justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                          <p className="font-headline text-base font-semibold truncate">{journal.journalName}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{journal.issn}</p>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-center flex-shrink-0">
-                          <div className="w-24">
-                              <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                              <p className="font-medium text-base">{journal.impactFactor}</p>
-                          </div>
-                          <div className="w-24">
-                              <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
-                              <Badge variant={getPartitionBadgeVariant(journal)}>
-                                  {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                              </Badge>
-                          </div>
-                      </div>
+                  <CardContent className="p-4 grid grid-cols-12 items-center gap-4">
+                    <div className="col-span-8">
+                        <p className="font-headline text-base font-semibold truncate">{journal.journalName}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{journal.issn}</p>
+                    </div>
+                    <div className="col-span-2 text-center">
+                        <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                        <p className="font-medium text-base">{journal.impactFactor}</p>
+                    </div>
+                    <div className="col-span-2 text-center">
+                        <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
+                        <Badge variant={getPartitionBadgeVariant(journal.majorCategoryPartition)} className="flex items-center justify-center gap-1">
+                            {journal.authorityJournal === "一级" && <Crown className="h-3 w-3" />}
+                            {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                        </Badge>
+                    </div>
                   </CardContent>
                 </Card>
             ))}
