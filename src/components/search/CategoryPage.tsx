@@ -184,7 +184,7 @@ export default function CategoryPage() {
   
   if (selectedJournal) {
       return (
-        <div className="py-4 md:py-8">
+        <div className="py-4 md:py-8 max-w-5xl mx-auto">
             <JournalDetail 
                 journal={selectedJournal} 
                 onBack={handleBackToJournalList}
@@ -236,7 +236,7 @@ export default function CategoryPage() {
       )}
 
       {view === 'categories' && selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300">
+        <div className="animate-in fade-in-50 duration-300 max-w-5xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <Button variant="outline" size="icon" onClick={handleBackToCategories}>
               <ArrowLeft className="h-4 w-4" />
@@ -261,8 +261,8 @@ export default function CategoryPage() {
                     </div>
                     <div className="col-span-2 text-center">
                         <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
-                        <Badge variant={getPartitionBadgeVariant(journal.majorCategoryPartition)} className="flex items-center justify-center gap-1">
-                            {journal.authorityJournal === "一级" && <Crown className="h-3 w-3" />}
+                        <Badge variant={getPartitionBadgeVariant(journal.majorCategoryPartition)}>
+                            {journal.authorityJournal === "一级" && <Crown className="h-3 w-3 mr-1" />}
                             {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
                         </Badge>
                     </div>
