@@ -23,19 +23,28 @@ const partitionMap: { [key: string]: string } = {
   "4": "四区",
 };
 
+const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
+    const mainPartition = partition.charAt(0);
+    switch (mainPartition) {
+        case '1': return "level1";
+        case '2': return "level2";
+        case '3': return "level3";
+        case '4': return "level4";
+        default: return "secondary";
+    }
+};
+
 const PartitionBadge = ({ partition }: { partition: string }) => {
     const match = partition.match(/(\d+)\s*\[(\d+\/\d+)\]/);
     if (!match) return <Badge variant="secondary">{partition}</Badge>;
   
     const [, main, details] = match;
     const chinesePartition = partitionMap[main] || main;
+    const variant = getPartitionBadgeVariant(main);
   
     return (
       <div className="flex items-center gap-2">
-        <Badge 
-            variant={main === '1' ? 'default' : 'secondary'} 
-            className={main === '1' ? 'bg-primary text-primary-foreground' : ''}
-        >
+        <Badge variant={variant}>
             {chinesePartition}
         </Badge>
         <span className="text-xs text-muted-foreground">{details}</span>

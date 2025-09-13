@@ -18,6 +18,7 @@ const badgeVariants = cva(
         level1: "border-transparent bg-red-500 text-white",
         level2: "border-transparent bg-orange-500 text-white",
         level3: "border-transparent bg-yellow-500 text-black",
+        level4: "border-transparent bg-green-500 text-white",
       },
     },
     defaultVariants: {

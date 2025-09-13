@@ -29,24 +29,15 @@ const partitionMap: { [key: string]: string } = {
   "4": "四区",
 };
 
-const getPartitionBadgeVariant = (journal: Journal) => {
+const getPartitionBadgeVariant = (journal: Journal): "level1" | "level2" | "level3" | "level4" | "secondary" => {
     const partition = journal.majorCategoryPartition.charAt(0);
-    if (partition === '1') {
-      return "level1";
+    switch (partition) {
+        case '1': return "level1";
+        case '2': return "level2";
+        case '3': return "level3";
+        case '4': return "level4";
+        default: return "secondary";
     }
-    if (partition === '2') {
-      if (journal.authorityJournal === '一级权威期刊') {
-        return "level1";
-      }
-      return "level2";
-    }
-    if (partition === '3') {
-        return "level2";
-    }
-    if (partition === '4') {
-        return "level3";
-    }
-    return "secondary";
 };
 
 // Helper function to generate pagination items
