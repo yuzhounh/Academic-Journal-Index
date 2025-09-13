@@ -50,75 +50,55 @@ const getPartitionBadgeVariant = (journal: Journal) => {
 // Helper function to generate pagination items
 const getPaginationItems = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
     const pages = [];
-    const pageLimit = 5; 
-    const ellipsis = <PaginationItem key="ellipsis-start-end"><PaginationEllipsis /></PaginationItem>;
+    const pageLimit = 5;
+    const boundaryCount = 2; // Pages to show at start and end
+    const siblingCount = 2; // Pages to show around current page
 
-    if (totalPages <= pageLimit + 2) {
-        for (let i = 1; i <= totalPages; i++) {
-            pages.push(
-                <PaginationItem key={i}>
-                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(i); }} isActive={currentPage === i}>
-                        {i}
-                    </PaginationLink>
-                </PaginationItem>
-            );
-        }
-    } else {
-        // Always show first page
-        pages.push(
-            <PaginationItem key={1}>
-                <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(1); }} isActive={currentPage === 1}>
-                    1
-                </PaginationLink>
-            </PaginationItem>
-        );
+    const range = (start: number, end: number) => {
+        const length = end - start + 1;
+        return Array.from({ length }, (_, i) => start + i);
+    };
 
-        let startPage, endPage;
-        if (currentPage <= pageLimit - 2) {
-            startPage = 2;
-            endPage = pageLimit -1;
-            pages.push(...Array.from({ length: (endPage - startPage + 1)}, (_, i) => startPage + i).map(p => 
-                <PaginationItem key={p}>
-                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(p); }} isActive={currentPage === p}>
-                        {p}
-                    </PaginationLink>
-                </PaginationItem>
-            ));
-            pages.push(ellipsis);
-        } else if (currentPage > totalPages - (pageLimit - 2)) {
-            startPage = totalPages - (pageLimit-2);
-            endPage = totalPages - 1;
-            pages.push(ellipsis);
-            pages.push(...Array.from({ length: (endPage - startPage + 1)}, (_, i) => startPage + i).map(p => 
-                <PaginationItem key={p}>
-                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(p); }} isActive={currentPage === p}>
-                        {p}
-                    </PaginationLink>
-                </PaginationItem>
-            ));
-        } else {
-            startPage = currentPage - Math.floor((pageLimit-3)/2);
-            endPage = currentPage + Math.floor((pageLimit-3)/2);
-            pages.push(ellipsis);
-            pages.push(...Array.from({ length: (endPage - startPage + 1)}, (_, i) => startPage + i).map(p => 
-                <PaginationItem key={p}>
-                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(p); }} isActive={currentPage === p}>
-                        {p}
-                    </PaginationLink>
-                </PaginationItem>
-            ));
-            pages.push(ellipsis);
-        }
-        
-        // Always show last page
-        pages.push(
-            <PaginationItem key={totalPages}>
-                <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(totalPages); }} isActive={currentPage === totalPages}>
-                    {totalPages}
-                </PaginationLink>
-            </PaginationItem>
-        );
+    const renderPage = (pageNumber: number) => (
+        <PaginationItem key={pageNumber}>
+            <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(pageNumber); }} isActive={currentPage === pageNumber}>
+                {pageNumber}
+            </PaginationLink>
+        </PaginationItem>
+    );
+
+    const renderEllipsis = (key: string) => <PaginationItem key={key}><PaginationEllipsis /></PaginationItem>;
+
+    if (totalPages <= (2 * boundaryCount) + (2 * siblingCount) + 3) {
+        return range(1, totalPages).map(p => renderPage(p));
     }
+
+    const leftBoundary = range(1, boundaryCount);
+    const rightBoundary = range(totalPages - boundaryCount + 1, totalPages);
+
+    const leftSibling = Math.max(currentPage - siblingCount, boundaryCount + 1);
+    const rightSibling = Math.min(currentPage + siblingCount, totalPages - boundaryCount);
+
+    const showLeftEllipsis = leftSibling > boundaryCount + 1;
+    const showRightEllipsis = rightSibling < totalPages - boundaryCount;
+
+    pages.push(...leftBoundary.map(p => renderPage(p)));
+    if (showLeftEllipsis) pages.push(renderEllipsis("left-ellipsis"));
+
+    if (!showLeftEllipsis && showRightEllipsis) {
+        const middleRange = range(boundaryCount + 1, Math.min(totalPages-boundaryCount, boundaryCount + 2 * siblingCount + 1));
+        pages.push(...middleRange.map(p => renderPage(p)));
+    } else if (showLeftEllipsis && !showRightEllipsis) {
+        const middleRange = range(Math.max(1, totalPages - boundaryCount - 2 * siblingCount), totalPages - boundaryCount);
+        pages.push(...middleRange.map(p => renderPage(p)));
+    } else if (showLeftEllipsis && showRightEllipsis) {
+        const middleRange = range(leftSibling, rightSibling);
+        pages.push(...middleRange.map(p => renderPage(p)));
+    }
+    
+    if (showRightEllipsis) pages.push(renderEllipsis("right-ellipsis"));
+    pages.push(...rightBoundary.map(p => renderPage(p)));
+
     return pages;
 };
 
