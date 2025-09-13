@@ -5,7 +5,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
@@ -210,10 +210,10 @@ export default function CategoryPage() {
         </div>
       </div>
      
-      {view === 'search' && <div className="max-w-4xl mx-auto"><SearchPage onJournalSelect={handleJournalSelect} /></div>}
+      {view === 'search' && <SearchPage onJournalSelect={handleJournalSelect} />}
 
       {view === 'categories' && !selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300 max-w-4xl mx-auto">
+        <div className="animate-in fade-in-50 duration-300">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {sortedCategories.map(([category, count]) => (
                 <Card
@@ -221,7 +221,7 @@ export default function CategoryPage() {
                 className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
                 onClick={() => handleCategorySelect(category)}
                 >
-                <CardHeader className="flex-grow">
+                <CardHeader className="flex-grow pb-2">
                     <CardTitle className="font-headline text-xl">{category}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -237,7 +237,7 @@ export default function CategoryPage() {
       )}
 
       {view === 'categories' && selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300 max-w-5xl mx-auto">
+        <div className="animate-in fade-in-50 duration-300">
           <div className="flex items-center gap-4 mb-6">
             <Button variant="outline" size="icon" onClick={handleBackToCategories}>
               <ArrowLeft className="h-4 w-4" />
@@ -253,8 +253,8 @@ export default function CategoryPage() {
                 >
                   <CardContent className="p-4 grid grid-cols-12 items-center gap-4">
                     <div className="col-span-8">
-                        <p className="font-headline text-base font-semibold truncate">{journal.journalName}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{journal.issn}</p>
+                        <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
                     </div>
                     <div className="col-span-2 text-center">
                         <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
@@ -266,7 +266,7 @@ export default function CategoryPage() {
                           {journal.authorityJournal === "一级" && <Crown className="h-4 w-4 text-amber-400" />}
                           {journal.authorityJournal === "二级" && <Medal className="h-4 w-4 text-slate-400" />}
                           {journal.authorityJournal === "三级" && <Star className="h-4 w-4 text-orange-400" />}
-                          <span className={cn("ml-1 text-base")}>
+                          <span className={cn("ml-1 text-lg")}>
                             {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
                           </span>
                        </div>

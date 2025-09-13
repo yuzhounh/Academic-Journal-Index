@@ -3,13 +3,31 @@
 import { useState, useMemo, ChangeEvent, useCallback } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Loader2 } from "lucide-react";
-import JournalDetail from "./JournalDetail";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, Loader2, Crown, Medal, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SearchPageProps {
   onJournalSelect: (journal: Journal) => void;
 }
+
+const partitionMap: { [key: string]: string } = {
+  "1": "一区",
+  "2": "二区",
+  "3": "三区",
+  "4": "四区",
+};
+
+const getPartitionColorClass = (partition: string): string => {
+    const mainPartition = partition.charAt(0);
+    switch (mainPartition) {
+        case '1': return "text-red-500";
+        case '2': return "text-orange-500";
+        case '3': return "text-yellow-600";
+        case '4': return "text-green-600";
+        default: return "text-muted-foreground";
+    }
+};
 
 export default function SearchPage({ onJournalSelect }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +46,7 @@ export default function SearchPage({ onJournalSelect }: SearchPageProps) {
         const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
         const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
         return factorB - factorA;
-      });
+      }).slice(0, 50); // Limit results for performance
   }, [searchTerm, journals]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -67,18 +85,33 @@ export default function SearchPage({ onJournalSelect }: SearchPageProps) {
             </div>
         )}
         {filteredJournals.length > 0 && (
-            <div className="grid gap-4">
+            <div className="space-y-4">
                 {filteredJournals.map((journal) => (
                     <Card
                     key={journal.issn}
-                    className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200"
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
                     onClick={() => onJournalSelect(journal)}
                     >
-                    <CardHeader>
-                        <CardTitle className="font-headline text-xl">{journal.journalName}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-muted-foreground">{journal.issn}</p>
+                    <CardContent className="p-4 grid grid-cols-12 items-center gap-4">
+                      <div className="col-span-8">
+                          <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                          <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
+                      </div>
+                      <div className="col-span-2 text-center">
+                          <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                          <p className="font-medium text-base">{journal.impactFactor}</p>
+                      </div>
+                      <div className="col-span-2 flex flex-col items-center justify-center text-center">
+                         <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
+                         <div className={cn("flex items-center font-semibold", getPartitionColorClass(journal.majorCategoryPartition))}>
+                            {journal.authorityJournal === "一级" && <Crown className="h-4 w-4 text-amber-400" />}
+                            {journal.authorityJournal === "二级" && <Medal className="h-4 w-4 text-slate-400" />}
+                            {journal.authorityJournal === "三级" && <Star className="h-4 w-4 text-orange-400" />}
+                            <span className={cn("ml-1 text-lg")}>
+                              {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                            </span>
+                         </div>
+                      </div>
                     </CardContent>
                     </Card>
                 ))}
