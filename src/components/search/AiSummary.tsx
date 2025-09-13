@@ -78,10 +78,10 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
                         onClick={() => onJournalSelect(relatedJournal.journalName)}
                       >
                           <CardHeader className="p-4 pb-2">
-                              <CardTitle className="text-sm font-medium leading-tight line-clamp-2">{relatedJournal.journalName}</CardTitle>
+                              <CardTitle className="text-base font-medium leading-tight line-clamp-2">{relatedJournal.journalName}</CardTitle>
                           </CardHeader>
                           <CardContent className="p-4 pt-1">
-                            <p className="text-xs text-muted-foreground">{relatedJournal.issn}</p>
+                            <p className="text-sm text-muted-foreground">{relatedJournal.issn}</p>
                           </CardContent>
                       </Card>
                   ))}
