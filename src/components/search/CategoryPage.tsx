@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookText, Loader2, Crown, Medal, Star } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
+import { cn } from "@/lib/utils";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -29,14 +30,14 @@ const partitionMap: { [key: string]: string } = {
   "4": "四区",
 };
 
-const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
+const getPartitionColorClass = (partition: string): string => {
     const mainPartition = partition.charAt(0);
     switch (mainPartition) {
-        case '1': return "level1";
-        case '2': return "level2";
-        case '3': return "level3";
-        case '4': return "level4";
-        default: return "secondary";
+        case '1': return "text-red-500";
+        case '2': return "text-orange-500";
+        case '3': return "text-yellow-600";
+        case '4': return "text-green-600";
+        default: return "text-muted-foreground";
     }
 };
 
@@ -259,13 +260,16 @@ export default function CategoryPage() {
                         <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
                         <p className="font-medium text-base">{journal.impactFactor}</p>
                     </div>
-                    <div className="col-span-2 flex items-center justify-center">
-                        <Badge variant={getPartitionBadgeVariant(journal.majorCategoryPartition)}>
-                            {journal.authorityJournal === "一级" && <Crown className="h-3 w-3 mr-1" />}
-                            {journal.authorityJournal === "二级" && <Medal className="h-3 w-3 mr-1" />}
-                            {journal.authorityJournal === "三级" && <Star className="h-3 w-3 mr-1" />}
+                    <div className="col-span-2 flex flex-col items-center justify-center text-center">
+                       <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
+                       <div className={cn("flex items-center font-semibold", getPartitionColorClass(journal.majorCategoryPartition))}>
+                          {journal.authorityJournal === "一级" && <Crown className="h-4 w-4 text-amber-400" />}
+                          {journal.authorityJournal === "二级" && <Medal className="h-4 w-4 text-slate-400" />}
+                          {journal.authorityJournal === "三级" && <Star className="h-4 w-4 text-orange-400" />}
+                          <span className={cn("ml-1 text-base")}>
                             {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                        </Badge>
+                          </span>
+                       </div>
                     </div>
                   </CardContent>
                 </Card>
