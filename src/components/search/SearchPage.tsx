@@ -13,13 +13,19 @@ export default function SearchPage() {
   const { journals, loading } = useJournals();
 
   const filteredJournals = useMemo(() => {
-    if (!searchTerm) {
+    if (searchTerm.length < 3) {
       return [];
     }
     const lowercasedTerm = searchTerm.toLowerCase();
-    return journals.filter((journal) =>
-      journal.journalName.toLowerCase().includes(lowercasedTerm)
-    );
+    return journals
+      .filter((journal) =>
+        journal.journalName.toLowerCase().includes(lowercasedTerm)
+      )
+      .sort((a, b) => {
+        const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
+        const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
+        return factorB - factorA;
+      });
   }, [searchTerm, journals]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,12 +80,12 @@ export default function SearchPage() {
           <JournalDetail journal={selectedJournal} onBack={handleClearSelection} />
         ) : (
           <div className="space-y-4">
-            {searchTerm && filteredJournals.length === 0 && (
+            {searchTerm.length >= 3 && filteredJournals.length === 0 && (
                 <div className="text-center py-10">
                     <p className="text-muted-foreground">No journals found for &quot;{searchTerm}&quot;.</p>
                 </div>
             )}
-            {searchTerm && filteredJournals.length > 0 && (
+            {filteredJournals.length > 0 && (
                 <div className="grid gap-4">
                     {filteredJournals.map((journal) => (
                         <Card
@@ -97,12 +103,12 @@ export default function SearchPage() {
                     ))}
                 </div>
             )}
-             {!searchTerm && (
+             {searchTerm.length < 3 && (
                 <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-medium text-foreground">Start your search</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Type in the search bar above to find journals.
+                        Enter at least 3 characters to begin searching.
                     </p>
                 </div>
             )}
