@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, ChangeEvent } from "react";
+import { useState, useMemo, ChangeEvent, useCallback } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +34,15 @@ export default function SearchPage() {
       setSelectedJournal(null);
     }
   };
+
+  const handleJournalSelectByName = useCallback((journalName: string) => {
+    const journal = journals.find(j => j.journalName === journalName);
+    if (journal) {
+        setSelectedJournal(journal);
+        setSearchTerm("");
+        window.scrollTo(0, 0);
+    }
+  }, [journals]);
 
   const handleJournalSelect = (journal: Journal) => {
     setSelectedJournal(journal);
@@ -77,7 +86,11 @@ export default function SearchPage() {
         </div>
 
         {selectedJournal ? (
-          <JournalDetail journal={selectedJournal} onBack={handleClearSelection} />
+          <JournalDetail 
+            journal={selectedJournal} 
+            onBack={handleClearSelection}
+            onJournalSelect={handleJournalSelectByName}
+          />
         ) : (
           <div className="space-y-4">
             {searchTerm.length >= 3 && filteredJournals.length === 0 && (

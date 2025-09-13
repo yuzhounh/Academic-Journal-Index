@@ -20,6 +20,7 @@ import {
   TrendingUp,
   BookMarked,
   Sparkles,
+  Award
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import AiSummary from "./AiSummary";
@@ -27,6 +28,7 @@ import AiSummary from "./AiSummary";
 interface JournalDetailProps {
   journal: Journal;
   onBack: () => void;
+  onJournalSelect: (journalName: string) => void;
 }
 
 const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string | number }) => (
@@ -40,7 +42,7 @@ const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label
 );
 
 
-export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
+export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
       <div className="flex items-center gap-4">
@@ -93,7 +95,7 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
                 <CardDescription>A concise summary of the journal's significance and impact.</CardDescription>
             </CardHeader>
             <CardContent>
-                <AiSummary journal={journal} />
+                <AiSummary journal={journal} onJournalSelect={onJournalSelect}/>
             </CardContent>
         </Card>
       </div>

@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { findJournalsTool } from '../tools/find-journals';
 
 const SummarizeJournalInfoInputSchema = z.object({
   journalName: z.string().describe('The name of the journal.'),
@@ -58,6 +59,10 @@ export type SummarizeJournalInfoInput = z.infer<
 
 const SummarizeJournalInfoOutputSchema = z.object({
   summary: z.string().describe('A summary of the journal information.'),
+  relatedJournals: z.array(z.object({
+    journalName: z.string().describe("The name of the related journal."),
+    issn: z.string().describe("The ISSN of the related journal."),
+  })).describe("A list of journals related to the current one.")
 });
 export type SummarizeJournalInfoOutput = z.infer<
   typeof SummarizeJournalInfoOutputSchema
@@ -73,9 +78,12 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   name: 'summarizeJournalInfoPrompt',
   input: {schema: SummarizeJournalInfoInputSchema},
   output: {schema: SummarizeJournalInfoOutputSchema},
+  tools: [findJournalsTool],
   prompt: `你是一位专业的期刊信息总结专家。
 
   请根据下面提供的期刊信息，用中文生成一段简明扼要的总结。总结应突出期刊的关键指标，如影响因子、学科分区排名和权威等级，并说明该期刊在其研究领域的重要性和地位。
+  
+  在总结下方，请使用 findJournalsTool 工具根据当前期刊的主要学科或次要学科，查找并列出 3-5 种相关的期刊。
 
   期刊名称: {{{journalName}}}
   年份: {{{year}}}

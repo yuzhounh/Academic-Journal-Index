@@ -3,10 +3,11 @@
 import {
   summarizeJournalInfo,
   type SummarizeJournalInfoInput,
+  type SummarizeJournalInfoOutput,
 } from "@/ai/flows/summarize-journal-info";
 import type { Journal } from "@/data/journals";
 
-export async function getSummary(journal: Journal): Promise<string> {
+export async function getSummary(journal: Journal): Promise<SummarizeJournalInfoOutput> {
   try {
     const input: SummarizeJournalInfoInput = {
       journalName: journal.journalName,
@@ -45,10 +46,13 @@ export async function getSummary(journal: Journal): Promise<string> {
     });
 
     const result = await summarizeJournalInfo(input);
-    return result.summary;
+    return result;
   } catch (error) {
     console.error("Error generating AI summary:", error);
     // Return a user-friendly error message
-    return "An error occurred while generating the summary. The AI service may be temporarily unavailable.";
+    return {
+        summary: "An error occurred while generating the summary. The AI service may be temporarily unavailable.",
+        relatedJournals: []
+    };
   }
 }
