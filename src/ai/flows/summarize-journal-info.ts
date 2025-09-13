@@ -79,6 +79,7 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   input: {schema: SummarizeJournalInfoInputSchema},
   output: {schema: SummarizeJournalInfoOutputSchema},
   tools: [findJournalsTool],
+  model: 'googleai/gemini-2.5-flash',
   prompt: `你是一位专业的期刊信息总结专家。
 
   请根据下面提供的期刊信息，用中文生成一段简明扼要的总结。总结应突出期刊的关键指标，如影响因子、学科分区排名和权威等级，并说明该期刊在其研究领域的重要性和地位。
