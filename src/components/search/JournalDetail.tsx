@@ -75,7 +75,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
             <Card className="lg:col-span-2">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                        <BookMarked className="text-primary"/>
+                        <Award className="text-primary"/>
                         CAS Partition
                     </CardTitle>
                     <CardDescription>Chinese Academy of Sciences (CAS) journal ranking.</CardDescription>

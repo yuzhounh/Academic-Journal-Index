@@ -50,6 +50,7 @@ export default function SearchPage() {
   
   const handleClearSelection = () => {
     setSelectedJournal(null);
+    setSearchTerm("");
   };
 
   if (loading) {
@@ -63,28 +64,25 @@ export default function SearchPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <div className="flex flex-col items-center text-center mb-8">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">
-          Academic Journal Index
-        </h1>
-        <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-          Instantly find detailed information and AI-powered insights for academic journals.
-        </p>
-      </div>
+       {!selectedJournal && (
+         <>
+          <div className="max-w-4xl mx-auto">
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Enter a journal name to search..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-10 h-12 text-lg"
+                aria-label="Search journals"
+              />
+            </div>
+          </div>
+         </>
+       )}
 
       <div className="max-w-4xl mx-auto">
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Enter a journal name to search..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full pl-10 h-12 text-lg"
-            aria-label="Search journals"
-          />
-        </div>
-
         {selectedJournal ? (
           <JournalDetail 
             journal={selectedJournal} 
@@ -116,10 +114,10 @@ export default function SearchPage() {
                     ))}
                 </div>
             )}
-             {searchTerm.length < 3 && (
+             {searchTerm.length > 0 && searchTerm.length < 3 && (
                 <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-medium text-foreground">Start your search</h3>
+                    <h3 className="mt-4 text-lg font-medium text-foreground">Continue typing...</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                         Enter at least 3 characters to begin searching.
                     </p>

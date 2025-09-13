@@ -1,9 +1,9 @@
-import SearchPage from '@/components/search/SearchPage';
+import CategoryPage from '@/components/search/CategoryPage';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <SearchPage />
+      <CategoryPage />
     </main>
   );
 }
