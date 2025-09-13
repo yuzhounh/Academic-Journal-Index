@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -109,6 +110,10 @@ const getPaginationItems = (currentPage: number, totalPages: number, onPageChang
     );
 };
 
+const extractRank = (partition: string): number => {
+  const match = partition.match(/\[(\d+)\//);
+  return match ? parseInt(match[1], 10) : Infinity;
+};
 
 export default function CategoryPage() {
   const { journals, loading } = useJournals();
@@ -137,9 +142,9 @@ export default function CategoryPage() {
     return journals
         .filter((j) => j.majorCategory === selectedCategory)
         .sort((a, b) => {
-            const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
-            const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
-            return factorB - factorA;
+            const rankA = extractRank(a.majorCategoryPartition);
+            const rankB = extractRank(b.majorCategoryPartition);
+            return rankA - rankB;
         });
   }, [journals, selectedCategory]);
 
@@ -195,7 +200,7 @@ export default function CategoryPage() {
   
   if (selectedJournal) {
       return (
-        <div className="container mx-auto p-4 md:p-8">
+        <div className="max-w-4xl mx-auto p-4 md:p-8">
             <JournalDetail 
                 journal={selectedJournal} 
                 onBack={handleBackToJournalList}
