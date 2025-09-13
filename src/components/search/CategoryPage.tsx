@@ -3,7 +3,12 @@
 import { useState, useMemo, useCallback } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
@@ -12,7 +17,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookText, Loader2, Crown, Medal, Star } from "lucide-react";
 import JournalDetail from "./JournalDetail";
@@ -29,84 +34,93 @@ const partitionMap: { [key: string]: string } = {
 };
 
 const getPartitionColorClass = (partition: string): string => {
-    const mainPartition = partition.charAt(0);
-    switch (mainPartition) {
-        case '1': return "text-red-500";
-        case '2': return "text-orange-500";
-        case '3': return "text-yellow-600";
-        case '4': return "text-green-600";
-        default: return "text-muted-foreground";
-    }
-};
-
-const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
-    const mainPartition = partition.charAt(0);
-    switch (mainPartition) {
-        case '1': return "level1";
-        case '2': return "level2";
-        case '3': return "level3";
-        case '4': return "level4";
-        default: return "secondary";
-    }
+  const mainPartition = partition.charAt(0);
+  switch (mainPartition) {
+    case "1":
+      return "text-red-500";
+    case "2":
+      return "text-orange-500";
+    case "3":
+      return "text-yellow-600";
+    case "4":
+      return "text-green-600";
+    default:
+      return "text-muted-foreground";
+  }
 };
 
 // Helper function to generate pagination items
-const getPaginationItems = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
-    const pages = [];
-    const pageLimit = 5; // how many numbers to show around current page, start, and end
-    
-    const range = (start: number, end: number) => {
-        const length = end - start + 1;
-        return Array.from({ length }, (_, i) => start + i);
-    };
+const getPaginationItems = (
+  currentPage: number,
+  totalPages: number,
+  onPageChange: (page: number) => void
+) => {
+  const pages = [];
+  const pageLimit = 5; // how many numbers to show around current page, start, and end
 
-    const renderPage = (pageNumber: number) => (
-        <PaginationItem key={pageNumber}>
-            <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(pageNumber); }} isActive={currentPage === pageNumber}>
-                {pageNumber}
-            </PaginationLink>
-        </PaginationItem>
-    );
+  const range = (start: number, end: number) => {
+    const length = end - start + 1;
+    return Array.from({ length }, (_, i) => start + i);
+  };
 
-    const renderEllipsis = (key: string) => <PaginationItem key={key}><PaginationEllipsis /></PaginationItem>;
+  const renderPage = (pageNumber: number) => (
+    <PaginationItem key={pageNumber}>
+      <PaginationLink
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          onPageChange(pageNumber);
+        }}
+        isActive={currentPage === pageNumber}
+      >
+        {pageNumber}
+      </PaginationLink>
+    </PaginationItem>
+  );
 
-    if (totalPages <= pageLimit * 2 + 1) { // Show all pages if total is small enough
-        return range(1, totalPages).map(p => renderPage(p));
-    }
+  const renderEllipsis = (key: string) => (
+    <PaginationItem key={key}>
+      <PaginationEllipsis />
+    </PaginationItem>
+  );
 
-    // Start pages
-    pages.push(...range(1, pageLimit).map(p => renderPage(p)));
+  if (totalPages <= pageLimit * 2 + 1) {
+    // Show all pages if total is small enough
+    return range(1, totalPages).map((p) => renderPage(p));
+  }
 
-    // Ellipsis after start
-    if (currentPage > pageLimit + 2) {
-        pages.push(renderEllipsis("start-ellipsis"));
-    }
+  // Start pages
+  pages.push(...range(1, pageLimit).map((p) => renderPage(p)));
 
-    // Middle pages
-    const middleStart = Math.max(pageLimit + 1, currentPage - 2);
-    const middleEnd = Math.min(totalPages - pageLimit, currentPage + 2);
-    
-    if (middleStart > pageLimit + 1 && middleStart <= totalPages - pageLimit) {
-         pages.push(...range(middleStart, middleEnd).map(p => renderPage(p)))
-    } else if (currentPage > pageLimit && currentPage <= totalPages-pageLimit) {
-        pages.push(...range(currentPage-2, currentPage+2).map(p => renderPage(p)))
-    }
+  // Ellipsis after start
+  if (currentPage > pageLimit + 2) {
+    pages.push(renderEllipsis("start-ellipsis"));
+  }
 
+  // Middle pages
+  const middleStart = Math.max(pageLimit + 1, currentPage - 2);
+  const middleEnd = Math.min(totalPages - pageLimit, currentPage + 2);
 
-    // Ellipsis before end
-    if (currentPage < totalPages - pageLimit -1) {
-        pages.push(renderEllipsis("end-ellipsis"));
-    }
+  if (middleStart > pageLimit + 1 && middleStart <= totalPages - pageLimit) {
+    pages.push(...range(middleStart, middleEnd).map((p) => renderPage(p)));
+  } else if (currentPage > pageLimit && currentPage <= totalPages - pageLimit) {
+    pages.push(...range(currentPage - 2, currentPage + 2).map((p) => renderPage(p)));
+  }
 
-    // End pages
-    pages.push(...range(totalPages - pageLimit + 1, totalPages).map(p => renderPage(p)));
-    
-    // De-duplicate pages
-    const uniquePages = pages.filter((item, index, self) => 
-        index === self.findIndex((t) => t.key === item.key)
-    );
+  // Ellipsis before end
+  if (currentPage < totalPages - pageLimit - 1) {
+    pages.push(renderEllipsis("end-ellipsis"));
+  }
 
-    return uniquePages;
+  // End pages
+  pages.push(...range(totalPages - pageLimit + 1, totalPages).map((p) => renderPage(p)));
+
+  // De-duplicate pages
+  const uniquePages = pages.filter(
+    (item, index, self) => index === self.findIndex((t) => t.key === item.key)
+  );
+
+  return uniquePages;
 };
 
 const extractRank = (partition: string): number => {
@@ -119,37 +133,45 @@ export default function CategoryPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [view, setView] = useState<'categories' | 'search'>('search');
+  const [view, setView] = useState<"categories" | "search">("search");
+  const [previousView, setPreviousView] = useState<"categories" | "search">("search");
+
 
   const categories = useMemo(() => {
     if (loading) return {};
     const categoryCounts: { [key: string]: number } = {};
     journals.forEach((journal) => {
       if (journal.majorCategory) {
-        categoryCounts[journal.majorCategory] = (categoryCounts[journal.majorCategory] || 0) + 1;
+        categoryCounts[journal.majorCategory] =
+          (categoryCounts[journal.majorCategory] || 0) + 1;
       }
     });
     return categoryCounts;
   }, [journals, loading]);
 
   const sortedCategories = useMemo(() => {
-    return Object.entries(categories).sort(([, countA], [, countB]) => countB - countA);
+    return Object.entries(categories).sort(
+      ([, countA], [, countB]) => countB - countA
+    );
   }, [categories]);
 
   const journalsForCategory = useMemo(() => {
     if (!selectedCategory) return [];
     return journals
-        .filter((j) => j.majorCategory === selectedCategory)
-        .sort((a, b) => {
-            const rankA = extractRank(a.majorCategoryPartition);
-            const rankB = extractRank(b.majorCategoryPartition);
-            return rankA - rankB;
-        });
+      .filter((j) => j.majorCategory === selectedCategory)
+      .sort((a, b) => {
+        const rankA = extractRank(a.majorCategoryPartition);
+        const rankB = extractRank(b.majorCategoryPartition);
+        return rankA - rankB;
+      });
   }, [journals, selectedCategory]);
 
   const paginatedJournals = useMemo(() => {
     const startIndex = (currentPage - 1) * JOURNALS_PER_PAGE;
-    return journalsForCategory.slice(startIndex, startIndex + JOURNALS_PER_PAGE);
+    return journalsForCategory.slice(
+      startIndex,
+      startIndex + JOURNALS_PER_PAGE
+    );
   }, [journalsForCategory, currentPage]);
 
   const totalPages = Math.ceil(journalsForCategory.length / JOURNALS_PER_PAGE);
@@ -158,28 +180,33 @@ export default function CategoryPage() {
     setSelectedCategory(category);
     setCurrentPage(1);
     setSelectedJournal(null);
-    setView('categories');
   };
 
   const handleJournalSelect = (journal: Journal) => {
+    setPreviousView(view);
     setSelectedJournal(journal);
   };
-  
-  const handleJournalSelectByName = useCallback((journalName: string) => {
-    const journal = journals.find(j => j.journalName === journalName);
-    if (journal) {
+
+  const handleJournalSelectByName = useCallback(
+    (journalName: string) => {
+      const journal = journals.find((j) => j.journalName === journalName);
+      if (journal) {
+        setPreviousView(view);
         setSelectedJournal(journal);
         window.scrollTo(0, 0);
-    }
-  }, [journals]);
+      }
+    },
+    [journals, view]
+  );
 
   const handleBackToCategories = () => {
     setSelectedCategory(null);
     setSelectedJournal(null);
   };
-  
+
   const handleBackFromDetail = () => {
     setSelectedJournal(null);
+    setView(previousView);
   };
 
   const handlePageChange = (page: number) => {
@@ -188,6 +215,12 @@ export default function CategoryPage() {
       window.scrollTo(0, 0);
     }
   };
+  
+  const handleViewChange = (newView: 'search' | 'categories') => {
+    setView(newView);
+    setSelectedCategory(null);
+    setSelectedJournal(null);
+  }
 
   if (loading) {
     return (
@@ -197,121 +230,168 @@ export default function CategoryPage() {
       </div>
     );
   }
-  
+
   if (selectedJournal) {
-      return (
-        <div className="py-4 md:py-8">
-            <JournalDetail 
-                journal={selectedJournal} 
-                onBack={handleBackFromDetail}
-                onJournalSelect={handleJournalSelectByName}
-            />
-        </div>
-      )
+    return (
+      <div className="py-4 md:py-8">
+        <JournalDetail
+          journal={selectedJournal}
+          onBack={handleBackFromDetail}
+          onJournalSelect={handleJournalSelectByName}
+        />
+      </div>
+    );
   }
 
   const renderContent = () => {
     switch (view) {
-        case 'search':
-            return <SearchPage onJournalSelect={handleJournalSelect} />;
-        case 'categories':
-            if (selectedCategory) {
-                 return (
-                    <div className="animate-in fade-in-50 duration-300">
-                      <div className="flex items-center gap-4 mb-6">
-                        <Button variant="outline" size="icon" onClick={handleBackToCategories}>
-                          <ArrowLeft className="h-4 w-4" />
-                        </Button>
-                        <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{selectedCategory}</h2>
+      case "search":
+        return <SearchPage onJournalSelect={handleJournalSelect} />;
+      case "categories":
+        if (selectedCategory) {
+          return (
+            <div className="animate-in fade-in-50 duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleBackToCategories}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
+                  {selectedCategory}
+                </h2>
+              </div>
+              <div className="space-y-4">
+                {paginatedJournals.map((journal) => (
+                  <Card
+                    key={journal.issn}
+                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
+                    onClick={() => handleJournalSelect(journal)}
+                  >
+                    <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+                      <div className="col-span-7">
+                        <p className="font-headline text-lg font-semibold truncate">
+                          {journal.journalName}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {journal.issn}
+                        </p>
                       </div>
-                      <div className="space-y-4">
-                        {paginatedJournals.map((journal) => (
-                            <Card 
-                                key={journal.issn}
-                                className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
-                                onClick={() => handleJournalSelect(journal)}
-                            >
-                                <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
-                                    <div className="col-span-7">
-                                        <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
-                                        <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
-                                    </div>
-                                    <div className="col-span-2 text-center">
-                                        <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                                        <p className="font-medium text-lg">{journal.impactFactor}</p>
-                                    </div>
-                                    <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                                        <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
-                                        <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
-                                            {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400 mr-1" />}
-                                            {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400 mr-1" />}
-                                            {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400 mr-1" />}
-                                            <span className={cn("ml-1")}>
-                                                {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                      <div className="col-span-2 text-center">
+                        <p className="text-xs text-muted-foreground font-semibold">
+                          Impact Factor
+                        </p>
+                        <p className="font-medium text-lg">
+                          {journal.impactFactor}
+                        </p>
                       </div>
-
-                      {totalPages > 1 && (
-                        <Pagination className="mt-8">
-                          <PaginationContent>
-                            <PaginationItem>
-                              <PaginationPrevious 
-                                href="#" 
-                                onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }}
-                                aria-disabled={currentPage === 1}
-                                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                              />
-                            </PaginationItem>
-                            
-                            {getPaginationItems(currentPage, totalPages, handlePageChange)}
-
-                            <PaginationItem>
-                              <PaginationNext 
-                                href="#" 
-                                onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} 
-                                aria-disabled={currentPage === totalPages}
-                                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                              />
-                            </PaginationItem>
-                          </PaginationContent>
-                        </Pagination>
-                      )}
-                    </div>
-                  );
-            } else {
-                 return (
-                    <div className="animate-in fade-in-50 duration-300">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {sortedCategories.map(([category, count]) => (
-                            <Card
-                            key={category}
-                            className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
-                            onClick={() => handleCategorySelect(category)}
-                            >
-                            <CardHeader className="flex-grow pb-2">
-                                <CardTitle className="font-headline text-xl">{category}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="flex items-center text-sm text-muted-foreground">
-                                    <BookText className="w-4 h-4 mr-2" />
-                                    <span>{count} journals</span>
-                                </div>
-                            </CardContent>
-                            </Card>
-                        ))}
+                      <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                        <p className="text-xs text-muted-foreground font-semibold mb-1">
+                          CAS Partition
+                        </p>
+                        <div
+                          className={cn(
+                            "flex items-center font-semibold text-lg",
+                            getPartitionColorClass(
+                              journal.majorCategoryPartition
+                            )
+                          )}
+                        >
+                          {journal.authorityJournal === "一级" && (
+                            <Crown className="h-5 w-5 text-amber-400 mr-1" />
+                          )}
+                          {journal.authorityJournal === "二级" && (
+                            <Medal className="h-5 w-5 text-slate-400 mr-1" />
+                          )}
+                          {journal.authorityJournal === "三级" && (
+                            <Star className="h-5 w-5 text-orange-400 mr-1" />
+                          )}
+                          <span className={cn("ml-1")}>
+                            {partitionMap[
+                              journal.majorCategoryPartition.charAt(0)
+                            ] || journal.majorCategoryPartition}
+                          </span>
                         </div>
-                    </div>
-                );
-            }
-        default:
-            return null;
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage - 1);
+                        }}
+                        aria-disabled={currentPage === 1}
+                        className={
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPaginationItems(currentPage, totalPages, handlePageChange)}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage + 1);
+                        }}
+                        aria-disabled={currentPage === totalPages}
+                        className={
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </div>
+          );
+        } else {
+          return (
+            <div className="animate-in fade-in-50 duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {sortedCategories.map(([category, count]) => (
+                  <Card
+                    key={category}
+                    className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
+                    onClick={() => handleCategorySelect(category)}
+                  >
+                    <CardHeader className="flex-grow pb-2">
+                      <CardTitle className="font-headline text-xl">
+                        {category}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <BookText className="w-4 h-4 mr-2" />
+                        <span>{count} journals</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          );
+        }
+      default:
+        return null;
     }
-  }
+  };
 
   return (
     <div className="py-4 md:py-8">
@@ -320,11 +400,22 @@ export default function CategoryPage() {
           Academic Journal Index
         </h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-          Browse journals by category or use the search to find specific titles.
+          Browse journals by category or use the search to find specific
+          titles.
         </p>
-         <div className="mt-4 flex gap-2">
-            <Button onClick={() => setView('search')} variant={view === 'search' ? 'default' : 'outline'}>Search Journals</Button>
-            <Button onClick={() => { setView('categories'); setSelectedCategory(null); }} variant={view === 'categories' ? 'default' : 'outline'}>Browse Categories</Button>
+        <div className="mt-4 flex gap-2">
+          <Button
+            onClick={() => handleViewChange("search")}
+            variant={view === "search" ? "default" : "outline"}
+          >
+            Search Journals
+          </Button>
+          <Button
+            onClick={() => handleViewChange("categories")}
+            variant={view === "categories" ? "default" : "outline"}
+          >
+            Browse Categories
+          </Button>
         </div>
       </div>
       {renderContent()}
