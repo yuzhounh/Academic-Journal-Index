@@ -74,14 +74,14 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
                   {relatedJournals.map((relatedJournal, index) => (
                       <Card 
                         key={index} 
-                        className="cursor-pointer hover:shadow-md transition-shadow"
+                        className="cursor-pointer hover:shadow-md transition-shadow flex flex-col"
                         onClick={() => onJournalSelect(relatedJournal.journalName)}
                       >
-                          <CardHeader>
-                              <CardTitle className="text-base font-medium">{relatedJournal.journalName}</CardTitle>
+                          <CardHeader className="p-4 pb-2">
+                              <CardTitle className="text-sm font-medium leading-tight line-clamp-2">{relatedJournal.journalName}</CardTitle>
                           </CardHeader>
-                          <CardContent>
-                            <p className="text-sm text-muted-foreground">{relatedJournal.issn}</p>
+                          <CardContent className="p-4 pt-1">
+                            <p className="text-xs text-muted-foreground">{relatedJournal.issn}</p>
                           </CardContent>
                       </Card>
                   ))}
