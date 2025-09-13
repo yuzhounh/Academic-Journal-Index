@@ -24,42 +24,24 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // AbortController to prevent race conditions from multiple requests
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-
     const fetchSummary = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // The summary is now fetched via an action that can't be aborted directly,
-        // but we can check the signal to prevent setting state if the component has unmounted
-        // or a new request has been made.
         const result = await getSummary(journal);
-        if (!signal.aborted) {
-            setSummary(result.summary);
-            setRelatedJournals(result.relatedJournals || []);
-        }
+        setSummary(result.summary);
+        setRelatedJournals(result.relatedJournals || []);
       } catch (e) {
-        if (!signal.aborted) {
-            setError("Failed to generate summary.");
-            console.error(e);
-        }
+        setError("Failed to generate summary.");
+        console.error(e);
       } finally {
-        if (!signal.aborted) {
-            setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     if (journal) {
       fetchSummary();
     }
-
-    // Cleanup function to abort the fetch if the component unmounts or the journal changes
-    return () => {
-      abortController.abort();
-    };
   }, [journal]);
 
   if (isLoading) {

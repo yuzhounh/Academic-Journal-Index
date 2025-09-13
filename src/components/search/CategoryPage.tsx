@@ -237,7 +237,7 @@ export default function CategoryPage() {
 
   if (selectedJournal) {
     return (
-      <div className="py-4 md:py-8 max-w-5xl mx-auto">
+      <div className="py-4 md:py-8">
         <JournalDetail
           journal={selectedJournal}
           onBack={handleBackFromDetail}
