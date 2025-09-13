@@ -49,6 +49,17 @@ const getPartitionColorClass = (partition: string): string => {
   }
 };
 
+const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
+    const mainPartition = partition.charAt(0);
+    switch (mainPartition) {
+        case '1': return "level1";
+        case '2': return "level2";
+        case '3': return "level3";
+        case '4': return "level4";
+        default: return "secondary";
+    }
+};
+
 // Helper function to generate pagination items
 const getPaginationItems = (
   currentPage: number,
@@ -206,6 +217,7 @@ export default function CategoryPage() {
 
   const handleBackFromDetail = () => {
     setSelectedJournal(null);
+    setSelectedCategory(null); // Ensure category is also cleared to avoid re-render issues
     setView(previousView);
   };
 
@@ -233,7 +245,7 @@ export default function CategoryPage() {
 
   if (selectedJournal) {
     return (
-      <div className="py-4 md:py-8">
+      <div className="py-4 md:py-8 max-w-5xl mx-auto">
         <JournalDetail
           journal={selectedJournal}
           onBack={handleBackFromDetail}
