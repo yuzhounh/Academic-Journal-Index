@@ -72,7 +72,7 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
 
   return (
     <div className="w-full">
-      <div className="relative mb-6 max-w-2xl mx-auto">
+      <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="text"
@@ -85,7 +85,7 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
       </div>
 
       {showInitialMessage && (
-          <div className="text-center py-12 px-4 border-2 border-dashed rounded-lg max-w-2xl mx-auto">
+          <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
               <Search className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium text-foreground">Start your search</h3>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -100,7 +100,7 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
       )}
 
       {filteredJournals.length > 0 && (
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <div className="space-y-4">
           {filteredJournals.map((journal) => (
             <Card
               key={journal.issn}
