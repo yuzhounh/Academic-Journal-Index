@@ -208,7 +208,8 @@ export default function CategoryPage() {
 
   const handleBackFromDetail = () => {
     setSelectedJournal(null);
-    // No need to reset view, it should persist
+    // No need to reset view, it should persist.
+    // The search term is preserved in `preservedSearchTerm`
   };
 
   const handlePageChange = (page: number) => {
@@ -268,7 +269,7 @@ export default function CategoryPage() {
               </div>
               <div className="space-y-4">
                 {paginatedJournals.map((journal) => (
-                  <Card
+                   <Card
                     key={journal.issn}
                     className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
                     onClick={() => handleJournalSelect(journal)}
@@ -403,8 +404,8 @@ export default function CategoryPage() {
           Academic Journal Index
         </h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-          Browse journals by category or use the search to find specific
-          titles.
+          Use the search to find specific titles or browse journals by
+          category.
         </p>
         <div className="mt-4 flex gap-2">
           <Button
