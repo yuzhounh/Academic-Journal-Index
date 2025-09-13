@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, ChangeEvent, useCallback } from "react";
+import { useState, useMemo, ChangeEvent, useEffect } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +8,8 @@ import { Search, Loader2, Crown, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SearchPageProps {
-  onJournalSelect: (journal: Journal) => void;
+  onJournalSelect: (journal: Journal, searchTerm: string) => void;
+  initialSearchTerm?: string;
 }
 
 const partitionMap: { [key: string]: string } = {
@@ -29,9 +30,13 @@ const getPartitionColorClass = (partition: string): string => {
     }
 };
 
-export default function SearchPage({ onJournalSelect }: SearchPageProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const { journals, loading: journalsLoading } = useJournals();
+
+  useEffect(() => {
+    setSearchTerm(initialSearchTerm);
+  }, [initialSearchTerm]);
 
   const filteredJournals = useMemo(() => {
     if (searchTerm.length < 3) {
@@ -88,26 +93,26 @@ export default function SearchPage({ onJournalSelect }: SearchPageProps) {
             <div className="space-y-4">
                 {filteredJournals.map((journal) => (
                     <Card
-                    key={journal.issn}
-                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
-                    onClick={() => onJournalSelect(journal)}
+                      key={journal.issn}
+                      className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
+                      onClick={() => onJournalSelect(journal, searchTerm)}
                     >
-                    <CardContent className="p-4 grid grid-cols-12 items-center gap-4">
-                      <div className="col-span-8">
+                    <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+                      <div className="col-span-7">
                           <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
                           <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
                       </div>
                       <div className="col-span-2 text-center">
                           <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                          <p className="font-medium text-base">{journal.impactFactor}</p>
+                          <p className="font-medium text-lg">{journal.impactFactor}</p>
                       </div>
-                      <div className="col-span-2 flex flex-col items-center justify-center text-center">
-                         <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
-                         <div className={cn("flex items-center font-semibold", getPartitionColorClass(journal.majorCategoryPartition))}>
-                            {journal.authorityJournal === "一级" && <Crown className="h-4 w-4 text-amber-400" />}
-                            {journal.authorityJournal === "二级" && <Medal className="h-4 w-4 text-slate-400" />}
-                            {journal.authorityJournal === "三级" && <Star className="h-4 w-4 text-orange-400" />}
-                            <span className={cn("ml-1 text-lg")}>
+                      <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                         <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
+                         <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
+                            {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400 mr-1" />}
+                            {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400 mr-1" />}
+                            {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400 mr-1" />}
+                            <span className={cn("ml-1")}>
                               {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
                             </span>
                          </div>

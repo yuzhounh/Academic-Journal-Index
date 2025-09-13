@@ -18,7 +18,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookText, Loader2, Crown, Medal, Star } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
@@ -47,17 +46,6 @@ const getPartitionColorClass = (partition: string): string => {
     default:
       return "text-muted-foreground";
   }
-};
-
-const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
-    const mainPartition = partition.charAt(0);
-    switch (mainPartition) {
-        case '1': return "level1";
-        case '2': return "level2";
-        case '3': return "level3";
-        case '4': return "level4";
-        default: return "secondary";
-    }
 };
 
 // Helper function to generate pagination items
@@ -145,7 +133,9 @@ export default function CategoryPage() {
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<"categories" | "search">("search");
-  const [previousView, setPreviousView] = useState<"categories" | "search">("search");
+  
+  // State to preserve search query when navigating to detail view
+  const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
 
 
   const categories = useMemo(() => {
@@ -193,8 +183,10 @@ export default function CategoryPage() {
     setSelectedJournal(null);
   };
 
-  const handleJournalSelect = (journal: Journal) => {
-    setPreviousView(view);
+  const handleJournalSelect = (journal: Journal, searchTerm: string = "") => {
+    if (view === 'search') {
+      setPreservedSearchTerm(searchTerm);
+    }
     setSelectedJournal(journal);
   };
 
@@ -202,12 +194,11 @@ export default function CategoryPage() {
     (journalName: string) => {
       const journal = journals.find((j) => j.journalName === journalName);
       if (journal) {
-        setPreviousView(view);
         setSelectedJournal(journal);
         window.scrollTo(0, 0);
       }
     },
-    [journals, view]
+    [journals]
   );
 
   const handleBackToCategories = () => {
@@ -217,8 +208,7 @@ export default function CategoryPage() {
 
   const handleBackFromDetail = () => {
     setSelectedJournal(null);
-    setSelectedCategory(null); // Ensure category is also cleared to avoid re-render issues
-    setView(previousView);
+    // No need to reset view, it should persist
   };
 
   const handlePageChange = (page: number) => {
@@ -232,6 +222,7 @@ export default function CategoryPage() {
     setView(newView);
     setSelectedCategory(null);
     setSelectedJournal(null);
+    setPreservedSearchTerm("");
   }
 
   if (loading) {
@@ -258,7 +249,7 @@ export default function CategoryPage() {
   const renderContent = () => {
     switch (view) {
       case "search":
-        return <SearchPage onJournalSelect={handleJournalSelect} />;
+        return <SearchPage onJournalSelect={handleJournalSelect} initialSearchTerm={preservedSearchTerm} />;
       case "categories":
         if (selectedCategory) {
           return (
