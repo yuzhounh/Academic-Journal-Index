@@ -16,7 +16,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookText, Loader2, Crown } from "lucide-react";
+import { ArrowLeft, BookText, Loader2, Crown, Medal, Star } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 
@@ -184,7 +184,7 @@ export default function CategoryPage() {
   
   if (selectedJournal) {
       return (
-        <div className="py-4 md:py-8 max-w-5xl mx-auto">
+        <div className="py-4 md:py-8">
             <JournalDetail 
                 journal={selectedJournal} 
                 onBack={handleBackToJournalList}
@@ -259,10 +259,11 @@ export default function CategoryPage() {
                         <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
                         <p className="font-medium text-base">{journal.impactFactor}</p>
                     </div>
-                    <div className="col-span-2 text-center">
-                        <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
+                    <div className="col-span-2 flex items-center justify-center">
                         <Badge variant={getPartitionBadgeVariant(journal.majorCategoryPartition)}>
                             {journal.authorityJournal === "一级" && <Crown className="h-3 w-3 mr-1" />}
+                            {journal.authorityJournal === "二级" && <Medal className="h-3 w-3 mr-1" />}
+                            {journal.authorityJournal === "三级" && <Star className="h-3 w-3 mr-1" />}
                             {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
                         </Badge>
                     </div>
