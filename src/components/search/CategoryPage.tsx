@@ -243,6 +243,9 @@ export default function CategoryPage() {
           onBack={handleBackFromDetail}
           onJournalSelect={handleJournalSelectByName}
         />
+         <footer className="text-center text-sm text-muted-foreground mt-8 py-4 border-t">
+          © 2025 Jing Wang. All Rights Reserved.
+        </footer>
       </div>
     );
   }
@@ -398,30 +401,37 @@ export default function CategoryPage() {
   };
 
   return (
-    <div className="py-4 md:py-8">
-      <div className="flex flex-col items-center text-center mb-8">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">
-          Academic Journal Index
-        </h1>
-        <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-          Search journals by title or browse journals by category.
-        </p>
-        <div className="mt-4 flex gap-2">
-          <Button
-            onClick={() => handleViewChange("search")}
-            variant={view === "search" ? "default" : "outline"}
-          >
-            Search Journals
-          </Button>
-          <Button
-            onClick={() => handleViewChange("categories")}
-            variant={view === "categories" ? "default" : "outline"}
-          >
-            Browse Categories
-          </Button>
+    <>
+      <div className="py-4 md:py-8">
+        <div className="flex flex-col items-center text-center mb-8">
+          <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">
+            Academic Journal Index
+          </h1>
+          <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
+            Search journals by title or browse journals by category.
+          </p>
+          <div className="mt-4 flex gap-2">
+            <Button
+              onClick={() => handleViewChange("search")}
+              variant={view === "search" ? "default" : "outline"}
+            >
+              Search Journals
+            </Button>
+            <Button
+              onClick={() => handleViewChange("categories")}
+              variant={view === "categories" ? "default" : "outline"}
+            >
+              Browse Categories
+            </Button>
+          </div>
         </div>
+        {renderContent()}
       </div>
-      {renderContent()}
-    </div>
+      <footer className="text-center text-sm text-muted-foreground py-4 border-t">
+        © 2025 Jing Wang. All Rights Reserved.
+        <br />
+        Last Updated: September 2025
+      </footer>
+    </>
   );
 }
