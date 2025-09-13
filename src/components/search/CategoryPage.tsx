@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -50,10 +51,8 @@ const getPartitionBadgeVariant = (journal: Journal) => {
 // Helper function to generate pagination items
 const getPaginationItems = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
     const pages = [];
-    const pageLimit = 5;
-    const boundaryCount = 2; // Pages to show at start and end
-    const siblingCount = 2; // Pages to show around current page
-
+    const pageLimit = 5; // how many numbers to show around current page, start, and end
+    
     const range = (start: number, end: number) => {
         const length = end - start + 1;
         return Array.from({ length }, (_, i) => start + i);
@@ -69,37 +68,45 @@ const getPaginationItems = (currentPage: number, totalPages: number, onPageChang
 
     const renderEllipsis = (key: string) => <PaginationItem key={key}><PaginationEllipsis /></PaginationItem>;
 
-    if (totalPages <= (2 * boundaryCount) + (2 * siblingCount) + 3) {
+    if (totalPages <= pageLimit * 3) {
         return range(1, totalPages).map(p => renderPage(p));
     }
 
-    const leftBoundary = range(1, boundaryCount);
-    const rightBoundary = range(totalPages - boundaryCount + 1, totalPages);
+    const startPages = range(1, pageLimit);
+    const endPages = range(totalPages - pageLimit + 1, totalPages);
+    
+    let middlePages = [];
+    let showStartEllipsis = false;
+    let showEndEllipsis = false;
 
-    const leftSibling = Math.max(currentPage - siblingCount, boundaryCount + 1);
-    const rightSibling = Math.min(currentPage + siblingCount, totalPages - boundaryCount);
-
-    const showLeftEllipsis = leftSibling > boundaryCount + 1;
-    const showRightEllipsis = rightSibling < totalPages - boundaryCount;
-
-    pages.push(...leftBoundary.map(p => renderPage(p)));
-    if (showLeftEllipsis) pages.push(renderEllipsis("left-ellipsis"));
-
-    if (!showLeftEllipsis && showRightEllipsis) {
-        const middleRange = range(boundaryCount + 1, Math.min(totalPages-boundaryCount, boundaryCount + 2 * siblingCount + 1));
-        pages.push(...middleRange.map(p => renderPage(p)));
-    } else if (showLeftEllipsis && !showRightEllipsis) {
-        const middleRange = range(Math.max(1, totalPages - boundaryCount - 2 * siblingCount), totalPages - boundaryCount);
-        pages.push(...middleRange.map(p => renderPage(p)));
-    } else if (showLeftEllipsis && showRightEllipsis) {
-        const middleRange = range(leftSibling, rightSibling);
-        pages.push(...middleRange.map(p => renderPage(p)));
+    if (currentPage <= pageLimit + 2) {
+        middlePages = range(pageLimit + 1, pageLimit + 3);
+        showEndEllipsis = true;
+    } else if (currentPage >= totalPages - pageLimit - 1) {
+        middlePages = range(totalPages - pageLimit - 2, totalPages - pageLimit);
+        showStartEllipsis = true;
+    } else {
+        middlePages = range(currentPage - Math.floor(pageLimit/2), currentPage + Math.floor(pageLimit/2));
+        showStartEllipsis = true;
+        showEndEllipsis = true;
     }
     
-    if (showRightEllipsis) pages.push(renderEllipsis("right-ellipsis"));
-    pages.push(...rightBoundary.map(p => renderPage(p)));
+    pages.push(...startPages.map(p => renderPage(p)));
+    if (showStartEllipsis) {
+        pages.push(renderEllipsis("start-ellipsis"));
+    }
+    pages.push(...middlePages.map(p => renderPage(p)));
+    if (showEndEllipsis) {
+        pages.push(renderEllipsis("end-ellipsis"));
+    }
+    pages.push(...endPages.map(p => renderPage(p)));
 
-    return pages;
+    return pages.filter((item, index, self) => 
+        // Remove duplicate page numbers that might appear if ranges overlap
+        index === self.findIndex((t) => (
+            (t.key === item.key)
+        ))
+    );
 };
 
 
@@ -216,29 +223,31 @@ export default function CategoryPage() {
       {view === 'search' && <SearchPage />}
 
       {view === 'categories' && !selectedCategory && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in-50 duration-300">
-          {sortedCategories.map(([category, count]) => (
-            <Card
-              key={category}
-              className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
-              onClick={() => handleCategorySelect(category)}
-            >
-              <CardHeader className="flex-grow">
-                <CardTitle className="font-headline text-xl">{category}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center text-sm text-muted-foreground">
-                    <BookText className="w-4 h-4 mr-2" />
-                    <span>{count} journals</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in-50 duration-300">
+            {sortedCategories.map(([category, count]) => (
+                <Card
+                key={category}
+                className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
+                onClick={() => handleCategorySelect(category)}
+                >
+                <CardHeader className="flex-grow">
+                    <CardTitle className="font-headline text-xl">{category}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                        <BookText className="w-4 h-4 mr-2" />
+                        <span>{count} journals</span>
+                    </div>
+                </CardContent>
+                </Card>
+            ))}
+            </div>
         </div>
       )}
 
       {view === 'categories' && selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300">
+        <div className="max-w-4xl mx-auto animate-in fade-in-50 duration-300">
           <div className="flex items-center gap-4 mb-6">
             <Button variant="outline" size="icon" onClick={handleBackToCategories}>
               <ArrowLeft className="h-4 w-4" />
@@ -253,16 +262,16 @@ export default function CategoryPage() {
                     onClick={() => handleJournalSelect(journal)}
                 >
                   <CardContent className="p-4 flex items-center justify-between gap-4">
-                      <div className="flex-1">
-                          <p className="font-headline text-base font-semibold">{journal.journalName}</p>
+                      <div className="flex-1 min-w-0">
+                          <p className="font-headline text-base font-semibold truncate">{journal.journalName}</p>
                           <p className="text-xs text-muted-foreground mt-1">{journal.issn}</p>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-center">
-                          <div>
+                      <div className="flex items-center gap-4 text-sm text-center flex-shrink-0">
+                          <div className="w-24">
                               <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
                               <p className="font-medium text-base">{journal.impactFactor}</p>
                           </div>
-                          <div>
+                          <div className="w-24">
                               <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
                               <Badge variant={getPartitionBadgeVariant(journal)}>
                                   {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
