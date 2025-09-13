@@ -85,7 +85,7 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
       </div>
 
       {showInitialMessage && (
-          <div className="text-center py-12 px-4 border-2 border-dashed rounded-lg max-w-2xl mx-auto">
+          <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg max-w-2xl mx-auto">
               <Search className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-medium text-foreground">Start your search</h3>
               <p className="mt-1 text-sm text-muted-foreground">
