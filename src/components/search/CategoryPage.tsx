@@ -158,6 +158,7 @@ export default function CategoryPage() {
     setSelectedCategory(category);
     setCurrentPage(1);
     setSelectedJournal(null);
+    setView('categories');
   };
 
   const handleJournalSelect = (journal: Journal) => {
@@ -177,7 +178,7 @@ export default function CategoryPage() {
     setSelectedJournal(null);
   };
   
-  const handleBackToJournalList = () => {
+  const handleBackFromDetail = () => {
     setSelectedJournal(null);
   };
 
@@ -202,11 +203,114 @@ export default function CategoryPage() {
         <div className="py-4 md:py-8">
             <JournalDetail 
                 journal={selectedJournal} 
-                onBack={handleBackToJournalList}
+                onBack={handleBackFromDetail}
                 onJournalSelect={handleJournalSelectByName}
             />
         </div>
       )
+  }
+
+  const renderContent = () => {
+    switch (view) {
+        case 'search':
+            return <SearchPage onJournalSelect={handleJournalSelect} />;
+        case 'categories':
+            if (selectedCategory) {
+                 return (
+                    <div className="animate-in fade-in-50 duration-300">
+                      <div className="flex items-center gap-4 mb-6">
+                        <Button variant="outline" size="icon" onClick={handleBackToCategories}>
+                          <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                        <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{selectedCategory}</h2>
+                      </div>
+                      <div className="space-y-4">
+                        {paginatedJournals.map((journal) => (
+                            <Card 
+                                key={journal.issn}
+                                className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
+                                onClick={() => handleJournalSelect(journal)}
+                            >
+                                <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+                                    <div className="col-span-7">
+                                        <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                                        <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
+                                    </div>
+                                    <div className="col-span-2 text-center">
+                                        <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                                        <p className="font-medium text-lg">{journal.impactFactor}</p>
+                                    </div>
+                                    <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                                        <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
+                                        <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
+                                            {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400 mr-1" />}
+                                            {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400 mr-1" />}
+                                            {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400 mr-1" />}
+                                            <span className={cn("ml-1")}>
+                                                {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                      </div>
+
+                      {totalPages > 1 && (
+                        <Pagination className="mt-8">
+                          <PaginationContent>
+                            <PaginationItem>
+                              <PaginationPrevious 
+                                href="#" 
+                                onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }}
+                                aria-disabled={currentPage === 1}
+                                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                              />
+                            </PaginationItem>
+                            
+                            {getPaginationItems(currentPage, totalPages, handlePageChange)}
+
+                            <PaginationItem>
+                              <PaginationNext 
+                                href="#" 
+                                onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} 
+                                aria-disabled={currentPage === totalPages}
+                                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      )}
+                    </div>
+                  );
+            } else {
+                 return (
+                    <div className="animate-in fade-in-50 duration-300">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {sortedCategories.map(([category, count]) => (
+                            <Card
+                            key={category}
+                            className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
+                            onClick={() => handleCategorySelect(category)}
+                            >
+                            <CardHeader className="flex-grow pb-2">
+                                <CardTitle className="font-headline text-xl">{category}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                    <BookText className="w-4 h-4 mr-2" />
+                                    <span>{count} journals</span>
+                                </div>
+                            </CardContent>
+                            </Card>
+                        ))}
+                        </div>
+                    </div>
+                );
+            }
+        default:
+            return null;
+    }
   }
 
   return (
@@ -220,103 +324,10 @@ export default function CategoryPage() {
         </p>
          <div className="mt-4 flex gap-2">
             <Button onClick={() => setView('search')} variant={view === 'search' ? 'default' : 'outline'}>Search Journals</Button>
-            <Button onClick={() => setView('categories')} variant={view === 'categories' ? 'default' : 'outline'}>Browse Categories</Button>
+            <Button onClick={() => { setView('categories'); setSelectedCategory(null); }} variant={view === 'categories' ? 'default' : 'outline'}>Browse Categories</Button>
         </div>
       </div>
-     
-      {view === 'search' && <SearchPage onJournalSelect={handleJournalSelect} />}
-
-      {view === 'categories' && !selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300 max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {sortedCategories.map(([category, count]) => (
-                <Card
-                key={category}
-                className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
-                onClick={() => handleCategorySelect(category)}
-                >
-                <CardHeader className="flex-grow pb-2">
-                    <CardTitle className="font-headline text-xl">{category}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                        <BookText className="w-4 h-4 mr-2" />
-                        <span>{count} journals</span>
-                    </div>
-                </CardContent>
-                </Card>
-            ))}
-            </div>
-        </div>
-      )}
-
-      {view === 'categories' && selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300">
-          <div className="flex items-center gap-4 mb-6">
-            <Button variant="outline" size="icon" onClick={handleBackToCategories}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{selectedCategory}</h2>
-          </div>
-          <div className="space-y-4">
-            {paginatedJournals.map((journal) => (
-                <Card 
-                    key={journal.issn}
-                    className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
-                    onClick={() => handleJournalSelect(journal)}
-                >
-                    <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
-                        <div className="col-span-7">
-                            <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
-                            <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
-                        </div>
-                        <div className="col-span-2 text-center">
-                            <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                            <p className="font-medium text-lg">{journal.impactFactor}</p>
-                        </div>
-                        <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                            <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
-                            <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
-                                {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400" />}
-                                {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400" />}
-                                {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400" />}
-                                <span className={cn("ml-1")}>
-                                    {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                                </span>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    href="#" 
-                    onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }}
-                    aria-disabled={currentPage === 1}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-                
-                {getPaginationItems(currentPage, totalPages, handlePageChange)}
-
-                <PaginationItem>
-                  <PaginationNext 
-                    href="#" 
-                    onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} 
-                    aria-disabled={currentPage === totalPages}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }
