@@ -97,59 +97,59 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
             aria-label="Search journals"
           />
         </div>
-      </div>
 
-      {hasSearched && (
-        <div className="space-y-4 animate-in fade-in-50 duration-300">
-          {showInitialMessage && (
-              <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
-                  <Search className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h3 className="mt-4 text-lg font-medium text-foreground">Continue typing...</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                      Enter at least 3 characters to begin searching.
-                  </p>
-              </div>
-          )}
-          {showNoResultsMessage && (
-              <div className="text-center py-10">
-                  <p className="text-muted-foreground">No journals found for &quot;{searchTerm}&quot;.</p>
-              </div>
-          )}
-          {filteredJournals.length > 0 && (
-              <div className="space-y-4">
-                  {filteredJournals.map((journal) => (
-                      <Card
-                        key={journal.issn}
-                        className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
-                        onClick={() => onJournalSelect(journal, searchTerm)}
-                      >
-                      <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
-                        <div className="col-span-7">
-                            <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
-                            <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
-                        </div>
-                        <div className="col-span-2 text-center">
-                            <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                            <p className="font-medium text-lg">{journal.impactFactor}</p>
-                        </div>
-                        <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                           <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
-                           <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
-                              {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400 mr-1" />}
-                              {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400 mr-1" />}
-                              {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400 mr-1" />}
-                              <span className={cn("ml-1")}>
-                                {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                              </span>
-                           </div>
-                        </div>
-                      </CardContent>
-                      </Card>
-                  ))}
-              </div>
-          )}
-        </div>
-      )}
+        {hasSearched && (
+          <div className="space-y-4 animate-in fade-in-50 duration-300">
+            {showInitialMessage && (
+                <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
+                    <Search className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-medium text-foreground">Continue typing...</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Enter at least 3 characters to begin searching.
+                    </p>
+                </div>
+            )}
+            {showNoResultsMessage && (
+                <div className="text-center py-10">
+                    <p className="text-muted-foreground">No journals found for &quot;{searchTerm}&quot;.</p>
+                </div>
+            )}
+            {filteredJournals.length > 0 && (
+                <div className="space-y-4">
+                    {filteredJournals.map((journal) => (
+                        <Card
+                          key={journal.issn}
+                          className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
+                          onClick={() => onJournalSelect(journal, searchTerm)}
+                        >
+                        <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+                          <div className="col-span-7">
+                              <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
+                          </div>
+                          <div className="col-span-2 text-center">
+                              <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                              <p className="font-medium text-lg">{journal.impactFactor}</p>
+                          </div>
+                          <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                            <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
+                            <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
+                                {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400 mr-1" />}
+                                {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400 mr-1" />}
+                                {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400 mr-1" />}
+                                <span className={cn("ml-1")}>
+                                  {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                                </span>
+                            </div>
+                          </div>
+                        </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
