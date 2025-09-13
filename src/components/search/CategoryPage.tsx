@@ -1,11 +1,9 @@
-
-
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
@@ -41,6 +39,17 @@ const getPartitionColorClass = (partition: string): string => {
     }
 };
 
+const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
+    const mainPartition = partition.charAt(0);
+    switch (mainPartition) {
+        case '1': return "level1";
+        case '2': return "level2";
+        case '3': return "level3";
+        case '4': return "level4";
+        default: return "secondary";
+    }
+};
+
 // Helper function to generate pagination items
 const getPaginationItems = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
     const pages = [];
@@ -61,31 +70,36 @@ const getPaginationItems = (currentPage: number, totalPages: number, onPageChang
 
     const renderEllipsis = (key: string) => <PaginationItem key={key}><PaginationEllipsis /></PaginationItem>;
 
-    if (totalPages <= pageLimit * 2 + 3) { // Show all pages if total is small enough
+    if (totalPages <= pageLimit * 2 + 1) { // Show all pages if total is small enough
         return range(1, totalPages).map(p => renderPage(p));
     }
 
-    const startPages = range(1, pageLimit);
-    const endPages = range(totalPages - pageLimit + 1, totalPages);
-    
-    let middlePages = [];
-    const middleStart = Math.max(pageLimit + 1, currentPage - 2);
-    const middleEnd = Math.min(totalPages - pageLimit, currentPage + 2);
+    // Start pages
+    pages.push(...range(1, pageLimit).map(p => renderPage(p)));
 
-    pages.push(...startPages.map(p => renderPage(p)));
-    
-    if (middleStart > pageLimit + 1) {
+    // Ellipsis after start
+    if (currentPage > pageLimit + 2) {
         pages.push(renderEllipsis("start-ellipsis"));
     }
 
-    middlePages = range(middleStart, middleEnd);
-    pages.push(...middlePages.map(p => renderPage(p)));
+    // Middle pages
+    const middleStart = Math.max(pageLimit + 1, currentPage - 2);
+    const middleEnd = Math.min(totalPages - pageLimit, currentPage + 2);
+    
+    if (middleStart > pageLimit + 1 && middleStart <= totalPages - pageLimit) {
+         pages.push(...range(middleStart, middleEnd).map(p => renderPage(p)))
+    } else if (currentPage > pageLimit && currentPage <= totalPages-pageLimit) {
+        pages.push(...range(currentPage-2, currentPage+2).map(p => renderPage(p)))
+    }
 
-    if (middleEnd < totalPages - pageLimit) {
+
+    // Ellipsis before end
+    if (currentPage < totalPages - pageLimit -1) {
         pages.push(renderEllipsis("end-ellipsis"));
     }
 
-    pages.push(...endPages.map(p => renderPage(p)));
+    // End pages
+    pages.push(...range(totalPages - pageLimit + 1, totalPages).map(p => renderPage(p)));
     
     // De-duplicate pages
     const uniquePages = pages.filter((item, index, self) => 
@@ -213,7 +227,7 @@ export default function CategoryPage() {
       {view === 'search' && <SearchPage onJournalSelect={handleJournalSelect} />}
 
       {view === 'categories' && !selectedCategory && (
-        <div className="animate-in fade-in-50 duration-300">
+        <div className="animate-in fade-in-50 duration-300 max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {sortedCategories.map(([category, count]) => (
                 <Card
@@ -251,27 +265,27 @@ export default function CategoryPage() {
                     className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
                     onClick={() => handleJournalSelect(journal)}
                 >
-                  <CardContent className="p-4 grid grid-cols-12 items-center gap-4">
-                    <div className="col-span-8">
-                        <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
-                        <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
-                    </div>
-                    <div className="col-span-2 text-center">
-                        <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                        <p className="font-medium text-base">{journal.impactFactor}</p>
-                    </div>
-                    <div className="col-span-2 flex flex-col items-center justify-center text-center">
-                       <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
-                       <div className={cn("flex items-center font-semibold", getPartitionColorClass(journal.majorCategoryPartition))}>
-                          {journal.authorityJournal === "一级" && <Crown className="h-4 w-4 text-amber-400" />}
-                          {journal.authorityJournal === "二级" && <Medal className="h-4 w-4 text-slate-400" />}
-                          {journal.authorityJournal === "三级" && <Star className="h-4 w-4 text-orange-400" />}
-                          <span className={cn("ml-1 text-lg")}>
-                            {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                          </span>
-                       </div>
-                    </div>
-                  </CardContent>
+                    <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+                        <div className="col-span-7">
+                            <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                            <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
+                        </div>
+                        <div className="col-span-2 text-center">
+                            <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                            <p className="font-medium text-lg">{journal.impactFactor}</p>
+                        </div>
+                        <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                            <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
+                            <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
+                                {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400" />}
+                                {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400" />}
+                                {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400" />}
+                                <span className={cn("ml-1")}>
+                                    {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                                </span>
+                            </div>
+                        </div>
+                    </CardContent>
                 </Card>
             ))}
           </div>
