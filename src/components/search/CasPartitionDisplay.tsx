@@ -4,7 +4,7 @@
 import { type Journal } from "@/data/journals";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Award, Info } from "lucide-react";
+import { Award, Info, Crown, Medal, Star } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -52,6 +52,29 @@ const PartitionBadge = ({ partition }: { partition: string }) => {
     );
 };
 
+const AuthorityLevelDisplay = ({ level }: { level: string }) => {
+    let icon;
+    switch (level) {
+        case "一级":
+            icon = <Crown className="h-6 w-6 text-amber-400" />;
+            break;
+        case "二级":
+            icon = <Medal className="h-6 w-6 text-slate-400" />;
+            break;
+        case "三级":
+            icon = <Star className="h-6 w-6 text-orange-400" />;
+            break;
+        default:
+            icon = <Award className="h-6 w-6 text-muted-foreground" />;
+    }
+    return (
+        <div className="flex items-center gap-2">
+            {icon}
+            <p className="text-lg font-semibold">{level}</p>
+        </div>
+    )
+}
+
 
 export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProps) {
   return (
@@ -71,24 +94,33 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
                     <h3 className="font-bold text-base text-center">权威期刊分级规则</h3>
                     
                     <div>
-                      <h4 className="font-semibold text-primary">一级权威期刊</h4>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1">
+                      <h4 className="font-semibold text-primary flex items-center gap-2">
+                        <Crown className="h-5 w-5 text-amber-400" />
+                        一级权威期刊
+                      </h4>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1 pl-1">
                         <li>中科院JCR大类分区一区期刊</li>
                         <li>中科院JCR大类分区二区前50%（含50%）期刊</li>
                       </ul>
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-primary/80">二级权威期刊</h4>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1">
+                      <h4 className="font-semibold text-primary/80 flex items-center gap-2">
+                        <Medal className="h-5 w-5 text-slate-400" />
+                        二级权威期刊
+                      </h4>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1 pl-1">
                         <li>中科院JCR大类分区二区后50%期刊</li>
                         <li>中科院JCR大类分区三区期刊</li>
                       </ul>
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-primary/60">三级权威期刊</h4>
-                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1">
+                      <h4 className="font-semibold text-primary/60 flex items-center gap-2">
+                        <Star className="h-5 w-5 text-orange-400" />
+                        三级权威期刊
+                      </h4>
+                      <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mt-1 pl-1">
                         <li>中科院JCR大类分区四区期刊</li>
                       </ul>
                     </div>
@@ -97,10 +129,7 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
               </Tooltip>
             </TooltipProvider>
         </div>
-        <div className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-amber-500" />
-            <p className="text-lg font-semibold">{journal.authorityJournal}</p>
-        </div>
+        <AuthorityLevelDisplay level={journal.authorityJournal} />
       </div>
       <Separator/>
       <div>
