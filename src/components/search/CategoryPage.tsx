@@ -115,7 +115,7 @@ export default function CategoryPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [view, setView] = useState<'categories' | 'search'>('categories');
+  const [view, setView] = useState<'categories' | 'search'>('search');
 
   const categories = useMemo(() => {
     if (loading) return {};
@@ -215,8 +215,8 @@ export default function CategoryPage() {
           Browse journals by category or use the search to find specific titles.
         </p>
          <div className="mt-4 flex gap-2">
-          <Button onClick={() => setView('categories')} variant={view === 'categories' ? 'default' : 'outline'}>Browse Categories</Button>
-          <Button onClick={() => setView('search')} variant={view === 'search' ? 'default' : 'outline'}>Search Journals</Button>
+            <Button onClick={() => setView('search')} variant={view === 'search' ? 'default' : 'outline'}>Search Journals</Button>
+            <Button onClick={() => setView('categories')} variant={view === 'categories' ? 'default' : 'outline'}>Browse Categories</Button>
         </div>
       </div>
      
@@ -224,7 +224,7 @@ export default function CategoryPage() {
 
       {view === 'categories' && !selectedCategory && (
         <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in-50 duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in-50 duration-300">
             {sortedCategories.map(([category, count]) => (
                 <Card
                 key={category}
