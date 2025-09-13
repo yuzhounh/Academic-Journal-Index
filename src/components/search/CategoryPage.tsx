@@ -404,8 +404,7 @@ export default function CategoryPage() {
           Academic Journal Index
         </h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-          Use the search to find specific titles or browse journals by
-          category.
+          Search journals by title or browse journals by category.
         </p>
         <div className="mt-4 flex gap-2">
           <Button
