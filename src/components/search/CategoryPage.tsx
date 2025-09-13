@@ -14,7 +14,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookText, Loader2 } from "lucide-react";
+import { ArrowLeft, BookText, Loader2, TrendingUp } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 
@@ -45,6 +45,81 @@ const getPartitionBadgeVariant = (journal: Journal) => {
         return "level3";
     }
     return "secondary";
+};
+
+// Helper function to generate pagination items
+const getPaginationItems = (currentPage: number, totalPages: number, onPageChange: (page: number) => void) => {
+    const pages = [];
+    const pageLimit = 5; 
+    const ellipsis = <PaginationItem key="ellipsis-start-end"><PaginationEllipsis /></PaginationItem>;
+
+    if (totalPages <= pageLimit + 2) {
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(
+                <PaginationItem key={i}>
+                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(i); }} isActive={currentPage === i}>
+                        {i}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+    } else {
+        // Always show first page
+        pages.push(
+            <PaginationItem key={1}>
+                <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(1); }} isActive={currentPage === 1}>
+                    1
+                </PaginationLink>
+            </PaginationItem>
+        );
+
+        let startPage, endPage;
+        if (currentPage <= pageLimit - 2) {
+            startPage = 2;
+            endPage = pageLimit -1;
+            pages.push(...Array.from({ length: (endPage - startPage + 1)}, (_, i) => startPage + i).map(p => 
+                <PaginationItem key={p}>
+                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(p); }} isActive={currentPage === p}>
+                        {p}
+                    </PaginationLink>
+                </PaginationItem>
+            ));
+            pages.push(ellipsis);
+        } else if (currentPage > totalPages - (pageLimit - 2)) {
+            startPage = totalPages - (pageLimit-2);
+            endPage = totalPages - 1;
+            pages.push(ellipsis);
+            pages.push(...Array.from({ length: (endPage - startPage + 1)}, (_, i) => startPage + i).map(p => 
+                <PaginationItem key={p}>
+                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(p); }} isActive={currentPage === p}>
+                        {p}
+                    </PaginationLink>
+                </PaginationItem>
+            ));
+        } else {
+            startPage = currentPage - Math.floor((pageLimit-3)/2);
+            endPage = currentPage + Math.floor((pageLimit-3)/2);
+            pages.push(ellipsis);
+            pages.push(...Array.from({ length: (endPage - startPage + 1)}, (_, i) => startPage + i).map(p => 
+                <PaginationItem key={p}>
+                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(p); }} isActive={currentPage === p}>
+                        {p}
+                    </PaginationLink>
+                </PaginationItem>
+            ));
+            pages.push(ellipsis);
+        }
+        
+        // Always show last page
+        pages.push(
+            <PaginationItem key={totalPages}>
+                <PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(totalPages); }} isActive={currentPage === totalPages}>
+                    {totalPages}
+                </PaginationLink>
+            </PaginationItem>
+        );
+    }
+    return pages;
 };
 
 
@@ -197,21 +272,24 @@ export default function CategoryPage() {
                     className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
                     onClick={() => handleJournalSelect(journal)}
                 >
-                    <CardHeader>
-                        <CardTitle className="font-headline text-lg">{journal.journalName}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start sm:items-center">
-                        <div>
-                            <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                            <p className="font-medium text-base">{journal.impactFactor}</p>
-                        </div>
-                         <div>
-                            <p className="text-xs text-muted-foreground font-semibold">CAS Major Partition</p>
-                            <Badge variant={getPartitionBadgeVariant(journal)}>
-                                {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                            </Badge>
-                        </div>
-                    </CardContent>
+                  <CardContent className="p-4 flex items-center justify-between gap-4">
+                      <div className="flex-1">
+                          <p className="font-headline text-base font-semibold">{journal.journalName}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{journal.issn}</p>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-center">
+                          <div>
+                              <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                              <p className="font-medium text-base">{journal.impactFactor}</p>
+                          </div>
+                          <div>
+                              <p className="text-xs text-muted-foreground font-semibold">CAS Partition</p>
+                              <Badge variant={getPartitionBadgeVariant(journal)}>
+                                  {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                              </Badge>
+                          </div>
+                      </div>
+                  </CardContent>
                 </Card>
             ))}
           </div>
@@ -220,23 +298,23 @@ export default function CategoryPage() {
             <Pagination className="mt-8">
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }} />
+                  <PaginationPrevious 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }}
+                    aria-disabled={currentPage === 1}
+                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  />
                 </PaginationItem>
                 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                    <PaginationItem key={page}>
-                        <PaginationLink 
-                            href="#" 
-                            onClick={(e) => { e.preventDefault(); handlePageChange(page); }}
-                            isActive={currentPage === page}
-                        >
-                            {page}
-                        </PaginationLink>
-                    </PaginationItem>
-                ))}
+                {getPaginationItems(currentPage, totalPages, handlePageChange)}
 
                 <PaginationItem>
-                  <PaginationNext href="#" onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} />
+                  <PaginationNext 
+                    href="#" 
+                    onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }} 
+                    aria-disabled={currentPage === totalPages}
+                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
