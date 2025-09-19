@@ -21,6 +21,7 @@ import {
 import { ArrowLeft, BookText, Loader2, Crown, Medal, Star } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
+import CategoryStats from "./CategoryStats";
 import { cn } from "@/lib/utils";
 
 const JOURNALS_PER_PAGE = 20;
@@ -243,9 +244,6 @@ export default function CategoryPage() {
           onBack={handleBackFromDetail}
           onJournalSelect={handleJournalSelectByName}
         />
-         <footer className="text-center text-sm text-muted-foreground mt-8 py-4 border-t">
-          © 2025 Jing Wang. All Rights Reserved.
-        </footer>
       </div>
     );
   }
@@ -269,6 +267,9 @@ export default function CategoryPage() {
                 <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
                   {selectedCategory}
                 </h2>
+              </div>
+              <div className="mb-8">
+                <CategoryStats journals={journalsForCategory} />
               </div>
               <div className="space-y-4">
                 {paginatedJournals.map((journal) => (
