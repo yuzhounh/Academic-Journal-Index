@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo } from "react";
@@ -15,17 +16,19 @@ const partitionMap: { [key: string]: string } = {
     "4": "四区",
 };
 
+// Using HSLA values for opacity control.
+// Base colors are pulled from CSS variables for theme consistency.
 const partitionColors: { [key: string]: string } = {
-  "一区": "hsl(var(--chart-1))",
-  "二区": "hsl(var(--chart-2))",
-  "三区": "hsl(var(--chart-3))",
-  "四区": "hsl(var(--chart-4))",
+  "一区": "hsla(var(--primary), 1)",
+  "二区": "hsla(var(--primary), 0.75)",
+  "三区": "hsla(var(--primary), 0.5)",
+  "四区": "hsla(var(--primary), 0.25)",
 };
 
 const authorityColors: { [key: string]: string } = {
-  "一级": "hsl(var(--chart-1))",
-  "二级": "hsl(var(--chart-2))",
-  "三级": "hsl(var(--chart-3))",
+  "一级": "hsla(var(--accent), 1)",
+  "二级": "hsla(var(--accent), 0.75)",
+  "三级": "hsla(var(--accent), 0.5)",
 };
 
 
@@ -66,7 +69,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
           counts[partitionName]++;
       }
     });
-    return Object.entries(counts).map(([name, count]) => ({ name, count, fill: partitionColors[name] }));
+    return Object.entries(counts).map(([name, count]) => ({ name, count, fill: partitionColors[name] })).filter(item => item.count > 0);
   }, [journals]);
 
   const authorityData = useMemo(() => {
@@ -76,7 +79,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
         counts[j.authorityJournal]++;
       }
     });
-    return Object.entries(counts).map(([name, count]) => ({ name, count, fill: authorityColors[name] }));
+    return Object.entries(counts).map(([name, count]) => ({ name, count, fill: authorityColors[name] })).filter(item => item.count > 0);
   }, [journals]);
 
   return (
@@ -100,36 +103,40 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
         </div>
 
         <div className="space-y-4 pt-4">
-            <div>
-                <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">CAS Partition Distribution</h4>
-                <div className="w-full h-10 flex rounded-md overflow-hidden">
-                    {partitionData.map((item, index) => (
-                        <div 
-                            key={index} 
-                            style={{ 
-                                width: `${(item.count / totalJournals) * 100}%`,
-                                backgroundColor: partitionColors[item.name],
-                             }}
-                             className="h-full"
-                        />
-                    ))}
+            {partitionData.length > 0 && (
+                <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">CAS Partition Distribution</h4>
+                    <div className="w-full h-10 flex rounded-md overflow-hidden">
+                        {partitionData.map((item, index) => (
+                            <div 
+                                key={index} 
+                                style={{ 
+                                    width: `${(item.count / totalJournals) * 100}%`,
+                                    backgroundColor: item.fill,
+                                 }}
+                                 className="h-full"
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
-             <div>
-                <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Authority Level Distribution</h4>
-                <div className="w-full h-10 flex rounded-md overflow-hidden">
-                    {authorityData.map((item, index) => (
-                        <div 
-                            key={index} 
-                            style={{ 
-                                width: `${(item.count / totalJournals) * 100}%`,
-                                backgroundColor: authorityColors[item.name],
-                             }}
-                             className="h-full"
-                        />
-                    ))}
+            )}
+             {authorityData.length > 0 && (
+                <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Authority Level Distribution</h4>
+                    <div className="w-full h-10 flex rounded-md overflow-hidden">
+                        {authorityData.map((item, index) => (
+                            <div 
+                                key={index} 
+                                style={{ 
+                                    width: `${(item.count / totalJournals) * 100}%`,
+                                    backgroundColor: item.fill,
+                                 }}
+                                 className="h-full"
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
+             )}
         </div>
       </CardContent>
     </Card>
