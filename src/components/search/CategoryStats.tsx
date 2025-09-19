@@ -3,18 +3,23 @@
 import { useMemo } from "react";
 import type { Journal } from "@/data/journals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
-import { cn } from "@/lib/utils";
 
 interface CategoryStatsProps {
   journals: Journal[];
 }
 
+const partitionMap: { [key: string]: string } = {
+    "1": "一区",
+    "2": "二区",
+    "3": "三区",
+    "4": "四区",
+};
+
 const partitionColors: { [key: string]: string } = {
-  "1": "hsl(var(--chart-1))", // Reddish
-  "2": "hsl(var(--chart-2))", // Orangish
-  "3": "hsl(var(--chart-3))", // Yellowish
-  "4": "hsl(var(--chart-4))", // Greenish
+  "一区": "hsl(var(--chart-1))",
+  "二区": "hsl(var(--chart-2))",
+  "三区": "hsl(var(--chart-3))",
+  "四区": "hsl(var(--chart-4))",
 };
 
 const authorityColors: { [key: string]: string } = {
@@ -24,7 +29,7 @@ const authorityColors: { [key: string]: string } = {
 };
 
 
-const StatsDisplay = ({ title, data, total }: { title: string; data: { name: string; count: number }[]; total: number }) => {
+const StatsDisplay = ({ title, data, total, colorMap }: { title: string; data: { name: string; count: number }[]; total: number, colorMap: {[key: string]: string} }) => {
     
     if (total === 0) return null;
 
@@ -35,7 +40,7 @@ const StatsDisplay = ({ title, data, total }: { title: string; data: { name: str
                 {data.map(item => (
                     <div key={item.name} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.name in partitionColors ? partitionColors[item.name.charAt(0)] : authorityColors[item.name] }} />
+                           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: colorMap[item.name] }} />
                            <span>{item.name}</span>
                         </div>
                         <div className="font-mono text-right">
@@ -56,20 +61,20 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
     const counts: { [key: string]: number } = { "一区": 0, "二区": 0, "三区": 0, "四区": 0 };
     journals.forEach((j) => {
       const p = j.majorCategoryPartition.charAt(0);
-      if (p === "1") counts["一区"]++;
-      else if (p === "2") counts["二区"]++;
-      else if (p === "3") counts["三区"]++;
-      else if (p === "4") counts["四区"]++;
+      const partitionName = partitionMap[p];
+      if (partitionName) {
+          counts[partitionName]++;
+      }
     });
-    return Object.entries(counts).map(([name, count]) => ({ name, count, fill: partitionColors[name.charAt(1)] }));
+    return Object.entries(counts).map(([name, count]) => ({ name, count, fill: partitionColors[name] }));
   }, [journals]);
 
   const authorityData = useMemo(() => {
     const counts: { [key: string]: number } = { "一级": 0, "二级": 0, "三级": 0 };
     journals.forEach((j) => {
-      if (j.authorityJournal === "一级") counts["一级"]++;
-      else if (j.authorityJournal === "二级") counts["二级"]++;
-      else if (j.authorityJournal === "三级") counts["三级"]++;
+      if (counts.hasOwnProperty(j.authorityJournal)) {
+        counts[j.authorityJournal]++;
+      }
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count, fill: authorityColors[name] }));
   }, [journals]);
@@ -87,10 +92,10 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-                 <StatsDisplay title="CAS Partition Breakdown" data={partitionData.map(p => ({...p, name: p.name}))} total={totalJournals} />
+                 <StatsDisplay title="CAS Partition Breakdown" data={partitionData} total={totalJournals} colorMap={partitionColors} />
             </div>
             <div>
-                 <StatsDisplay title="Authority Level Breakdown" data={authorityData.map(a => ({...a, name: a.name}))} total={totalJournals} />
+                 <StatsDisplay title="Authority Level Breakdown" data={authorityData} total={totalJournals} colorMap={authorityColors} />
             </div>
         </div>
 
@@ -103,7 +108,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
                             key={index} 
                             style={{ 
                                 width: `${(item.count / totalJournals) * 100}%`,
-                                backgroundColor: item.name in partitionColors ? partitionColors[item.name.charAt(0)] : authorityColors[item.name],
+                                backgroundColor: partitionColors[item.name],
                              }}
                              className="h-full"
                         />
