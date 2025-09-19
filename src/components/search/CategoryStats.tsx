@@ -4,6 +4,7 @@
 import { useMemo } from "react";
 import type { Journal } from "@/data/journals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 
 interface CategoryStatsProps {
   journals: Journal[];
@@ -16,23 +17,21 @@ const partitionMap: { [key: string]: string } = {
     "4": "四区",
 };
 
-// Using HSLA values for opacity control.
-// Base colors are pulled from CSS variables for theme consistency.
 const partitionColors: { [key: string]: string } = {
-  "一区": "hsla(var(--primary), 1)",
-  "二区": "hsla(var(--primary), 0.75)",
-  "三区": "hsla(var(--primary), 0.5)",
-  "四区": "hsla(var(--primary), 0.25)",
+  "一区": "#ef4444",
+  "二区": "#f97316",
+  "三区": "#eab308",
+  "四区": "#22c55e",
 };
 
 const authorityColors: { [key: string]: string } = {
-  "一级": "hsla(var(--accent), 1)",
-  "二级": "hsla(var(--accent), 0.75)",
-  "三级": "hsla(var(--accent), 0.5)",
+  "一级": "#f59e0b",
+  "二级": "#64748b",
+  "三级": "#f43f5e",
 };
 
 
-const StatsDisplay = ({ title, data, total, colorMap }: { title: string; data: { name: string; count: number }[]; total: number, colorMap: {[key: string]: string} }) => {
+const StatsChart = ({ title, data, total }: { title: string; data: { name: string; count: number, fill: string }[]; total: number }) => {
     
     if (total === 0) return null;
 
@@ -43,7 +42,7 @@ const StatsDisplay = ({ title, data, total, colorMap }: { title: string; data: {
                 {data.map(item => (
                     <div key={item.name} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: colorMap[item.name] }} />
+                           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.fill }} />
                            <span>{item.name}</span>
                         </div>
                         <div className="font-mono text-right">
@@ -95,10 +94,10 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-                 <StatsDisplay title="CAS Partition Breakdown" data={partitionData} total={totalJournals} colorMap={partitionColors} />
+                 <StatsChart title="CAS Partition Breakdown" data={partitionData} total={totalJournals} />
             </div>
             <div>
-                 <StatsDisplay title="Authority Level Breakdown" data={authorityData} total={totalJournals} colorMap={authorityColors} />
+                 <StatsChart title="Authority Level Breakdown" data={authorityData} total={totalJournals} />
             </div>
         </div>
 
