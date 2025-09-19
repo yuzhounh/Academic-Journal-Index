@@ -27,7 +27,7 @@ const partitionColors: { [key: string]: string } = {
 const authorityColors: { [key: string]: string } = {
   "一级": "#f97316",
   "二级": "#f59e0b",
-  "三级": "#64748b",
+  "三级": "#22c55e",
 };
 
 
