@@ -54,24 +54,28 @@ const PartitionBadge = ({ partition }: { partition: string }) => {
 
 const AuthorityLevelDisplay = ({ level }: { level: string }) => {
     let icon;
+    let variant: "authority1" | "authority2" | "authority3" | "secondary" = "secondary";
     switch (level) {
         case "一级":
-            icon = <Crown className="h-6 w-6 text-amber-400" />;
+            icon = <Crown className="h-4 w-4" />;
+            variant = "authority1";
             break;
         case "二级":
-            icon = <Medal className="h-6 w-6 text-slate-400" />;
+            icon = <Medal className="h-4 w-4" />;
+            variant = "authority2";
             break;
         case "三级":
-            icon = <Star className="h-6 w-6 text-orange-400" />;
+            icon = <Star className="h-4 w-4" />;
+            variant = "authority3";
             break;
         default:
-            icon = <Award className="h-6 w-6 text-muted-foreground" />;
+            icon = <Award className="h-4 w-4" />;
     }
     return (
-        <div className="flex items-center gap-2">
+        <Badge variant={variant} className="gap-1.5 pl-1.5 pr-2">
             {icon}
-            <p className="text-lg font-semibold">{level}</p>
-        </div>
+            <p className="font-semibold">{level}</p>
+        </Badge>
     )
 }
 

@@ -4,6 +4,7 @@ import { useState, useMemo, ChangeEvent, useEffect } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Search, Loader2, Crown, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,33 @@ const getPartitionColorClass = (partition: string): string => {
         default: return "text-muted-foreground";
     }
 };
+
+const AuthorityBadge = ({ level }: { level: string }) => {
+    let icon;
+    let variant: "authority1" | "authority2" | "authority3" | "secondary" = "secondary";
+    switch (level) {
+        case "一级":
+            icon = <Crown className="h-3 w-3" />;
+            variant = "authority1";
+            break;
+        case "二级":
+            icon = <Medal className="h-3 w-3" />;
+            variant = "authority2";
+            break;
+        case "三级":
+            icon = <Star className="h-3 w-3" />;
+            variant = "authority3";
+            break;
+        default:
+            return null;
+    }
+    return (
+        <Badge variant={variant} className="gap-1 pl-1 pr-1.5">
+            {icon}
+            <span className="text-xs">{level}</span>
+        </Badge>
+    )
+}
 
 export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
@@ -107,10 +135,13 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
               className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
               onClick={() => onJournalSelect(journal, searchTerm)}
             >
-              <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+              <CardContent className="p-6 grid grid-cols-12 items-start gap-4">
                 <div className="col-span-7">
                     <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{journal.issn}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-muted-foreground">{journal.issn}</p>
+                        <AuthorityBadge level={journal.authorityJournal} />
+                    </div>
                 </div>
                 <div className="col-span-2 text-center">
                     <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
@@ -119,9 +150,6 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
                 <div className="col-span-3 flex flex-col items-center justify-center text-center">
                   <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
                   <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
-                      {journal.authorityJournal === "一级" && <Crown className="h-5 w-5 text-amber-400 mr-1" />}
-                      {journal.authorityJournal === "二级" && <Medal className="h-5 w-5 text-slate-400 mr-1" />}
-                      {journal.authorityJournal === "三级" && <Star className="h-5 w-5 text-orange-400 mr-1.5" />}
                       <span className="ml-1">
                         {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
                       </span>

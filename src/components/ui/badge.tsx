@@ -19,6 +19,9 @@ const badgeVariants = cva(
         level2: "border-transparent bg-orange-500 text-white",
         level3: "border-transparent bg-yellow-500 text-black",
         level4: "border-transparent bg-green-500 text-white",
+        authority1: "border-transparent bg-[#f75c2e] text-white",
+        authority2: "border-transparent bg-[#f79410] text-white",
+        authority3: "border-transparent bg-[#22c55e] text-white",
       },
     },
     defaultVariants: {

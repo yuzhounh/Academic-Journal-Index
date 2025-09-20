@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useJournals, type Journal } from "@/data/journals";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -48,6 +49,33 @@ const getPartitionColorClass = (partition: string): string => {
       return "text-muted-foreground";
   }
 };
+
+const AuthorityBadge = ({ level }: { level: string }) => {
+    let icon;
+    let variant: "authority1" | "authority2" | "authority3" | "secondary" = "secondary";
+    switch (level) {
+        case "一级":
+            icon = <Crown className="h-3 w-3" />;
+            variant = "authority1";
+            break;
+        case "二级":
+            icon = <Medal className="h-3 w-3" />;
+            variant = "authority2";
+            break;
+        case "三级":
+            icon = <Star className="h-3 w-3" />;
+            variant = "authority3";
+            break;
+        default:
+            return null;
+    }
+    return (
+        <Badge variant={variant} className="gap-1 pl-1 pr-1.5">
+            {icon}
+            <span className="text-xs">{level}</span>
+        </Badge>
+    )
+}
 
 // Helper function to generate pagination items
 const getPaginationItems = (
@@ -278,14 +306,17 @@ export default function CategoryPage() {
                     className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
                     onClick={() => handleJournalSelect(journal)}
                   >
-                    <CardContent className="p-6 grid grid-cols-12 items-center gap-4">
+                    <CardContent className="p-6 grid grid-cols-12 items-start gap-4">
                       <div className="col-span-7">
                         <p className="font-headline text-lg font-semibold truncate">
                           {journal.journalName}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {journal.issn}
-                        </p>
+                         <div className="flex items-center gap-2 mt-1">
+                            <p className="text-sm text-muted-foreground">
+                            {journal.issn}
+                            </p>
+                            <AuthorityBadge level={journal.authorityJournal} />
+                         </div>
                       </div>
                       <div className="col-span-2 text-center">
                         <p className="text-xs text-muted-foreground font-semibold">
@@ -307,15 +338,6 @@ export default function CategoryPage() {
                             )
                           )}
                         >
-                          {journal.authorityJournal === "一级" && (
-                            <Crown className="h-5 w-5 text-amber-400 mr-1" />
-                          )}
-                          {journal.authorityJournal === "二级" && (
-                            <Medal className="h-5 w-5 text-slate-400 mr-1" />
-                          )}
-                          {journal.authorityJournal === "三级" && (
-                            <Star className="h-5 w-5 text-orange-400 mr-1" />
-                          )}
                           <span className={cn("ml-1")}>
                             {partitionMap[
                               journal.majorCategoryPartition.charAt(0)
