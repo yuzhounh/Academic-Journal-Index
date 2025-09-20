@@ -31,17 +31,17 @@ const authorityColors: { [key: string]: string } = {
 };
 
 
-const CustomTooltip = ({ active, payload, label, totalJournals }: any) => {
+const CustomTooltip = ({ active, payload, totalJournals }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const key = payload[0].dataKey;
     const count = data[key];
 
-    // Find the original item to get the fill color
+    // Find the original item to get the fill color and correct name
     const originalItem = (payload[0].payload.chartData as any[]).find(item => item.name === key);
     const color = originalItem ? originalItem.fill : '#8884d8';
 
-    if (count === undefined) return null;
+    if (count === undefined || !originalItem) return null;
 
     return (
       <div className="bg-background/80 backdrop-blur-sm p-2 border rounded-md shadow-lg text-sm">
@@ -55,12 +55,12 @@ const CustomTooltip = ({ active, payload, label, totalJournals }: any) => {
 };
 
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
-    if (!data.length) return <div className="h-[50px] bg-muted rounded-md" />;
+    if (!data.length || totalJournals === 0) return <div className="h-[50px] bg-muted rounded-md" />;
 
     const chartData = [{ 
       name: 'stats', 
       ...data.reduce((acc, item) => ({...acc, [item.name]: item.count }), {}),
-      chartData: data // Pass original data for tooltip
+      chartData: data // Pass original data for tooltip to find name and color
     }];
 
     return (
