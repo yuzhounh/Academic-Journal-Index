@@ -37,11 +37,11 @@ const authorityColors: { [key: string]: string } = {
 };
 
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
-    if (!data.length || totalJournals === 0) return <div className="h-5 bg-muted rounded-md" />;
+    if (!data.length || totalJournals === 0) return <div className="h-8 bg-muted rounded-md" />;
 
     return (
         <TooltipProvider>
-            <div className="flex h-5 w-full rounded-md overflow-hidden">
+            <div className="flex h-8 w-full rounded-md overflow-hidden">
                 {data.map((item) => (
                     <Tooltip key={item.name} delayDuration={100}>
                         <TooltipTrigger asChild>
