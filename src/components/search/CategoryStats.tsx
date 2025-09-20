@@ -34,21 +34,34 @@ const authorityColors: { [key: string]: string } = {
 const CustomTooltip = ({ active, payload, label, totalJournals }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+    const key = payload[0].dataKey;
+    const count = data[key];
+
+    // Find the original item to get the fill color
+    const originalItem = (payload[0].payload.chartData as any[]).find(item => item.name === key);
+    const color = originalItem ? originalItem.fill : '#8884d8';
+
+    if (count === undefined) return null;
+
     return (
       <div className="bg-background/80 backdrop-blur-sm p-2 border rounded-md shadow-lg text-sm">
-        <p className="font-bold" style={{ color: data.fill }}>{data.name}</p>
-        <p>数量: {data.count}</p>
-        <p>比例: {((data.count / totalJournals) * 100).toFixed(1)}%</p>
+        <p className="font-bold" style={{ color }}>{key}</p>
+        <p>数量: {count}</p>
+        <p>比例: {((count / totalJournals) * 100).toFixed(1)}%</p>
       </div>
     );
   }
   return null;
 };
 
-const StatsBarChart = ({ data }: { data: { name: string; count: number, fill: string }[] }) => {
-    if (!data.length) return null;
+const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
+    if (!data.length) return <div className="h-[50px] bg-muted rounded-md" />;
 
-    const chartData = [{ name: 'stats', ...data.reduce((acc, item) => ({...acc, [item.name]: item.count }), {}) }];
+    const chartData = [{ 
+      name: 'stats', 
+      ...data.reduce((acc, item) => ({...acc, [item.name]: item.count }), {}),
+      chartData: data // Pass original data for tooltip
+    }];
 
     return (
         <div style={{ width: '100%', height: 50 }}>
@@ -61,11 +74,9 @@ const StatsBarChart = ({ data }: { data: { name: string; count: number, fill: st
             >
               <XAxis type="number" hide />
               <YAxis type="category" dataKey="name" hide />
-              <Tooltip content={<CustomTooltip totalJournals={data.reduce((acc, i) => acc + i.count, 0)} />} cursor={{ fill: 'transparent' }} />
+              <Tooltip content={<CustomTooltip totalJournals={totalJournals} />} cursor={{ fill: 'hsl(var(--muted))' }} />
               {data.map((item, index) => (
-                  <Bar key={index} dataKey={item.name} stackId="a">
-                      <Cell fill={item.fill} />
-                  </Bar>
+                  <Bar key={index} dataKey={item.name} stackId="a" fill={item.fill} />
               ))}
             </BarChart>
           </ResponsiveContainer>
@@ -135,14 +146,15 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
             <p className="text-4xl font-bold">{totalJournals}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-                 <StatsDetails title="CAS Partition Breakdown" data={partitionData} total={totalJournals} />
-                 {partitionData.length > 0 && <StatsBarChart data={partitionData} />}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <StatsDetails title="CAS Partition Breakdown" data={partitionData} total={totalJournals} />
+            <StatsDetails title="Authority Level Breakdown" data={authorityData} total={totalJournals} />
+
+            <div className="space-y-2">
+                <StatsBarChart data={partitionData} totalJournals={totalJournals} />
             </div>
-            <div className="space-y-4">
-                 <StatsDetails title="Authority Level Breakdown" data={authorityData} total={totalJournals} />
-                 {authorityData.length > 0 && <StatsBarChart data={authorityData} />}
+            <div className="space-y-2">
+                <StatsBarChart data={authorityData} totalJournals={totalJournals} />
             </div>
         </div>
       </CardContent>
