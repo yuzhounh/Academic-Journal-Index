@@ -371,7 +371,8 @@ export default function CategoryPage() {
           );
         } else {
           return (
-            <div className="animate-in fade-in-50 duration-300">
+            <div className="animate-in fade-in-50 duration-300 space-y-8">
+              <CategoryStats journals={journals} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {sortedCategories.map(([category, count]) => (
                   <Card
