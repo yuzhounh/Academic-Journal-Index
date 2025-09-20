@@ -4,7 +4,13 @@
 import { useMemo } from "react";
 import type { Journal } from "@/data/journals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 
 interface CategoryStatsProps {
   journals: Journal[];
@@ -30,51 +36,37 @@ const authorityColors: { [key: string]: string } = {
   "三级": "#22c55e",
 };
 
-
-const CustomTooltip = ({ active, payload, totalJournals }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0];
-      const { name, value, fill } = data;
-  
-      if (value === undefined || !name) return null;
-  
-      return (
-        <div className="bg-background/80 backdrop-blur-sm p-2 border rounded-md shadow-lg text-sm">
-          <p className="font-bold" style={{ color: fill }}>{name}</p>
-          <p>数量: {value}</p>
-          <p>比例: {((value / totalJournals) * 100).toFixed(1)}%</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
-    if (!data.length || totalJournals === 0) return <div className="h-[50px] bg-muted rounded-md" />;
-
-    const chartData = [{ 
-      name: 'stats', 
-      ...data.reduce((acc, item) => ({...acc, [item.name]: item.count }), {}),
-    }];
+    if (!data.length || totalJournals === 0) return <div className="h-5 bg-muted rounded-md" />;
 
     return (
-        <div style={{ width: '100%', height: 50 }}>
-          <ResponsiveContainer>
-            <BarChart
-              layout="vertical"
-              data={chartData}
-              stackOffset="expand"
-              margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-            >
-              <XAxis type="number" hide />
-              <YAxis type="category" dataKey="name" hide />
-              <Tooltip content={<CustomTooltip totalJournals={totalJournals} />} cursor={{ fill: 'hsl(var(--muted))' }} />
-              {data.map((item) => (
-                  <Bar key={item.name} dataKey={item.name} name={item.name} stackId="a" fill={item.fill} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <TooltipProvider>
+            <div className="flex h-5 w-full rounded-md overflow-hidden">
+                {data.map((item) => (
+                    <Tooltip key={item.name} delayDuration={100}>
+                        <TooltipTrigger asChild>
+                            <div
+                                style={{
+                                    width: `${(item.count / totalJournals) * 100}%`,
+                                    backgroundColor: item.fill,
+                                }}
+                                className="h-full transition-transform duration-200 ease-in-out hover:scale-105 hover:brightness-110"
+                            />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div className="text-sm p-1">
+                                <p className="font-bold flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.fill }} />
+                                    {item.name}
+                                </p>
+                                <p>数量: {item.count}</p>
+                                <p>比例: {((item.count / totalJournals) * 100).toFixed(1)}%</p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                ))}
+            </div>
+        </TooltipProvider>
     );
 };
 
