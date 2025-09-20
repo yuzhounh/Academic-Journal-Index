@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { useJournals, type Journal } from "@/data/journals";
+import type { Journal } from "@/data/journals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,7 +19,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ArrowLeft, BookText, Loader2, Crown, Medal, Star } from "lucide-react";
+import { ArrowLeft, BookText, Crown, Medal, Star } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
@@ -156,8 +156,11 @@ const extractRank = (partition: string): number => {
   return match ? parseInt(match[1], 10) : Infinity;
 };
 
-export default function CategoryPage() {
-  const { journals, loading } = useJournals();
+interface CategoryPageProps {
+  journals: Journal[];
+}
+
+export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -168,7 +171,6 @@ export default function CategoryPage() {
 
 
   const categories = useMemo(() => {
-    if (loading) return {};
     const categoryCounts: { [key: string]: number } = {};
     journals.forEach((journal) => {
       if (journal.majorCategory) {
@@ -177,7 +179,7 @@ export default function CategoryPage() {
       }
     });
     return categoryCounts;
-  }, [journals, loading]);
+  }, [journals]);
 
   const sortedCategories = useMemo(() => {
     return Object.entries(categories).sort(
@@ -255,15 +257,6 @@ export default function CategoryPage() {
     setPreservedSearchTerm("");
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-muted-foreground">Loading journal data...</p>
-      </div>
-    );
-  }
-
   if (selectedJournal) {
     return (
       <div className="py-4 md:py-8">
@@ -279,7 +272,7 @@ export default function CategoryPage() {
   const renderContent = () => {
     switch (view) {
       case "search":
-        return <SearchPage onJournalSelect={handleJournalSelect} initialSearchTerm={preservedSearchTerm} />;
+        return <SearchPage journals={journals} onJournalSelect={handleJournalSelect} initialSearchTerm={preservedSearchTerm} />;
       case "categories":
         if (selectedCategory) {
           return (
@@ -378,7 +371,7 @@ export default function CategoryPage() {
                           e.preventDefault();
                           handlePageChange(currentPage + 1);
                         }}
-                        aria-disabled={currentPage === totalPages}
+aria-disabled={currentPage === totalPages}
                         className={
                           currentPage === totalPages
                             ? "pointer-events-none opacity-50"

@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useMemo, ChangeEvent, useEffect } from "react";
-import { useJournals, type Journal } from "@/data/journals";
+import type { Journal } from "@/data/journals";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils";
 import CategoryStats from "./CategoryStats";
 
 interface SearchPageProps {
+  journals: Journal[];
   onJournalSelect: (journal: Journal, searchTerm: string) => void;
   initialSearchTerm?: string;
 }
@@ -145,9 +147,8 @@ const getPaginationItems = (
 };
 
 
-export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
+function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const { journals, loading: journalsLoading } = useJournals();
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -189,15 +190,6 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
       window.scrollTo(0, 0);
     }
   };
-
-  if (journalsLoading) {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-[50vh]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">Initializing search...</p>
-        </div>
-    )
-  }
 
   const showInitialMessage = searchTerm.length < 3;
   const showNoResultsMessage = searchTerm.length >= 3 && filteredJournals.length === 0;
@@ -312,4 +304,8 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
       )}
     </div>
   );
+}
+
+export default function SearchPage({ journals, onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
+  return <SearchClient journals={journals} onJournalSelect={onJournalSelect} initialSearchTerm={initialSearchTerm} />;
 }
