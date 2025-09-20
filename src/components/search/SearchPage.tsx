@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Loader2, Crown, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CategoryStats from "./CategoryStats";
 
 interface SearchPageProps {
   onJournalSelect: (journal: Journal, searchTerm: string) => void;
@@ -112,6 +113,12 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
         />
       </div>
 
+      {filteredJournals.length > 0 && (
+        <div className="mb-6 animate-in fade-in-50 duration-300">
+          <CategoryStats journals={filteredJournals} />
+        </div>
+      )}
+
       {showInitialMessage && (
           <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
               <Search className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -128,7 +135,7 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
       )}
 
       {filteredJournals.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-in fade-in-50 duration-300">
           {filteredJournals.map((journal) => (
             <Card
               key={journal.issn}
