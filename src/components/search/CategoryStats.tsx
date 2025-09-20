@@ -4,7 +4,7 @@
 import { useMemo } from "react";
 import type { Journal } from "@/data/journals";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 interface CategoryStatsProps {
   journals: Journal[];
@@ -32,27 +32,22 @@ const authorityColors: { [key: string]: string } = {
 
 
 const CustomTooltip = ({ active, payload, totalJournals }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    const key = payload[0].dataKey;
-    const count = data[key];
-
-    // Find the original item to get the fill color and correct name
-    const originalItem = (payload[0].payload.chartData as any[]).find(item => item.name === key);
-    const color = originalItem ? originalItem.fill : '#8884d8';
-
-    if (count === undefined || !originalItem) return null;
-
-    return (
-      <div className="bg-background/80 backdrop-blur-sm p-2 border rounded-md shadow-lg text-sm">
-        <p className="font-bold" style={{ color }}>{key}</p>
-        <p>数量: {count}</p>
-        <p>比例: {((count / totalJournals) * 100).toFixed(1)}%</p>
-      </div>
-    );
-  }
-  return null;
-};
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      const { name, value, fill } = data;
+  
+      if (value === undefined || !name) return null;
+  
+      return (
+        <div className="bg-background/80 backdrop-blur-sm p-2 border rounded-md shadow-lg text-sm">
+          <p className="font-bold" style={{ color: fill }}>{name}</p>
+          <p>数量: {value}</p>
+          <p>比例: {((value / totalJournals) * 100).toFixed(1)}%</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
     if (!data.length || totalJournals === 0) return <div className="h-[50px] bg-muted rounded-md" />;
@@ -60,7 +55,6 @@ const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: n
     const chartData = [{ 
       name: 'stats', 
       ...data.reduce((acc, item) => ({...acc, [item.name]: item.count }), {}),
-      chartData: data // Pass original data for tooltip to find name and color
     }];
 
     return (
@@ -75,8 +69,8 @@ const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: n
               <XAxis type="number" hide />
               <YAxis type="category" dataKey="name" hide />
               <Tooltip content={<CustomTooltip totalJournals={totalJournals} />} cursor={{ fill: 'hsl(var(--muted))' }} />
-              {data.map((item, index) => (
-                  <Bar key={index} dataKey={item.name} stackId="a" fill={item.fill} />
+              {data.map((item) => (
+                  <Bar key={item.name} dataKey={item.name} name={item.name} stackId="a" fill={item.fill} />
               ))}
             </BarChart>
           </ResponsiveContainer>
