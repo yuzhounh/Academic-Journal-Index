@@ -37,8 +37,8 @@ const StatsChart = ({ title, data, total }: { title: string; data: { name: strin
 
     return (
         <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-muted-foreground">{title}</h4>
-            <div className="space-y-2 text-sm">
+            <h4 className="text-base font-semibold text-muted-foreground">{title}</h4>
+            <div className="space-y-2 text-base">
                 {data.map(item => (
                     <div key={item.name} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ const StatsChart = ({ title, data, total }: { title: string; data: { name: strin
                         </div>
                         <div className="font-mono text-right">
                            <span>{item.count}</span>
-                           <span className="text-muted-foreground text-xs ml-2">({((item.count / total) * 100).toFixed(1)}%)</span>
+                           <span className="text-muted-foreground text-sm ml-2">({((item.count / total) * 100).toFixed(1)}%)</span>
                         </div>
                     </div>
                 ))}
@@ -84,11 +84,11 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-headline">Category Statistics</CardTitle>
+        <CardTitle className="text-xl font-headline">Category Statistics</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-center">
-            <p className="text-sm text-muted-foreground">Total Journals</p>
+            <p className="text-base text-muted-foreground">Total Journals</p>
             <p className="text-4xl font-bold">{totalJournals}</p>
         </div>
 
@@ -104,7 +104,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
         <div className="space-y-4 pt-4">
             {partitionData.length > 0 && (
                 <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">CAS Partition Distribution</h4>
+                    <h4 className="text-base font-semibold text-muted-foreground mb-2 text-center">CAS Partition Distribution</h4>
                     <div className="w-full h-10 flex rounded-md overflow-hidden">
                         {partitionData.map((item, index) => (
                             <div 
@@ -121,7 +121,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
             )}
              {authorityData.length > 0 && (
                 <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Authority Level Distribution</h4>
+                    <h4 className="text-base font-semibold text-muted-foreground mb-2 text-center">Authority Level Distribution</h4>
                     <div className="w-full h-10 flex rounded-md overflow-hidden">
                         {authorityData.map((item, index) => (
                             <div 
