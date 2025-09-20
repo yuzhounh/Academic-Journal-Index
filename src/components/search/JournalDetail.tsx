@@ -64,7 +64,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardContent className="space-y-4">
                     <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
-                    <InfoItem icon={TrendingUp} label="Impact Factor" value={journal.impactFactor} />
+                    <InfoItem icon={TrendingUp} label="Impact Factor" value={Number(journal.impactFactor).toFixed(1)} />
                     <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
                     <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} />

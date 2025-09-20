@@ -152,7 +152,7 @@ export default function SearchPage({ onJournalSelect, initialSearchTerm = "" }: 
                 </div>
                 <div className="col-span-2 text-center">
                     <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                    <p className="font-medium text-lg">{journal.impactFactor}</p>
+                    <p className="font-medium text-lg">{Number(journal.impactFactor).toFixed(1)}</p>
                 </div>
                 <div className="col-span-3 flex flex-col items-center justify-center text-center">
                   <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>

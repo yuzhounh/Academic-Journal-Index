@@ -323,7 +323,7 @@ export default function CategoryPage() {
                           Impact Factor
                         </p>
                         <p className="font-medium text-lg">
-                          {journal.impactFactor}
+                          {Number(journal.impactFactor).toFixed(1)}
                         </p>
                       </div>
                       <div className="col-span-3 flex flex-col items-center justify-center text-center">
