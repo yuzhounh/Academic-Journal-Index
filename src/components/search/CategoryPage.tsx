@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -308,8 +309,8 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                             <p className="text-sm text-muted-foreground">
                             {journal.issn}
                             </p>
-                            {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
                             <AuthorityBadge level={journal.authorityJournal} />
+                            {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
                          </div>
                       </div>
                       <div className="col-span-2 text-center">

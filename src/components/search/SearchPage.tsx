@@ -242,8 +242,8 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
                     <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
                     <div className="flex items-center gap-2 mt-1">
                         <p className="text-sm text-muted-foreground">{journal.issn}</p>
-                        {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
                         <AuthorityBadge level={journal.authorityJournal} />
+                        {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
                     </div>
                 </div>
                 <div className="col-span-2 text-center">
