@@ -36,6 +36,11 @@ const authorityColors: { [key: string]: string } = {
   "三级": "#22c55e",
 };
 
+const openAccessColors: { [key: string]: string } = {
+    "Open Access": "#34d399",
+    "Closed Access": "#d1d5db",
+};
+
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
     if (!data.length || totalJournals === 0) return <div className="h-8 bg-muted rounded-md" />;
 
@@ -121,6 +126,20 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
     return Object.entries(counts).map(([name, count]) => ({ name, count, fill: authorityColors[name] })).filter(item => item.count > 0);
   }, [journals]);
 
+  const openAccessData = useMemo(() => {
+    const counts = { "Open Access": 0, "Closed Access": 0 };
+    journals.forEach((j) => {
+      if (j.openAccess === "是") {
+        counts["Open Access"]++;
+      } else {
+        counts["Closed Access"]++;
+      }
+    });
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count, fill: openAccessColors[name] }))
+      .filter(item => item.count > 0);
+  }, [journals]);
+
   return (
     <Card>
       <CardHeader>
@@ -132,15 +151,19 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
             <p className="text-4xl font-bold">{totalJournals}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
             <StatsDetails title="CAS Partition Breakdown" data={partitionData} total={totalJournals} />
             <StatsDetails title="Authority Level Breakdown" data={authorityData} total={totalJournals} />
+            <StatsDetails title="Open Access Breakdown" data={openAccessData} total={totalJournals} />
 
             <div className="space-y-2">
                 <StatsBarChart data={partitionData} totalJournals={totalJournals} />
             </div>
             <div className="space-y-2">
                 <StatsBarChart data={authorityData} totalJournals={totalJournals} />
+            </div>
+            <div className="space-y-2">
+                <StatsBarChart data={openAccessData} totalJournals={totalJournals} />
             </div>
         </div>
       </CardContent>
