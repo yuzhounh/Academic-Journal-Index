@@ -308,6 +308,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                             <p className="text-sm text-muted-foreground">
                             {journal.issn}
                             </p>
+                            {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
                             <AuthorityBadge level={journal.authorityJournal} />
                          </div>
                       </div>

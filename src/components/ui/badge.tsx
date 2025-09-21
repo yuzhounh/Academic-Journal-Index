@@ -22,6 +22,7 @@ const badgeVariants = cva(
         authority1: "border-transparent bg-[#f75c2e] text-white",
         authority2: "border-transparent bg-[#f79410] text-white",
         authority3: "border-transparent bg-[#22c55e] text-white",
+        openAccess: "border-transparent bg-emerald-500 text-white"
       },
     },
     defaultVariants: {

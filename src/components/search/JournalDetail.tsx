@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import AiSummary from "./AiSummary";
+import { Badge } from "../ui/badge";
 
 interface JournalDetailProps {
   journal: Journal;
@@ -31,12 +32,15 @@ interface JournalDetailProps {
   onJournalSelect: (journalName: string) => void;
 }
 
-const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string | number }) => (
+const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType, label: string, value: string | number, isOA?: boolean }) => (
     <div className="flex items-start">
         <Icon className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
         <div>
             <p className="text-sm font-medium text-muted-foreground">{label}</p>
-            <p className="text-base font-semibold">{value || "-"}</p>
+            <div className="flex items-center gap-2">
+                <p className="text-base font-semibold">{value || "-"}</p>
+                {isOA && <Badge variant="openAccess">OA</Badge>}
+            </div>
         </div>
     </div>
 );
@@ -67,7 +71,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={Number(journal.impactFactor).toFixed(1)} />
                     <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
                     <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
-                    <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} />
+                    <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                 </CardContent>
             </Card>
