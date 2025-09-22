@@ -38,7 +38,7 @@ const authorityColors: { [key: string]: string } = {
 
 const openAccessColors: { [key: string]: string } = {
     "Open Access": "#34d399",
-    "Closed Access": "#d1d5db",
+    "Closed Access": "#f97316",
 };
 
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
@@ -127,7 +127,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
   }, [journals]);
 
   const openAccessData = useMemo(() => {
-    const counts = { "Open Access": 0, "Closed Access": 0 };
+    const counts = { "Closed Access": 0, "Open Access": 0 };
     journals.forEach((j) => {
       if (j.openAccess === "是") {
         counts["Open Access"]++;
