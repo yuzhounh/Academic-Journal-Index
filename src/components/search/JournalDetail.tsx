@@ -56,23 +56,33 @@ const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType,
     </div>
 );
 
-const ApcInfoItem = ({ apc }: { apc: string | undefined}) => {
+const ApcInfoItem = ({ apc }: { apc: { value: string | undefined, url: string | undefined } }) => {
     const renderContent = () => {
-        if (apc === undefined) {
+        if (apc.value === undefined) {
             // Loading state
             return <Skeleton className="h-5 w-20" />;
         }
-        if (apc === "Error" || apc === "Not found") {
-            return <p className="text-base font-semibold text-muted-foreground">{apc}</p>;
+        if (apc.value === "Error" || apc.value === "Not found") {
+            return <p className="text-base font-semibold text-muted-foreground">{apc.value}</p>;
         }
-        return <p className="text-base font-semibold">{apc}</p>;
+        
+        return (
+            <a 
+                href={apc.url || '#'} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-base font-semibold text-primary hover:underline"
+            >
+                {apc.value}
+            </a>
+        );
     };
 
     return (
         <div className="flex items-start">
             <DollarSign className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
             <div>
-                <p className="text-sm font-medium text-muted-foreground">APC (Regular Paper)</p>
+                <p className="text-sm font-medium text-muted-foreground">APC</p>
                 <div className="flex items-center gap-2">
                     {renderContent()}
                 </div>
@@ -83,7 +93,7 @@ const ApcInfoItem = ({ apc }: { apc: string | undefined}) => {
 
 
 export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
-  const [apc, setApc] = useState<string | undefined>(undefined);
+  const [apc, setApc] = useState<{ value: string | undefined, url: string | undefined }>({ value: undefined, url: undefined });
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
@@ -106,9 +116,9 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardContent className="space-y-4">
                     <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
+                    <InfoItem icon={ShieldCheck} label="Review" value={journal.review} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={formatImpactFactor(journal.impactFactor)} />
-                    <InfoItem icon={ShieldCheck} label="Review" value={journal.review} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
                     {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
                 </CardContent>

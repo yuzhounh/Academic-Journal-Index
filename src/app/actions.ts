@@ -10,6 +10,7 @@ import type { Journal } from "@/data/journals";
 
 export type JournalSummaryInfo = SummaryOutput & {
     apc?: string;
+    apcUrl?: string;
 };
 
 export async function getSummary(journal: Journal): Promise<JournalSummaryInfo> {
@@ -62,6 +63,7 @@ export async function getSummary(journal: Journal): Promise<JournalSummaryInfo> 
         summary: summaryResult.summary,
         relatedJournals: summaryResult.relatedJournals,
         apc: apcResult?.apc,
+        apcUrl: apcResult?.apcUrl,
     };
 
   } catch (error) {
@@ -70,7 +72,8 @@ export async function getSummary(journal: Journal): Promise<JournalSummaryInfo> 
     return {
         summary: "An error occurred while generating the summary. The AI service may be temporarily unavailable.",
         relatedJournals: [],
-        apc: "Error"
+        apc: "Error",
+        apcUrl: "#"
     };
   }
 }

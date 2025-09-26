@@ -12,7 +12,7 @@ import type { JournalSummaryInfo } from "@/app/actions";
 interface AiSummaryProps {
   journal: Journal;
   onJournalSelect: (journalName: string) => void;
-  setApc: (apc: string | undefined) => void;
+  setApc: (apc: { value: string | undefined, url: string | undefined }) => void;
 }
 
 type RelatedJournal = {
@@ -30,17 +30,17 @@ export default function AiSummary({ journal, onJournalSelect, setApc }: AiSummar
     const fetchSummary = async () => {
       setIsLoading(true);
       setError(null);
-      setApc(undefined); // Reset APC on new journal
+      setApc({ value: undefined, url: undefined }); // Reset APC on new journal
       try {
         const result: JournalSummaryInfo = await getSummary(journal);
         setSummary(result.summary);
         setRelatedJournals(result.relatedJournals || []);
         if (result.apc) {
-          setApc(result.apc);
+          setApc({ value: result.apc, url: result.apcUrl });
         }
       } catch (e) {
         setError("Failed to generate summary.");
-        setApc("Error");
+        setApc({ value: "Error", url: "#" });
         console.error(e);
       } finally {
         setIsLoading(false);
