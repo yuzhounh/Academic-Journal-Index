@@ -9,6 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'genkit';
 
 const FindApcInputSchema = z.object({
@@ -17,47 +18,27 @@ const FindApcInputSchema = z.object({
 export type FindApcInput = z.infer<typeof FindApcInputSchema>;
 
 const FindApcOutputSchema = z.object({
-  apc: z.string().describe('The Article Processing Charge for a Regular Paper. E.g., "$2500" or "Not found".'),
+  apc: z.string().describe('The Article Processing Charge for a "Regular Paper" or "Research Article". E.g., "$2500" or "Not found".'),
   apcUrl: z.string().describe("A URL to search for the journal's APC. E.g., a Google search URL."),
 });
 export type FindApcOutput = z.infer<typeof FindApcOutputSchema>;
-
-
-const findApcTool = ai.defineTool(
-    {
-      name: 'findApcTool',
-      description: 'Gets the Article Processing Charge (APC) for a "Regular Paper" or "Research Article" in a given journal and a URL to find it.',
-      inputSchema: FindApcInputSchema,
-      outputSchema: FindApcOutputSchema,
-    },
-    async (input) => {
-        // In a real application, you would query a database or external API, or use a web-scraping tool.
-        // For this demo, we'll simulate it with a random but realistic value and provide a helpful search link.
-        
-        const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(`${input.journalName} article processing charge`)}`;
-
-        const shouldFind = Math.random() > 0.1; // 90% chance of finding a value
-        if (shouldFind) {
-            const randomApc = Math.floor(Math.random() * (5000 - 1500 + 1)) + 1500;
-            return { 
-                apc: `$${Math.round(randomApc / 100) * 100}`,
-                apcUrl: googleSearchUrl,
-            };
-        }
-        return { 
-            apc: "Not found",
-            apcUrl: googleSearchUrl
-        };
-    }
-);
-
 
 const findApcPrompt = ai.definePrompt({
     name: 'findApcPrompt',
     input: { schema: FindApcInputSchema },
     output: { schema: FindApcOutputSchema },
-    tools: [findApcTool],
-    prompt: `Use the findApcTool to find the article processing charge for a Regular Paper in the journal: {{{journalName}}}.`,
+    model: googleAI('gemini-2.5-pro'),
+    prompt: `
+      You are an expert academic research assistant.
+      Your task is to find the Article Processing Charge (APC) for a "Regular Paper" or "Research Article" in a specific journal.
+      
+      Journal Name: {{{journalName}}}
+
+      1.  Based on your knowledge, find the most recent APC for a "Regular Paper" or "Research Article" for the journal specified.
+      2.  The APC should be in USD. For example, "$3000".
+      3.  If you cannot find the APC with high confidence, set the "apc" field to "Not found".
+      4.  Always provide a Google search URL for the user to verify the information in the "apcUrl" field. The search query should be " {{{journalName}}} article processing charge ".
+    `,
 });
 
 
