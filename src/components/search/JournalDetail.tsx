@@ -100,7 +100,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={Number(journal.impactFactor).toFixed(1)} />
-                    <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
+                    <InfoItem icon={ShieldCheck} label="Review" value={journal.review} />
                     <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
                     {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
