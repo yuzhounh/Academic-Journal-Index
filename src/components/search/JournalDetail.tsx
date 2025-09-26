@@ -35,6 +35,14 @@ interface JournalDetailProps {
   onJournalSelect: (journalName: string) => void;
 }
 
+const formatImpactFactor = (factor: number | string) => {
+    const num = Number(factor);
+    if (!isNaN(num)) {
+      return num.toFixed(1);
+    }
+    return factor;
+};
+
 const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType, label: string, value: string | number, isOA?: boolean }) => (
     <div className="flex items-start">
         <Icon className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
@@ -99,9 +107,8 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                     <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
-                    <InfoItem icon={TrendingUp} label="Impact Factor" value={Number(journal.impactFactor).toFixed(1)} />
+                    <InfoItem icon={TrendingUp} label="Impact Factor" value={formatImpactFactor(journal.impactFactor)} />
                     <InfoItem icon={ShieldCheck} label="Review" value={journal.review} />
-                    <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
                     {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
                 </CardContent>

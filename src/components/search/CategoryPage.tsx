@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -161,6 +162,14 @@ interface CategoryPageProps {
   journals: Journal[];
 }
 
+const formatImpactFactor = (factor: number | string) => {
+  const num = Number(factor);
+  if (!isNaN(num)) {
+    return num.toFixed(1);
+  }
+  return factor;
+};
+
 export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
@@ -318,7 +327,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                           Impact Factor
                         </p>
                         <p className="font-medium text-lg">
-                          {Number(journal.impactFactor).toFixed(1)}
+                          {formatImpactFactor(journal.impactFactor)}
                         </p>
                       </div>
                       <div className="col-span-3 flex flex-col items-center justify-center text-center">

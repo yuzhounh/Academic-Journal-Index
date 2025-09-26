@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, ChangeEvent, useEffect } from "react";
@@ -146,6 +147,13 @@ const getPaginationItems = (
   return uniquePages;
 };
 
+const formatImpactFactor = (factor: number | string) => {
+    const num = Number(factor);
+    if (!isNaN(num)) {
+      return num.toFixed(1);
+    }
+    return factor;
+};
 
 function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
@@ -248,7 +256,7 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
                 </div>
                 <div className="col-span-2 text-center">
                     <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                    <p className="font-medium text-lg">{Number(journal.impactFactor).toFixed(1)}</p>
+                    <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                 </div>
                 <div className="col-span-3 flex flex-col items-center justify-center text-center">
                   <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
