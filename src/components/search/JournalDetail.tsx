@@ -64,7 +64,7 @@ const ApcInfoItem = ({ apc }: { apc: string | undefined}) => {
         <div className="flex items-start">
             <DollarSign className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
             <div>
-                <p className="text-sm font-medium text-muted-foreground">版面费 (Regular Paper)</p>
+                <p className="text-sm font-medium text-muted-foreground">APC (Regular Paper)</p>
                 <div className="flex items-center gap-2">
                     {renderContent()}
                 </div>
@@ -98,12 +98,12 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardContent className="space-y-4">
                     <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
+                    <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={Number(journal.impactFactor).toFixed(1)} />
-                    {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
                     <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
                     <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
-                    <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
+                    {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
                 </CardContent>
             </Card>
             
