@@ -1,6 +1,7 @@
 "use client";
 
 import type { Journal } from "@/data/journals";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -20,11 +21,13 @@ import {
   TrendingUp,
   BookMarked,
   Sparkles,
-  Award
+  Award,
+  DollarSign
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import AiSummary from "./AiSummary";
 import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 
 interface JournalDetailProps {
   journal: Journal;
@@ -45,8 +48,35 @@ const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType,
     </div>
 );
 
+const ApcInfoItem = ({ apc }: { apc: string | undefined}) => {
+    const renderContent = () => {
+        if (apc === undefined) {
+            // Loading state
+            return <Skeleton className="h-5 w-20" />;
+        }
+        if (apc === "Error" || apc === "Not found") {
+            return <p className="text-base font-semibold text-muted-foreground">{apc}</p>;
+        }
+        return <p className="text-base font-semibold">{apc}</p>;
+    };
+
+    return (
+        <div className="flex items-start">
+            <DollarSign className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
+            <div>
+                <p className="text-sm font-medium text-muted-foreground">版面费 (Regular Paper)</p>
+                <div className="flex items-center gap-2">
+                    {renderContent()}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
+  const [apc, setApc] = useState<string | undefined>(undefined);
+
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
       <div className="flex items-center gap-4">
@@ -69,6 +99,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                     <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={Number(journal.impactFactor).toFixed(1)} />
+                    {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
                     <InfoItem icon={ShieldCheck} label="Peer-Reviewed" value={journal.review} />
                     <InfoItem icon={CheckCircle} label="OA Journal Index (OAJ)" value={journal.oaj} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
@@ -99,7 +130,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardDescription>A concise summary of the journal's significance and impact.</CardDescription>
             </CardHeader>
             <CardContent>
-                <AiSummary journal={journal} onJournalSelect={onJournalSelect}/>
+                <AiSummary journal={journal} onJournalSelect={onJournalSelect} setApc={setApc} />
             </CardContent>
         </Card>
       </div>

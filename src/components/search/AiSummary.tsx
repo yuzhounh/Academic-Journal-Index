@@ -6,10 +6,13 @@ import { getSummary } from "@/app/actions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookCopy } from "lucide-react";
+import type { JournalSummaryInfo } from "@/app/actions";
+
 
 interface AiSummaryProps {
   journal: Journal;
   onJournalSelect: (journalName: string) => void;
+  setApc: (apc: string | undefined) => void;
 }
 
 type RelatedJournal = {
@@ -17,7 +20,7 @@ type RelatedJournal = {
   issn: string;
 };
 
-export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) {
+export default function AiSummary({ journal, onJournalSelect, setApc }: AiSummaryProps) {
   const [summary, setSummary] = useState<string>("");
   const [relatedJournals, setRelatedJournals] = useState<RelatedJournal[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -27,12 +30,17 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
     const fetchSummary = async () => {
       setIsLoading(true);
       setError(null);
+      setApc(undefined); // Reset APC on new journal
       try {
-        const result = await getSummary(journal);
+        const result: JournalSummaryInfo = await getSummary(journal);
         setSummary(result.summary);
         setRelatedJournals(result.relatedJournals || []);
+        if (result.apc) {
+          setApc(result.apc);
+        }
       } catch (e) {
         setError("Failed to generate summary.");
+        setApc("Error");
         console.error(e);
       } finally {
         setIsLoading(false);
@@ -42,7 +50,7 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
     if (journal) {
       fetchSummary();
     }
-  }, [journal]);
+  }, [journal, setApc]);
 
   if (isLoading) {
     return (

@@ -3,11 +3,16 @@
 import {
   summarizeJournalInfo,
   type SummarizeJournalInfoInput,
-  type SummarizeJournalInfoOutput,
+  type SummarizeJournalInfoOutput as SummaryOutput,
 } from "@/ai/flows/summarize-journal-info";
+import { findApc } from "@/ai/flows/find-apc-flow";
 import type { Journal } from "@/data/journals";
 
-export async function getSummary(journal: Journal): Promise<SummarizeJournalInfoOutput> {
+export type JournalSummaryInfo = SummaryOutput & {
+    apc?: string;
+};
+
+export async function getSummary(journal: Journal): Promise<JournalSummaryInfo> {
   try {
     const input: SummarizeJournalInfoInput = {
       journalName: journal.journalName,
@@ -45,14 +50,27 @@ export async function getSummary(journal: Journal): Promise<SummarizeJournalInfo
         }
     });
 
-    const result = await summarizeJournalInfo(input);
-    return result;
+    // Run both AI flows in parallel
+    const promises = [
+        summarizeJournalInfo(input),
+        journal.openAccess === '是' ? findApc({ journalName: journal.journalName }) : Promise.resolve(null)
+    ];
+
+    const [summaryResult, apcResult] = await Promise.all(promises);
+
+    return {
+        summary: summaryResult.summary,
+        relatedJournals: summaryResult.relatedJournals,
+        apc: apcResult?.apc,
+    };
+
   } catch (error) {
-    console.error("Error generating AI summary:", error);
+    console.error("Error generating AI data:", error);
     // Return a user-friendly error message
     return {
         summary: "An error occurred while generating the summary. The AI service may be temporarily unavailable.",
-        relatedJournals: []
+        relatedJournals: [],
+        apc: "Error"
     };
   }
 }
