@@ -66,7 +66,7 @@ const ApcInfoItem = ({ journalName }: { journalName: string }) => {
                     rel="noopener noreferrer"
                     className="text-base font-semibold text-primary hover:underline inline-flex items-center gap-1"
                 >
-                    Search on Google <Search className="h-4 w-4"/>
+                    Google <Search className="h-4 w-4"/>
                 </a>
             </div>
         </div>
