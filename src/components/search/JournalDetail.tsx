@@ -1,7 +1,6 @@
 "use client";
 
 import type { Journal } from "@/data/journals";
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -17,17 +16,14 @@ import {
   Barcode,
   ShieldCheck,
   Globe,
-  CheckCircle,
   TrendingUp,
   BookMarked,
-  Sparkles,
   Award,
-  DollarSign
+  DollarSign,
+  Search
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
-import AiSummary from "./AiSummary";
 import { Badge } from "../ui/badge";
-import { Skeleton } from "../ui/skeleton";
 
 interface JournalDetailProps {
   journal: Journal;
@@ -37,7 +33,7 @@ interface JournalDetailProps {
 
 const formatImpactFactor = (factor: number | string) => {
     const num = Number(factor);
-    if (!isNaN(num)) {
+    if (!isNaN(num) && String(factor).trim() !== "" && !String(factor).includes('<')) {
       return num.toFixed(1);
     }
     return factor;
@@ -56,44 +52,29 @@ const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType,
     </div>
 );
 
-const ApcInfoItem = ({ apc }: { apc: { value: string | undefined, url: string | undefined } }) => {
-    const renderContent = () => {
-        if (apc.value === undefined) {
-            // Loading state
-            return <Skeleton className="h-5 w-20" />;
-        }
-        if (apc.value === "Error" || apc.value === "Not found") {
-            return <p className="text-base font-semibold text-muted-foreground">{apc.value}</p>;
-        }
-        
-        return (
-            <a 
-                href={apc.url || '#'} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-base font-semibold text-primary hover:underline"
-            >
-                {apc.value}
-            </a>
-        );
-    };
+const ApcInfoItem = ({ journalName }: { journalName: string }) => {
+    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(journalName)}+article+processing+charge`;
 
     return (
         <div className="flex items-start">
             <DollarSign className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
             <div>
                 <p className="text-sm font-medium text-muted-foreground">APC</p>
-                <div className="flex items-center gap-2">
-                    {renderContent()}
-                </div>
+                 <a 
+                    href={searchUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-base font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
+                    Search on Google <Search className="h-4 w-4"/>
+                </a>
             </div>
         </div>
     );
 };
 
 
-export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
-  const [apc, setApc] = useState<{ value: string | undefined, url: string | undefined }>({ value: undefined, url: undefined });
+export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
@@ -120,7 +101,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={formatImpactFactor(journal.impactFactor)} />
                     <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
-                    {journal.openAccess === '是' && <ApcInfoItem apc={apc} />}
+                    {journal.openAccess === '是' && <ApcInfoItem journalName={journal.journalName} />}
                 </CardContent>
             </Card>
             
@@ -137,19 +118,6 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 </CardContent>
             </Card>
         </div>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                    <Sparkles className="text-primary"/>
-                    AI-Powered Summary
-                </CardTitle>
-                <CardDescription>A concise summary of the journal's significance and impact.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <AiSummary journal={journal} onJournalSelect={onJournalSelect} setApc={setApc} />
-            </CardContent>
-        </Card>
       </div>
     </div>
   );
