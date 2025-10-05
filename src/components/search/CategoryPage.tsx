@@ -164,7 +164,7 @@ interface CategoryPageProps {
 
 const formatImpactFactor = (factor: number | string) => {
   const num = Number(factor);
-  if (!isNaN(num)) {
+  if (!isNaN(num) && String(factor).trim() !== "" && !String(factor).includes('<')) {
     return num.toFixed(1);
   }
   return factor;
@@ -457,8 +457,6 @@ aria-disabled={currentPage === totalPages}
       </div>
       <footer className="text-center text-sm text-muted-foreground py-4 border-t">
         © 2025 Jing Wang. All Rights Reserved.
-        <br />
-        Last Updated: September 2025
       </footer>
     </>
   );
