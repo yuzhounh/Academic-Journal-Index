@@ -476,72 +476,74 @@ aria-disabled={currentPage === totalPages}
     </>
   )
 
+  const desktopNavItems = (
+    <nav className="hidden sm:flex items-center gap-2">
+      <Button
+        onClick={() => handleViewChange("search")}
+        variant={view === "search" ? "secondary" : "ghost"}
+        size="sm"
+      >
+        Search
+      </Button>
+      <Button
+        onClick={() => handleViewChange("categories")}
+        variant={view === "categories" ? "secondary" : "ghost"}
+        size="sm"
+      >
+        Browse
+      </Button>
+      {user && (
+          <Button 
+            onClick={() => handleViewChange("favorites")}
+            variant={view === "favorites" ? "secondary" : "ghost"}
+            size="sm"
+          >
+              My Favorites
+          </Button>
+      )}
+      <Button
+          onClick={() => handleViewChange("about")}
+          variant={view === "about" ? "secondary" : "ghost"}
+          size="sm"
+      >
+          About
+      </Button>
+    </nav>
+  )
+
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <a href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
+        <div className="max-w-5xl mx-auto flex h-16 items-center px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center">
+            <a href="/" className="flex items-center gap-2 text-xl font-bold font-headline mr-6">
               <BookOpen className="h-5 w-5 text-primary" />
               <span>AJI</span>
             </a>
+            <div className="hidden sm:flex">{desktopNavItems}</div>
           </div>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2">
-              <Button
-                onClick={() => handleViewChange("search")}
-                variant={view === "search" ? "secondary" : "ghost"}
-                size="sm"
-              >
-                Search
-              </Button>
-              <Button
-                onClick={() => handleViewChange("categories")}
-                variant={view === "categories" ? "secondary" : "ghost"}
-                size="sm"
-              >
-                Browse
-              </Button>
-              {user && (
-                  <Button 
-                    onClick={() => handleViewChange("favorites")}
-                    variant={view === "favorites" ? "secondary" : "ghost"}
-                    size="sm"
-                  >
-                      My Favorites
-                  </Button>
-              )}
-              <Button
-                  onClick={() => handleViewChange("about")}
-                  variant={view === "about" ? "secondary" : "ghost"}
-                  size="sm"
-              >
-                  About
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-2">
-                <UserAvatar onViewFavorites={() => handleViewChange("favorites")} />
-                <div className="sm:hidden">
-                    <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Open menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="pr-0">
-                          <a href="/" className="flex items-center gap-2 text-xl font-bold font-headline mb-6">
-                            <BookOpen className="h-5 w-5 text-primary" />
-                            <span>AJI</span>
-                          </a>
-                          <div className="flex flex-col gap-2">
-                            {navItems}
-                          </div>
-                        </SheetContent>
-                    </Sheet>
-                </div>
+          
+          <div className="flex flex-1 items-center justify-end gap-2">
+            <UserAvatar onViewFavorites={() => handleViewChange("favorites")} />
+            <div className="sm:hidden">
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" size="icon">
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="pr-0">
+                      <a href="/" className="flex items-center gap-2 text-xl font-bold font-headline mb-6">
+                        <BookOpen className="h-5 w-5 text-primary" />
+                        <span>AJI</span>
+                      </a>
+                      <div className="flex flex-col gap-2">
+                        {navItems}
+                      </div>
+                    </SheetContent>
+                </Sheet>
             </div>
           </div>
         </div>
