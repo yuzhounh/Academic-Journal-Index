@@ -21,6 +21,11 @@ export default function UserAvatar() {
   const handleSignIn = async () => {
     if (!auth) return;
     const provider = new GoogleAuthProvider();
+    // This is a workaround for the development environment where the popup
+    // might not work correctly due to domain restrictions.
+    provider.setCustomParameters({
+      'auth_domain': window.location.hostname
+    });
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
@@ -77,5 +82,3 @@ export default function UserAvatar() {
     </DropdownMenu>
   );
 }
-
-    
