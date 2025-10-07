@@ -211,7 +211,7 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
           placeholder="Enter a journal name to search..."
           value={searchTerm}
           onChange={handleSearchChange}
-          className="w-full pl-10 h-12 text-lg"
+          className="w-full pl-10 h-12 text-lg shadow-md focus-visible:shadow-lg transition-shadow"
           aria-label="Search journals"
         />
       </div>
