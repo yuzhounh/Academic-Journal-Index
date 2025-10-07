@@ -5,7 +5,6 @@
         "browse": "Browse",
         "favorites": "My Favorites",
         "about": "About",
-        "help": "Help",
         "login": "Login",
         "logout": "Logout"
     },
@@ -116,26 +115,25 @@
             "authorName": "Jing Wang",
             "email": "Email",
             "github": "GitHub"
-        }
-    },
-    "help": {
-        "title": "Help Center",
-        "p1": "Welcome to the Academic Journal Index! This guide will help you get the most out of our features.",
-        "search": {
-            "title": "Searching for Journals",
-            "p1": "Use the search bar on the 'Search' page to find journals by name. You need to enter at least three characters to start the search. Results are sorted by impact factor by default."
         },
-        "browse": {
-            "title": "Browsing Categories",
-            "p1": "Go to the 'Browse' page to see all available journal categories. Click on any category to view a list of journals within it, sorted by their CAS partition ranking."
-        },
-        "favorites": {
-            "title": "Managing Favorites",
-            "p1": "After logging in, you can add any journal to your favorites by clicking the heart icon on its detail page. Your favorites are available on the 'My Favorites' page."
-        },
-        "ai": {
-            "title": "AI-Powered Analysis",
-            "p1": "On each journal's detail page, click the 'Generate Analysis' button. Our AI assistant will provide a summary of the journal and suggest related publications."
+        "features": {
+            "title": "Features",
+            "search": {
+                "title": "Searching for Journals",
+                "p1": "Use the search bar on the 'Search' page to find journals by name. You need to enter at least three characters to start the search. Results are sorted by impact factor by default."
+            },
+            "browse": {
+                "title": "Browsing Categories",
+                "p1": "Go to the 'Browse' page to see all available journal categories. Click on any category to view a list of journals within it, sorted by their CAS partition ranking."
+            },
+            "favorites": {
+                "title": "Managing Favorites",
+                "p1": "After logging in, you can add any journal to your favorites by clicking the heart icon on its detail page. Your favorites are available on the 'My Favorites' page."
+            },
+            "ai": {
+                "title": "AI-Powered Analysis",
+                "p1": "On each journal's detail page, click the 'Generate Analysis' button. Our AI assistant will provide a summary of the journal and suggest related publications."
+            }
         },
         "feedback": {
             "title": "Questions & Feedback",

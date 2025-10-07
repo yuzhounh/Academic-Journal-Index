@@ -26,7 +26,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu, HelpCircle } from "lucide-react";
+import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
@@ -35,7 +35,6 @@ import UserAvatar from "../auth/UserAvatar";
 import { useFirebase } from "@/firebase";
 import FavoritesContent from "../favorites/FavoritesContent";
 import AboutPage from "./AboutPage";
-import HelpPage from "./HelpPage";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { LanguageToggle } from "../theme/LanguageToggle";
 import { useTranslation } from "@/i18n/provider";
@@ -193,7 +192,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about' | 'help'>("search");
+  const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about'>("search");
   const { user } = useFirebase();
   const { t } = useTranslation();
   
@@ -279,7 +278,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     }
   };
   
-  const handleViewChange = (newView: 'search' | 'categories' | 'favorites' | 'about' | 'help') => {
+  const handleViewChange = (newView: 'search' | 'categories' | 'favorites' | 'about') => {
     setView(newView);
     setSelectedCategory(null);
     setSelectedJournal(null);
@@ -307,8 +306,6 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
         return <FavoritesContent onJournalSelect={(journalName) => handleJournalSelectByName(journalName)} />;
       case "about":
         return <AboutPage />;
-      case "help":
-        return <HelpPage />;
       case "categories":
         if (selectedCategory) {
           return (
@@ -490,13 +487,6 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       >
           {t('nav.about')}
       </Button>
-      <Button
-          onClick={() => handleViewChange("help")}
-          variant={view === "help" ? "secondary" : "ghost"}
-          className="w-full justify-start"
-      >
-          {t('nav.help')}
-      </Button>
     </>
   )
 
@@ -531,13 +521,6 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
           size="sm"
       >
           {t('nav.about')}
-      </Button>
-       <Button
-          onClick={() => handleViewChange("help")}
-          variant={view === "help" ? "secondary" : "ghost"}
-          size="sm"
-      >
-          {t('nav.help')}
       </Button>
     </nav>
   )
