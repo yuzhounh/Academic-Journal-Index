@@ -37,8 +37,8 @@ const authorityColors: { [key: string]: string } = {
 };
 
 const openAccessColors: { [key: string]: string } = {
-    "Open Access": "#34d399",
     "Closed Access": "#f97316",
+    "Open Access": "#34d399",
 };
 
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
@@ -136,9 +136,16 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
       }
     });
     return Object.entries(counts)
+      .sort(([a], [b]) => (a === "Closed Access" ? -1 : 1))
       .map(([name, count]) => ({ name, count, fill: openAccessColors[name] }))
       .filter(item => item.count > 0);
   }, [journals]);
+
+  const allStats = [
+    { title: "CAS Partition Breakdown", data: partitionData },
+    { title: "Authority Level Breakdown", data: authorityData },
+    { title: "Open Access Breakdown", data: openAccessData },
+  ];
 
   return (
     <Card>
@@ -151,7 +158,20 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
             <p className="text-4xl font-bold">{totalJournals}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+        {/* Mobile Layout: Vertical stacking */}
+        <div className="grid grid-cols-1 gap-y-6 md:hidden">
+          {allStats.map(stat => (
+            <div key={stat.title}>
+              <StatsDetails title={stat.title} data={stat.data} total={totalJournals} />
+              <div className="mt-4 space-y-2">
+                <StatsBarChart data={stat.data} totalJournals={totalJournals} />
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Desktop Layout: Grid */}
+        <div className="hidden md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-6">
             <StatsDetails title="CAS Partition Breakdown" data={partitionData} total={totalJournals} />
             <StatsDetails title="Authority Level Breakdown" data={authorityData} total={totalJournals} />
             <StatsDetails title="Open Access Breakdown" data={openAccessData} total={totalJournals} />
