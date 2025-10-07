@@ -11,8 +11,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useFirebase } from "@/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { LogIn, LogOut } from "lucide-react";
+import { useState } from "react";
+import LoginDialog from "./LoginDialog";
 
 interface UserAvatarProps {
   onViewFavorites: () => void;
@@ -20,21 +22,7 @@ interface UserAvatarProps {
 
 export default function UserAvatar({ onViewFavorites }: UserAvatarProps) {
   const { user, auth } = useFirebase();
-
-  const handleSignIn = async () => {
-    if (!auth) return;
-    const provider = new GoogleAuthProvider();
-    // This is a workaround for the development environment where the popup
-    // might not work correctly due to domain restrictions.
-    provider.setCustomParameters({
-      'auth_domain': window.location.hostname
-    });
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Error signing in with Google: ", error);
-    }
-  };
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
     if (!auth) return;
@@ -47,10 +35,13 @@ export default function UserAvatar({ onViewFavorites }: UserAvatarProps) {
 
   if (!user) {
     return (
-      <Button variant="outline" onClick={handleSignIn}>
-        <LogIn className="mr-2 h-4 w-4" />
-        Login
-      </Button>
+      <>
+        <Button variant="outline" onClick={() => setIsLoginDialogOpen(true)}>
+          <LogIn className="mr-2 h-4 w-4" />
+          Login
+        </Button>
+        <LoginDialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen} />
+      </>
     );
   }
 
@@ -66,7 +57,7 @@ export default function UserAvatar({ onViewFavorites }: UserAvatarProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>
-            <p className="font-medium">{user.displayName}</p>
+            <p className="font-medium">{user.displayName || "User"}</p>
             <p className="text-xs text-muted-foreground font-normal truncate">{user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

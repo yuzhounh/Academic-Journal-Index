@@ -26,9 +26,7 @@
       },
       "required": [
         "id",
-        "googleId",
-        "email",
-        "displayName"
+        "email"
       ]
     },
     "Journal": {
@@ -184,7 +182,8 @@
   },
   "auth": {
     "providers": [
-      "google"
+      "google",
+      "email"
     ]
   },
   "firestore": {
@@ -245,5 +244,3 @@
     "reasoning": "The Firestore structure is designed to support user authentication with Google, journal searching and display, and the ability to save favorite journals. The structure emphasizes authorization independence and efficient querying. Journals are stored in a top-level `journals` collection for global access. User-specific data, such as favorite journals, are stored in subcollections under the `users` collection. This approach allows for simple security rules based on path-based ownership.\n\n**Authorization Independence:**\n*   The `favorite_journals` subcollection path itself provides the user context, making queries secure and efficient without needing to check fields inside documents.\n\n**QAPs Support:**\n*   **List Journals (Global):** The top-level `journals` collection enables efficient listing and searching of journals.\n*   **List Favorite Journals (User-Specific):** The `/users/{userId}/favorite_journals` path allows secure and efficient listing of a user's favorite journals using path-based authorization."
   }
 }
-
-    
