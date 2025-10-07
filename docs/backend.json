@@ -1,0 +1,248 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user account in the application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "The unique identifier from Google for this user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        }
+      },
+      "required": [
+        "id",
+        "googleId",
+        "email",
+        "displayName"
+      ]
+    },
+    "Journal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Journal",
+      "type": "object",
+      "description": "Represents a journal entry with its associated information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the journal entity."
+        },
+        "journalName": {
+          "type": "string",
+          "description": "The name of the journal."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year of the journal."
+        },
+        "issn": {
+          "type": "string",
+          "description": "The ISSN/EISSN of the journal."
+        },
+        "review": {
+          "type": "boolean",
+          "description": "Indicates if the journal is peer-reviewed."
+        },
+        "oaJournalIndex": {
+          "type": "boolean",
+          "description": "Indicates if the journal is in the OA Journal Index."
+        },
+        "openAccess": {
+          "type": "boolean",
+          "description": "Indicates if the journal is open access."
+        },
+        "webOfScience": {
+          "type": "string",
+          "description": "Web of Science information for the journal."
+        },
+        "impactFactor": {
+          "type": "number",
+          "description": "The impact factor of the journal."
+        },
+        "majorCategory": {
+          "type": "string",
+          "description": "The major category of the journal."
+        },
+        "majorCategoryPartition": {
+          "type": "string",
+          "description": "The major category partition of the journal."
+        },
+        "top": {
+          "type": "boolean",
+          "description": "Indicates if the journal is a top journal."
+        },
+        "authoritativeJournal": {
+          "type": "string",
+          "description": "The authority level of the journal."
+        },
+        "minorCategory1": {
+          "type": "string",
+          "description": "The first minor category of the journal."
+        },
+        "minorCategory1Partition": {
+          "type": "string",
+          "description": "The first minor category partition of the journal."
+        },
+        "minorCategory2": {
+          "type": "string",
+          "description": "The second minor category of the journal."
+        },
+        "minorCategory2Partition": {
+          "type": "string",
+          "description": "The second minor category partition of the journal."
+        },
+        "minorCategory3": {
+          "type": "string",
+          "description": "The third minor category of the journal."
+        },
+        "minorCategory3Partition": {
+          "type": "string",
+          "description": "The third minor category partition of the journal."
+        },
+        "minorCategory4": {
+          "type": "string",
+          "description": "The fourth minor category of the journal."
+        },
+        "minorCategory4Partition": {
+          "type": "string",
+          "description": "The fourth minor category partition of the journal."
+        },
+        "minorCategory5": {
+          "type": "string",
+          "description": "The fifth minor category of the journal."
+        },
+        "minorCategory5Partition": {
+          "type": "string",
+          "description": "The fifth minor category partition of the journal."
+        },
+        "minorCategory6": {
+          "type": "string",
+          "description": "The sixth minor category of the journal."
+        },
+        "minorCategory6Partition": {
+          "type": "string",
+          "description": "The sixth minor category partition of the journal."
+        }
+      },
+      "required": [
+        "id",
+        "journalName",
+        "year",
+        "issn",
+        "review",
+        "oaJournalIndex",
+        "openAccess",
+        "webOfScience",
+        "impactFactor",
+        "majorCategory",
+        "majorCategoryPartition",
+        "top",
+        "authoritativeJournal",
+        "minorCategory1",
+        "minorCategory1Partition"
+      ]
+    },
+    "FavoriteJournal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FavoriteJournal",
+      "type": "object",
+      "description": "Represents a user's favorite journal.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the favorite journal entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N FavoriteJournal)"
+        },
+        "journalId": {
+          "type": "string",
+          "description": "Reference to Journal. (Relationship: Journal 1:N FavoriteJournal)"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "journalId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. This collection uses path-based ownership for security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/journals/{journalId}",
+        "definition": {
+          "entityName": "Journal",
+          "schema": {
+            "$ref": "#/backend/entities/Journal"
+          },
+          "description": "Stores journal information. This collection is globally accessible for read operations.",
+          "params": [
+            {
+              "name": "journalId",
+              "description": "The unique identifier for the journal."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/favorite_journals/{favoriteJournalId}",
+        "definition": {
+          "entityName": "FavoriteJournal",
+          "schema": {
+            "$ref": "#/backend/entities/FavoriteJournal"
+          },
+          "description": "Stores user's favorite journals. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "favoriteJournalId",
+              "description": "The unique identifier for the favorite journal entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support user authentication with Google, journal searching and display, and the ability to save favorite journals. The structure emphasizes authorization independence and efficient querying. Journals are stored in a top-level `journals` collection for global access. User-specific data, such as favorite journals, are stored in subcollections under the `users` collection. This approach allows for simple security rules based on path-based ownership.\n\n**Authorization Independence:**\n*   The `favorite_journals` subcollection denormalizes the `userId` within each document. This is crucial for authorization independence. Without denormalization, security rules would need to perform `get()` operations to verify user ownership, violating the Authorization Independence principle.\n\n**QAPs Support:**\n*   **List Journals (Global):** The top-level `journals` collection enables efficient listing and searching of journals.\n*   **List Favorite Journals (User-Specific):** The `/users/{userId}/favorite_journals` path allows secure and efficient listing of a user's favorite journals using path-based authorization.\n\n**Data Integrity:**\n*   The `FavoriteJournal` entity includes both `userId` and `journalId`, maintaining explicit relationships between users and journals."
+  }
+}
