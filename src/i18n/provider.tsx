@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import en from './locales/en.json';
 import zh from './locales/zh.json';
 
@@ -19,6 +19,16 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>('zh');
+
+  useEffect(() => {
+    // This effect runs only on the client side
+    const browserLang = navigator.language;
+    if (browserLang.toLowerCase().startsWith('zh')) {
+        setLocale('zh');
+    } else {
+        setLocale('en');
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   const t = useCallback((key: string, replacements?: { [key: string]: string | number }) => {
     const keys = key.split('.');
