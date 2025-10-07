@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import type { Journal } from "@/data/journals";
 import {
   Card,
@@ -21,11 +22,16 @@ import {
   Award,
   DollarSign,
   Search,
-  Bot
+  Bot,
+  BookCopy,
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import { Badge } from "../ui/badge";
-import AiSummary from "./AiSummary";
+import { getSummary } from "@/app/actions";
+import type { JournalSummaryInfo } from "@/app/actions";
+import AiSummaryContent from "./AiSummaryContent";
+import RelatedJournals from "./RelatedJournals";
+
 
 interface JournalDetailProps {
   journal: Journal;
@@ -84,6 +90,28 @@ const formatIssn = (issn: string) => {
 };
 
 export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
+  const [summaryInfo, setSummaryInfo] = useState<JournalSummaryInfo | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      if (!journal) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result: JournalSummaryInfo = await getSummary(journal.journalName);
+        setSummaryInfo(result);
+      } catch (e) {
+        setError("Failed to generate AI-powered analysis.");
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSummary();
+  }, [journal]);
+
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
@@ -137,7 +165,29 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardDescription>AI-generated summary. Please verify critical information.</CardDescription>
             </CardHeader>
             <CardContent>
-                <AiSummary journal={journal} onJournalSelect={onJournalSelect} />
+                <AiSummaryContent 
+                    summary={summaryInfo?.summary ?? null}
+                    isLoading={isLoading}
+                    error={error}
+                />
+            </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                    <BookCopy className="text-primary"/>
+                    Related Journals
+                </CardTitle>
+                <CardDescription>Similar journals suggested by AI.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <RelatedJournals
+                    relatedJournals={summaryInfo?.relatedJournals ?? null}
+                    isLoading={isLoading}
+                    error={error}
+                    onJournalSelect={onJournalSelect}
+                />
             </CardContent>
         </Card>
       </div>

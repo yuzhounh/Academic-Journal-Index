@@ -9,10 +9,10 @@ import {
 export type JournalSummaryInfo = SummarizeJournalInfoOutput;
 
 export async function getSummary(
-  journal: Journal
+  journalName: string
 ): Promise<JournalSummaryInfo> {
   const summary = await summarizeJournalInfo({
-    journalName: journal.journalName,
+    journalName: journalName,
   });
 
   return summary;
