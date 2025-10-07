@@ -21,7 +21,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ArrowLeft, BookText, Crown, Medal, Star } from "lucide-react";
+import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
@@ -441,10 +441,11 @@ aria-disabled={currentPage === totalPages}
     <>
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4">
-            <h1 className="font-headline text-xl font-bold">
-              <a href="/">AJI</a>
-            </h1>
+          <div className="flex items-center gap-2">
+            <a href="/" className="flex items-center gap-2 text-xl font-bold font-headline">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <span>AJI</span>
+            </a>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2">
