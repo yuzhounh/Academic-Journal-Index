@@ -7,9 +7,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Medal, Star, ArrowLeft } from "lucide-react";
+import { Crown, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useMemoFirebase } from "@/firebase/provider";
 import CategoryStats from "@/components/search/CategoryStats";
 import { Journal } from "@/data/journals";
@@ -105,9 +104,12 @@ const adaptFavoritesForStats = (favorites: FavoriteJournal[]): Journal[] => {
     }));
 };
 
-export default function FavoritesPage() {
+interface FavoritesContentProps {
+  onJournalSelect: (journalName: string) => void;
+}
+
+export default function FavoritesContent({ onJournalSelect }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
-    const router = useRouter();
 
     const favoritesQuery = useMemoFirebase(
         () =>
@@ -131,7 +133,7 @@ export default function FavoritesPage() {
 
     if (isUserLoading || isLoading) {
         return (
-          <div className="flex justify-center items-center h-screen">
+          <div className="flex justify-center items-center h-64">
             <div className="text-lg">Loading favorites...</div>
           </div>
         );
@@ -139,31 +141,22 @@ export default function FavoritesPage() {
     
     if (!user) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen text-center px-4">
+            <div className="flex flex-col items-center justify-center text-center px-4 py-20 border-2 border-dashed rounded-lg">
                 <h2 className="text-2xl font-bold mb-4">Please Log In</h2>
                 <p className="text-muted-foreground mb-6">You need to be logged in to view your favorite journals.</p>
-                <Button asChild>
-                    <Link href="/">Back to Home</Link>
-                </Button>
+                <Button>Back to Home</Button>
             </div>
         );
     }
 
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex items-center gap-4 mb-8">
-                <Button variant="outline" size="icon" onClick={() => router.push('/')}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h1 className="text-3xl font-bold">My Favorites</h1>
-            </div>
-
+        <div className="animate-in fade-in-50 duration-300">
             {favorites && favorites.length > 0 ? (
                 <div className="space-y-8">
                     <CategoryStats journals={journalsForStats} />
                     <div className="space-y-4">
                         {favorites.map((journal) => (
-                            <Card key={journal.id}>
+                            <Card key={journal.id} onClick={() => onJournalSelect(journal.journalName)} className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow">
                                 <CardContent className="p-6 grid grid-cols-12 items-start gap-4">
                                     <div className="col-span-7">
                                         <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
@@ -196,8 +189,8 @@ export default function FavoritesPage() {
                     <p className="mt-1 text-sm text-muted-foreground">
                         You haven&apos;t added any journals to your favorites.
                     </p>
-                    <Button asChild className="mt-6">
-                       <Link href="/">Find Journals to Favorite</Link>
+                    <Button className="mt-6">
+                       Find Journals to Favorite
                     </Button>
                 </div>
             )}
