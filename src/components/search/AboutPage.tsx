@@ -28,28 +28,28 @@ const links = [
   },
 ];
 
-const contacts = [
-    {
-        icon: User,
-        labelKey: 'author',
-        value: 'Jing Wang',
-    },
-    {
-        icon: Mail,
-        labelKey: 'email',
-        value: 'yuzhounh@163.com',
-        href: 'mailto:yuzhounh@163.com'
-    },
-    {
-        icon: Github,
-        labelKey: 'github',
-        value: 'yuzhounh/Academic-Journal-Index',
-        href: 'https://github.com/yuzhounh/Academic-Journal-Index'
-    }
-]
-
 export default function AboutPage() {
   const { t } = useTranslation();
+
+  const contacts = [
+      {
+          icon: User,
+          labelKey: 'author',
+          value: t('about.contact.authorName'),
+      },
+      {
+          icon: Mail,
+          labelKey: 'email',
+          value: 'yuzhounh@163.com',
+          href: 'mailto:yuzhounh@163.com'
+      },
+      {
+          icon: Github,
+          labelKey: 'github',
+          value: 'yuzhounh/Academic-Journal-Index',
+          href: 'https://github.com/yuzhounh/Academic-Journal-Index'
+      }
+  ]
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in-50 duration-300">

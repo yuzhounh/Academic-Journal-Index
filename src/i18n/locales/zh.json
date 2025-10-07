@@ -109,6 +109,7 @@
         "contactTitle": "联系方式",
         "contact": {
             "author": "作者",
+            "authorName": "王敬",
             "email": "邮箱",
             "github": "GitHub"
         }

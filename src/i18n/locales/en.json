@@ -109,6 +109,7 @@
         "contactTitle": "Contact",
         "contact": {
             "author": "Author",
+            "authorName": "Jing Wang",
             "email": "Email",
             "github": "GitHub"
         }
