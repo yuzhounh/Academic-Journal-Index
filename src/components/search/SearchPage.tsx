@@ -68,7 +68,7 @@ const AuthorityBadge = ({ level }: { level: string }) => {
     return (
         <Badge variant={variant} className="gap-1 pl-1 pr-1.5">
             {icon}
-            <span className="text-xs">{level}</span>
+            <span className="text-xs whitespace-nowrap">{level}</span>
         </Badge>
     )
 }
@@ -149,7 +149,7 @@ const getPaginationItems = (
 
 const formatImpactFactor = (factor: number | string) => {
     const num = Number(factor);
-    if (!isNaN(num)) {
+    if (!isNaN(num) && String(factor).trim() !== "" && !String(factor).includes('<')) {
       return num.toFixed(1);
     }
     return factor;

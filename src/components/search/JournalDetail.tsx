@@ -39,13 +39,13 @@ const formatImpactFactor = (factor: number | string) => {
     return factor;
 };
 
-const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType, label: string, value: string | number, isOA?: boolean }) => (
+const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType, label: string, value: React.ReactNode, isOA?: boolean }) => (
     <div className="flex items-start">
         <Icon className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
         <div>
             <p className="text-sm font-medium text-muted-foreground">{label}</p>
             <div className="flex items-center gap-2">
-                <p className="text-base font-semibold">{value || "-"}</p>
+                <div className="text-base font-semibold">{value || "-"}</div>
                 {isOA && <Badge variant="openAccess">OA</Badge>}
             </div>
         </div>
@@ -73,6 +73,13 @@ const ApcInfoItem = ({ journalName }: { journalName: string }) => {
     );
 };
 
+const formatIssn = (issn: string) => {
+    const parts = issn.split('/');
+    if (parts.length > 1) {
+        return <>{parts[0]}/<wbr/>{parts.slice(1).join('/')}</>;
+    }
+    return issn;
+};
 
 export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
 
@@ -96,7 +103,7 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
-                    <InfoItem icon={Barcode} label="ISSN/EISSN" value={journal.issn} />
+                    <InfoItem icon={Barcode} label="ISSN/EISSN" value={formatIssn(journal.issn)} />
                     <InfoItem icon={ShieldCheck} label="Review" value={journal.review} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                     <InfoItem icon={TrendingUp} label="Impact Factor" value={formatImpactFactor(journal.impactFactor)} />
