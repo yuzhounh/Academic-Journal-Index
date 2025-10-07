@@ -32,7 +32,7 @@ export default function UserAvatar() {
   if (!user) {
     return (
       <>
-        <Button variant="outline" onClick={() => setIsLoginDialogOpen(true)}>
+        <Button variant="outline" size="sm" onClick={() => setIsLoginDialogOpen(true)}>
           <LogIn className="mr-2 h-4 w-4" />
           Login
         </Button>
