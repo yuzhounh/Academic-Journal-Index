@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Mail, Github, Users, BookOpen } from 'lucide-react';
+import { ExternalLink, Mail, Github, Users, BookOpen, User } from 'lucide-react';
 
 const links = [
   {
@@ -29,6 +29,11 @@ const links = [
 ];
 
 const contacts = [
+    {
+        icon: User,
+        label: 'Author',
+        value: 'Jing Wang',
+    },
     {
         icon: Mail,
         label: 'Email',
@@ -111,9 +116,13 @@ export default function AboutPage() {
                         <contact.icon className="w-5 h-5 text-muted-foreground"/>
                         <span className="font-semibold">{contact.label}</span>
                     </div>
-                    <a href={contact.href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-mono">
-                        {contact.value}
-                    </a>
+                    {contact.href ? (
+                        <a href={contact.href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-mono">
+                            {contact.value}
+                        </a>
+                    ) : (
+                        <span className="font-medium">{contact.value}</span>
+                    )}
                 </div>
             ))}
         </CardContent>
