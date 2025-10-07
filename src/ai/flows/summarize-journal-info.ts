@@ -61,8 +61,7 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   3. 在领域内的地位
      [此处结合期刊的学术声誉、常见指标和影响力，分析其在学术领域中的地位]
 
-  4. 相关期刊推荐
-     使用 findJournalsTool 工具，根据当前期刊的核心学科分类，查找并列出 3-5 种相关的期刊作为推荐。
+  另外，请使用 findJournalsTool 工具，根据当前期刊的核心学科分类，查找并列出 3-5 种相关的期刊作为推荐，并填充到 relatedJournals 字段中。
   `,
 });
 
