@@ -2,8 +2,8 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ExternalLink, Mail, Github, Users, BookOpen, User } from 'lucide-react';
+import { useTranslation } from '@/i18n/provider';
 
 const links = [
   {
@@ -31,43 +31,39 @@ const links = [
 const contacts = [
     {
         icon: User,
-        label: 'Author',
+        labelKey: 'author',
         value: 'Jing Wang',
     },
     {
         icon: Mail,
-        label: 'Email',
+        labelKey: 'email',
         value: 'yuzhounh@163.com',
         href: 'mailto:yuzhounh@163.com'
     },
     {
         icon: Github,
-        label: 'GitHub',
+        labelKey: 'github',
         value: 'yuzhounh/Academic-Journal-Index',
         href: 'https://github.com/yuzhounh/Academic-Journal-Index'
     }
 ]
 
 export default function AboutPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in-50 duration-300">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline text-2xl">
             <BookOpen className="text-primary" />
-            About Academic Journal Index
+            {t('about.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-base text-foreground/80 leading-relaxed space-y-4">
-          <p>
-            This website, Academic Journal Index (AJI), is a tool designed to help researchers and academics quickly find information about academic journals. You can search for journals by title or browse through different categories. 
-          </p>
-          <p>
-            The platform provides key metrics such as Impact Factor, CAS Partition (from the Chinese Academy of Sciences), and authority level, helping users to better evaluate and select journals for their publication needs. You can also create an account to save your favorite journals for easy access.
-          </p>
-          <p>
-            All journal data is based on publicly available information and is intended for reference purposes.
-          </p>
+          <p>{t('about.p1')}</p>
+          <p>{t('about.p2')}</p>
+          <p>{t('about.p3')}</p>
         </CardContent>
       </Card>
 
@@ -75,7 +71,7 @@ export default function AboutPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline text-2xl">
             <ExternalLink className="text-primary" />
-            Related Links
+            {t('about.linksTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -106,15 +102,15 @@ export default function AboutPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline text-2xl">
             <Users className="text-primary" />
-            Contact
+            {t('about.contactTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
             {contacts.map(contact => (
-                <div key={contact.label} className="flex items-center gap-4">
+                <div key={contact.labelKey} className="flex items-center gap-4">
                     <div className="flex items-center gap-2 w-24">
                         <contact.icon className="w-5 h-5 text-muted-foreground"/>
-                        <span className="font-semibold">{contact.label}</span>
+                        <span className="font-semibold">{t(`about.contact.${contact.labelKey}`)}</span>
                     </div>
                     {contact.href ? (
                         <a href={contact.href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-mono">

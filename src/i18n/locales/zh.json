@@ -1,0 +1,134 @@
+{
+    "nav": {
+        "search": "搜索",
+        "browse": "浏览",
+        "favorites": "我的收藏",
+        "about": "关于",
+        "login": "登录",
+        "logout": "登出"
+    },
+    "header": {
+        "title": "学术期刊索引",
+        "subtitle": "按标题搜索或按类别浏览期刊。"
+    },
+    "search": {
+        "placeholder": "输入期刊名称进行搜索...",
+        "ariaLabel": "搜索期刊",
+        "initial": {
+            "title": "开始搜索",
+            "description": "输入至少3个字符以开始搜索期刊。"
+        },
+        "noResults": "未找到关于 “{{searchTerm}}” 的期刊。"
+    },
+    "categories": {
+        "journals": "本"
+    },
+    "pagination": {
+        "previous": "上一页",
+        "next": "下一页"
+    },
+    "journal": {
+        "back": "返回搜索结果",
+        "favorite": "添加到收藏",
+        "unfavorite": "从收藏中移除",
+        "basicInfo": "基本信息",
+        "year": "年份",
+        "review": "同行评审",
+        "impactFactor": "影响因子",
+        "openAccess": "开放获取",
+        "oa": "OA",
+        "apc": "文章处理费",
+        "googleSearch": "Google 搜索",
+        "casPartition": "CAS 分区",
+        "casDescription": "中国科学院期刊分区。",
+        "aiSummary": "AI 智能分析",
+        "aiDisclaimer": "AI 生成的分析，请核实关键信息。",
+        "relatedJournals": "相关期刊",
+        "relatedDisclaimer": "AI 建议的相似期刊。",
+        "summaryError": "生成 AI 智能分析失败。"
+    },
+    "cas": {
+        "authorityLevel": "权威级别",
+        "authority": {
+            "1": "一级",
+            "2": "二级",
+            "3": "三级"
+        },
+        "majorCategory": "大类",
+        "minorCategories": "小类",
+        "tooltip": {
+            "title": "权威期刊分级规则",
+            "level1": {
+                "title": "一级权威期刊",
+                "rule1": "中科院JCR大类分区一区期刊",
+                "rule2": "中科院JCR大类分区二区前50%（含50%）期刊"
+            },
+            "level2": {
+                "title": "二级权威期刊",
+                "rule1": "中科院JCR大类分区二区后50%期刊",
+                "rule2": "中科院JCR大类分区三区期刊"
+            },
+            "level3": {
+                "title": "三级权威期刊",
+                "rule1": "中科院JCR大类分区四区期刊"
+            }
+        }
+    },
+    "stats": {
+        "title": "期刊统计",
+        "totalJournals": "期刊总数",
+        "partitionTitle": "CAS 分区分布",
+        "authorityTitle": "权威级别分布",
+        "oaTitle": "开放获取分布",
+        "oa": {
+            "open": "开放获取",
+            "closed": "订阅访问"
+        },
+        "count": "数量",
+        "ratio": "比例"
+    },
+    "favorites": {
+        "loading": "正在加载收藏...",
+        "login": {
+            "title": "请登录",
+            "description": "您需要登录才能查看您收藏的期刊。",
+            "button": "返回首页"
+        },
+        "empty": {
+            "title": "暂无收藏",
+            "description": "您还没有将任何期刊添加到您的收藏中。",
+            "button": "查找期刊进行收藏"
+        }
+    },
+    "about": {
+        "title": "关于学术期刊索引",
+        "p1": "本网站“学术期刊索引”（AJI）是一个旨在帮助研究人员和学者快速查找学术期刊信息的工具。您可以通过标题搜索期刊或按不同类别浏览。",
+        "p2": "该平台提供影响因子、CAS分区（中国科学院）和权威级别等关键指标，帮助用户更好地评估和选择适合其发表需求的期刊。您还可以创建一个帐户来保存您最喜欢的期刊以便于访问。",
+        "p3": "所有期刊数据均基于公开信息，仅供参考。",
+        "linksTitle": "相关链接",
+        "contactTitle": "联系方式",
+        "contact": {
+            "author": "作者",
+            "email": "邮箱",
+            "github": "GitHub"
+        }
+    },
+    "auth": {
+        "welcomeBack": "欢迎回来",
+        "createAccount": "创建账户",
+        "signInToFavorites": "登录以访问您的收藏。",
+        "signUpToFavorites": "注册以开始保存您最喜欢的期刊。",
+        "login": "登录",
+        "register": "注册",
+        "orContinueWith": "或使用其他方式继续",
+        "email": "邮箱",
+        "password": "密码",
+        "googleSignInFailed": "Google 登录失败",
+        "unknownError": "发生未知错误。",
+        "loginFailed": "登录失败",
+        "registrationFailed": "注册失败",
+        "checkCredentials": "请检查您的凭据并重试。"
+    },
+    "yes": "是",
+    "no": "否"
+}

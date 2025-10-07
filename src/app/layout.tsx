@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import { LanguageProvider } from '@/i18n/provider';
 
 export const metadata: Metadata = {
   title: 'Academic Journal Index',
@@ -23,19 +24,21 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <FirebaseClientProvider>
-            <main className="flex-grow">
-              {children}
-            </main>
-            <Toaster />
-          </FirebaseClientProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <FirebaseClientProvider>
+              <main className="flex-grow">
+                {children}
+              </main>
+              <Toaster />
+            </FirebaseClientProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

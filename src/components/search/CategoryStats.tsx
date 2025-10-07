@@ -10,6 +10,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslation } from "@/i18n/provider";
 
 
 interface CategoryStatsProps {
@@ -28,12 +29,19 @@ const partitionColors: { [key: string]: string } = {
   "二区": "#f97316",
   "三区": "#eab308",
   "四区": "#22c55e",
+  "Q1": "#ef4444",
+  "Q2": "#f97316",
+  "Q3": "#eab308",
+  "Q4": "#22c55e",
 };
 
 const authorityColors: { [key: string]: string } = {
   "一级": "#f75c2e",
   "二级": "#f79410",
   "三级": "#22c55e",
+  "Level 1": "#f75c2e",
+  "Level 2": "#f79410",
+  "Level 3": "#22c55e",
 };
 
 const openAccessColors: { [key: string]: string } = {
@@ -42,6 +50,7 @@ const openAccessColors: { [key: string]: string } = {
 };
 
 const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: number, fill: string }[]; totalJournals: number }) => {
+    const { t } = useTranslation();
     if (!data.length || totalJournals === 0) return <div className="h-8 bg-muted rounded-md" />;
 
     return (
@@ -64,8 +73,8 @@ const StatsBarChart = ({ data, totalJournals }: { data: { name: string; count: n
                                     <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.fill }} />
                                     {item.name}
                                 </p>
-                                <p>数量: {item.count}</p>
-                                <p>比例: {((item.count / totalJournals) * 100).toFixed(1)}%</p>
+                                <p>{t('stats.count')}: {item.count}</p>
+                                <p>{t('stats.ratio')}: {((item.count / totalJournals) * 100).toFixed(1)}%</p>
                             </div>
                         </TooltipContent>
                     </Tooltip>
@@ -102,59 +111,63 @@ const StatsDetails = ({ title, data, total }: { title: string; data: { name: str
 };
 
 export default function CategoryStats({ journals }: CategoryStatsProps) {
+  const { t, locale } = useTranslation();
   const totalJournals = journals.length;
 
   const partitionData = useMemo(() => {
-    const counts: { [key: string]: number } = { "一区": 0, "二区": 0, "三区": 0, "四区": 0 };
+    const partitionKeys = locale === 'zh' ? ['一区', '二区', '三区', '四区'] : ['Q1', 'Q2', 'Q3', 'Q4'];
+    const counts: { [key: string]: number } = { [partitionKeys[0]]: 0, [partitionKeys[1]]: 0, [partitionKeys[2]]: 0, [partitionKeys[3]]: 0 };
     journals.forEach((j) => {
       const p = j.majorCategoryPartition.charAt(0);
-      const partitionName = partitionMap[p];
-      if (partitionName) {
-          counts[partitionName]++;
-      }
+      if (p === '1') counts[partitionKeys[0]]++;
+      else if (p === '2') counts[partitionKeys[1]]++;
+      else if (p === '3') counts[partitionKeys[2]]++;
+      else if (p === '4') counts[partitionKeys[3]]++;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count, fill: partitionColors[name] })).filter(item => item.count > 0);
-  }, [journals]);
+  }, [journals, locale]);
 
   const authorityData = useMemo(() => {
-    const counts: { [key: string]: number } = { "一级": 0, "二级": 0, "三级": 0 };
+    const authorityKeys = locale === 'zh' ? ['一级', '二级', '三级'] : ['Level 1', 'Level 2', 'Level 3'];
+    const counts: { [key: string]: number } = { [authorityKeys[0]]: 0, [authorityKeys[1]]: 0, [authorityKeys[2]]: 0 };
     journals.forEach((j) => {
-      if (counts.hasOwnProperty(j.authorityJournal)) {
-        counts[j.authorityJournal]++;
-      }
+      if (j.authorityJournal === "一级") counts[authorityKeys[0]]++;
+      else if (j.authorityJournal === "二级") counts[authorityKeys[1]]++;
+      else if (j.authorityJournal === "三级") counts[authorityKeys[2]]++;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count, fill: authorityColors[name] })).filter(item => item.count > 0);
-  }, [journals]);
+  }, [journals, locale]);
 
   const openAccessData = useMemo(() => {
-    const counts = { "Closed Access": 0, "Open Access": 0 };
+    const keys = { "Open Access": t('stats.oa.open'), "Closed Access": t('stats.oa.closed') };
+    const counts = { [keys["Closed Access"]]: 0, [keys["Open Access"]]: 0 };
     journals.forEach((j) => {
       if (j.openAccess === "是") {
-        counts["Open Access"]++;
+        counts[keys["Open Access"]]++;
       } else {
-        counts["Closed Access"]++;
+        counts[keys["Closed Access"]]++;
       }
     });
     return Object.entries(counts)
-      .sort(([a], [b]) => (a === "Closed Access" ? -1 : 1))
-      .map(([name, count]) => ({ name, count, fill: openAccessColors[name] }))
+      .sort(([a], [b]) => (a === keys["Closed Access"] ? -1 : 1))
+      .map(([name, count]) => ({ name, count, fill: name === keys['Open Access'] ? openAccessColors['Open Access'] : openAccessColors['Closed Access'] }))
       .filter(item => item.count > 0);
-  }, [journals]);
+  }, [journals, t]);
 
   const allStats = [
-    { title: "CAS Partition Breakdown", data: partitionData },
-    { title: "Authority Level Breakdown", data: authorityData },
-    { title: "Open Access Breakdown", data: openAccessData },
+    { title: t('stats.partitionTitle'), data: partitionData },
+    { title: t('stats.authorityTitle'), data: authorityData },
+    { title: t('stats.oaTitle'), data: openAccessData },
   ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-headline">Journal Statistics</CardTitle>
+        <CardTitle className="text-xl font-headline">{t('stats.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-center">
-            <p className="text-base text-muted-foreground">Total Journals</p>
+            <p className="text-base text-muted-foreground">{t('stats.totalJournals')}</p>
             <p className="text-4xl font-bold">{totalJournals}</p>
         </div>
 
@@ -172,9 +185,9 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
         
         {/* Desktop Layout: Grid */}
         <div className="hidden md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-6">
-            <StatsDetails title="CAS Partition Breakdown" data={partitionData} total={totalJournals} />
-            <StatsDetails title="Authority Level Breakdown" data={authorityData} total={totalJournals} />
-            <StatsDetails title="Open Access Breakdown" data={openAccessData} total={totalJournals} />
+            <StatsDetails title={t('stats.partitionTitle')} data={partitionData} total={totalJournals} />
+            <StatsDetails title={t('stats.authorityTitle')} data={authorityData} total={totalJournals} />
+            <StatsDetails title={t('stats.oaTitle')} data={openAccessData} total={totalJournals} />
 
             <div className="space-y-2">
                 <StatsBarChart data={partitionData} totalJournals={totalJournals} />

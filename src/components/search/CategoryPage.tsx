@@ -36,6 +36,8 @@ import { useFirebase } from "@/firebase";
 import FavoritesContent from "../favorites/FavoritesContent";
 import AboutPage from "./AboutPage";
 import { ThemeToggle } from "../theme/ThemeToggle";
+import { LanguageToggle } from "../theme/LanguageToggle";
+import { useTranslation } from "@/i18n/provider";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -63,8 +65,14 @@ const getPartitionColorClass = (partition: string): string => {
 };
 
 const AuthorityBadge = ({ level }: { level: string }) => {
+    const { t } = useTranslation();
     let icon;
     let variant: "authority1" | "authority2" | "authority3" | "secondary" = "secondary";
+    let levelText = level;
+    if (level === "一级") levelText = t('cas.authority.1');
+    if (level === "二级") levelText = t('cas.authority.2');
+    if (level === "三级") levelText = t('cas.authority.3');
+
     switch (level) {
         case "一级":
             icon = <Crown className="h-3 w-3" />;
@@ -84,7 +92,7 @@ const AuthorityBadge = ({ level }: { level: string }) => {
     return (
         <Badge variant={variant} className="gap-1 pl-1 pr-1.5">
             {icon}
-            <span className="text-xs whitespace-nowrap">{level}</span>
+            <span className="text-xs whitespace-nowrap">{levelText}</span>
         </Badge>
     )
 }
@@ -186,6 +194,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about'>("search");
   const { user } = useFirebase();
+  const { t } = useTranslation();
   
   const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -338,7 +347,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                       </div>
                       <div className="col-span-2 text-center">
                         <p className="text-xs text-muted-foreground font-semibold">
-                          Impact Factor
+                          {t('journal.impactFactor')}
                         </p>
                         <p className="font-medium text-lg">
                           {formatImpactFactor(journal.impactFactor)}
@@ -346,7 +355,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                       </div>
                       <div className="col-span-3 flex flex-col items-center justify-center text-center">
                         <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          CAS Partition
+                          {t('journal.casPartition')}
                         </p>
                         <div
                           className={cn(
@@ -384,7 +393,9 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                             ? "pointer-events-none opacity-50"
                             : ""
                         }
-                      />
+                      >
+                        {t('pagination.previous')}
+                      </PaginationPrevious>
                     </PaginationItem>
 
                     {getPaginationItems(currentPage, totalPages, handlePageChange)}
@@ -396,13 +407,15 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                           e.preventDefault();
                           handlePageChange(currentPage + 1);
                         }}
-aria-disabled={currentPage === totalPages}
+                        aria-disabled={currentPage === totalPages}
                         className={
                           currentPage === totalPages
                             ? "pointer-events-none opacity-50"
                             : ""
                         }
-                      />
+                      >
+                         {t('pagination.next')}
+                      </PaginationNext>
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>
@@ -428,7 +441,7 @@ aria-disabled={currentPage === totalPages}
                     <CardContent>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <BookText className="w-4 h-4 mr-2" />
-                        <span>{count} journals</span>
+                        <span>{count} {t('categories.journals')}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -449,14 +462,14 @@ aria-disabled={currentPage === totalPages}
         variant={view === "search" ? "secondary" : "ghost"}
         className="w-full justify-start"
       >
-        Search
+        {t('nav.search')}
       </Button>
       <Button
         onClick={() => handleViewChange("categories")}
         variant={view === "categories" ? "secondary" : "ghost"}
         className="w-full justify-start"
       >
-        Browse
+        {t('nav.browse')}
       </Button>
       {user && (
           <Button 
@@ -464,7 +477,7 @@ aria-disabled={currentPage === totalPages}
             variant={view === "favorites" ? "secondary" : "ghost"}
             className="w-full justify-start"
           >
-              My Favorites
+              {t('nav.favorites')}
           </Button>
       )}
       <Button
@@ -472,7 +485,7 @@ aria-disabled={currentPage === totalPages}
           variant={view === "about" ? "secondary" : "ghost"}
           className="w-full justify-start"
       >
-          About
+          {t('nav.about')}
       </Button>
     </>
   )
@@ -484,14 +497,14 @@ aria-disabled={currentPage === totalPages}
         variant={view === "search" ? "secondary" : "ghost"}
         size="sm"
       >
-        Search
+        {t('nav.search')}
       </Button>
       <Button
         onClick={() => handleViewChange("categories")}
         variant={view === "categories" ? "secondary" : "ghost"}
         size="sm"
       >
-        Browse
+        {t('nav.browse')}
       </Button>
       {user && (
           <Button 
@@ -499,7 +512,7 @@ aria-disabled={currentPage === totalPages}
             variant={view === "favorites" ? "secondary" : "ghost"}
             size="sm"
           >
-              My Favorites
+              {t('nav.favorites')}
           </Button>
       )}
       <Button
@@ -507,7 +520,7 @@ aria-disabled={currentPage === totalPages}
           variant={view === "about" ? "secondary" : "ghost"}
           size="sm"
       >
-          About
+          {t('nav.about')}
       </Button>
     </nav>
   )
@@ -526,6 +539,7 @@ aria-disabled={currentPage === totalPages}
           </div>
           
           <div className="flex items-center justify-end gap-2">
+            <LanguageToggle />
             <ThemeToggle />
             <UserAvatar />
             <div className="sm:hidden">
@@ -553,10 +567,10 @@ aria-disabled={currentPage === totalPages}
       <div className="py-4 md:py-8">
         <div className="flex flex-col items-center text-center mb-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">
-            Academic Journal Index
+            {t('header.title')}
           </h1>
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
-            Search journals by title or browse journals by category.
+            {t('header.subtitle')}
           </p>
         </div>
         {renderContent()}

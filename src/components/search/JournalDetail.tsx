@@ -36,6 +36,7 @@ import { useFirebase } from "@/firebase";
 import { doc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 import { useDoc } from "@/firebase/firestore/use-doc";
 import { useMemoFirebase } from "@/firebase/provider";
+import { useTranslation } from "@/i18n/provider";
 
 
 interface JournalDetailProps {
@@ -52,34 +53,38 @@ const formatImpactFactor = (factor: number | string) => {
     return factor;
 };
 
-const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType, label: string, value: React.ReactNode, isOA?: boolean }) => (
-    <div className="flex items-start">
-        <Icon className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
-        <div>
-            <p className="text-sm font-medium text-muted-foreground">{label}</p>
-            <div className="flex items-center gap-2">
-                <div className="text-base font-semibold">{value || "-"}</div>
-                {isOA && <Badge variant="openAccess">OA</Badge>}
+const InfoItem = ({ icon: Icon, label, value, isOA }: { icon: React.ElementType, label: string, value: React.ReactNode, isOA?: boolean }) => {
+    const { t } = useTranslation();
+    return (
+        <div className="flex items-start">
+            <Icon className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
+            <div>
+                <p className="text-sm font-medium text-muted-foreground">{label}</p>
+                <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold">{value || "-"}</div>
+                    {isOA && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const ApcInfoItem = ({ journalName }: { journalName: string }) => {
     const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(journalName)}+article+processing+charge`;
+    const { t } = useTranslation();
 
     return (
         <div className="flex items-start">
             <DollarSign className="h-5 w-5 text-accent mr-3 mt-1 shrink-0" />
             <div>
-                <p className="text-sm font-medium text-muted-foreground">APC</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('journal.apc')}</p>
                  <a 
                     href={searchUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-base font-semibold text-primary hover:underline inline-flex items-center gap-1"
                 >
-                    Google <Search className="h-4 w-4"/>
+                    {t('journal.googleSearch')} <Search className="h-4 w-4"/>
                 </a>
             </div>
         </div>
@@ -99,6 +104,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { user, firestore } = useFirebase();
+  const { t, locale } = useTranslation();
 
   const encodedIssn = encodeURIComponent(journal.issn);
 
@@ -120,17 +126,17 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
       setIsLoading(true);
       setError(null);
       try {
-        const result: JournalSummaryInfo = await getSummary(journal.journalName);
+        const result: JournalSummaryInfo = await getSummary(journal, locale);
         setSummaryInfo(result);
       } catch (e) {
-        setError("Failed to generate AI-powered analysis.");
+        setError(t('journal.summaryError'));
         console.error(e);
       } finally {
         setIsLoading(false);
       }
     };
     fetchSummary();
-  }, [journal]);
+  }, [journal, locale, t]);
 
   const toggleFavorite = async () => {
     if (!user || !firestore || !favoriteRef) return;
@@ -158,7 +164,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={onBack} aria-label="Back to search results">
+        <Button variant="outline" size="icon" onClick={onBack} aria-label={t('journal.back')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-grow flex items-center gap-4 justify-between">
@@ -169,7 +175,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
               size="icon"
               onClick={toggleFavorite}
               disabled={isFavoriteLoading}
-              aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+              aria-label={isFavorited ? t('journal.unfavorite') : t('journal.favorite')}
             >
               <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
             </Button>
@@ -183,16 +189,16 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl font-headline">
                         <BookOpen className="text-primary"/>
-                        Basic Information
+                        {t('journal.basicInfo')}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <InfoItem icon={CalendarDays} label="Year" value={journal.year} />
+                    <InfoItem icon={CalendarDays} label={t('journal.year')} value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={formatIssn(journal.issn)} />
-                    <InfoItem icon={ShieldCheck} label="Review" value={journal.review} />
+                    <InfoItem icon={ShieldCheck} label={t('journal.review')} value={journal.review === '是' ? t('yes') : t('no')} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
-                    <InfoItem icon={TrendingUp} label="Impact Factor" value={formatImpactFactor(journal.impactFactor)} />
-                    <InfoItem icon={Globe} label="Open Access" value={journal.openAccess} isOA={journal.openAccess === '是'} />
+                    <InfoItem icon={TrendingUp} label={t('journal.impactFactor')} value={formatImpactFactor(journal.impactFactor)} />
+                    <InfoItem icon={Globe} label={t('journal.openAccess')} value={journal.openAccess === '是' ? t('yes') : t('no')} isOA={journal.openAccess === '是'} />
                     {journal.openAccess === '是' && <ApcInfoItem journalName={journal.journalName} />}
                 </CardContent>
             </Card>
@@ -201,9 +207,9 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl font-headline">
                         <Award className="text-primary"/>
-                        CAS Partition
+                        {t('journal.casPartition')}
                     </CardTitle>
-                    <CardDescription>Chinese Academy of Sciences (CAS) journal ranking.</CardDescription>
+                    <CardDescription>{t('journal.casDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <CasPartitionDisplay journal={journal} />
@@ -215,9 +221,9 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl font-headline">
                     <Bot className="text-primary"/>
-                    AI-Powered Summary
+                    {t('journal.aiSummary')}
                 </CardTitle>
-                <CardDescription>AI-generated summary. Please verify critical information.</CardDescription>
+                <CardDescription>{t('journal.aiDisclaimer')}</CardDescription>
             </CardHeader>
             <CardContent>
                 <AiSummaryContent 
@@ -232,9 +238,9 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl font-headline">
                     <BookCopy className="text-primary"/>
-                    Related Journals
+                    {t('journal.relatedJournals')}
                 </CardTitle>
-                <CardDescription>Similar journals suggested by AI.</CardDescription>
+                <CardDescription>{t('journal.relatedDisclaimer')}</CardDescription>
             </CardHeader>
             <CardContent>
                 <RelatedJournals

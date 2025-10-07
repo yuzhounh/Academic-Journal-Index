@@ -31,6 +31,7 @@ import {
 } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/i18n/provider";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -51,6 +52,7 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,8 +75,8 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Google Sign-In Failed",
-        description: error.message || "An unknown error occurred.",
+        title: t('auth.googleSignInFailed'),
+        description: error.message || t('auth.unknownError'),
       });
     } finally {
       setIsLoading(false);
@@ -95,8 +97,8 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: activeTab === "login" ? "Login Failed" : "Registration Failed",
-        description: error.message || "Please check your credentials and try again.",
+        title: activeTab === "login" ? t('auth.loginFailed') : t('auth.registrationFailed'),
+        description: error.message || t('auth.checkCredentials'),
       });
     } finally {
       setIsLoading(false);
@@ -108,25 +110,25 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
-            {activeTab === "login" ? "Welcome Back" : "Create an Account"}
+            {activeTab === "login" ? t('auth.welcomeBack') : t('auth.createAccount')}
           </DialogTitle>
           <DialogDescription className="text-center">
             {activeTab === "login"
-              ? "Sign in to access your favorites."
-              : "Sign up to start saving your favorite journals."}
+              ? t('auth.signInToFavorites')
+              : t('auth.signUpToFavorites')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
+              <TabsTrigger value="login">{t('auth.login')}</TabsTrigger>
+              <TabsTrigger value="register">{t('auth.register')}</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
-              <AuthForm form={form} onSubmit={handleEmailAuth} isLoading={isLoading} buttonText="Login" />
+              <AuthForm form={form} onSubmit={handleEmailAuth} isLoading={isLoading} buttonText={t('auth.login')} />
             </TabsContent>
             <TabsContent value="register">
-              <AuthForm form={form} onSubmit={handleEmailAuth} isLoading={isLoading} buttonText="Create Account" />
+              <AuthForm form={form} onSubmit={handleEmailAuth} isLoading={isLoading} buttonText={t('auth.createAccount')} />
             </TabsContent>
           </Tabs>
           <div className="relative my-4">
@@ -135,7 +137,7 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t('auth.orContinueWith')}
               </span>
             </div>
           </div>
@@ -172,6 +174,7 @@ interface AuthFormProps {
 }
 
 function AuthForm({ form, onSubmit, isLoading, buttonText }: AuthFormProps) {
+  const { t } = useTranslation();
     return (
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
@@ -180,7 +183,7 @@ function AuthForm({ form, onSubmit, isLoading, buttonText }: AuthFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('auth.email')}</FormLabel>
                 <FormControl>
                   <Input placeholder="name@example.com" {...field} />
                 </FormControl>
@@ -193,7 +196,7 @@ function AuthForm({ form, onSubmit, isLoading, buttonText }: AuthFormProps) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t('auth.password')}</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} />
                 </FormControl>

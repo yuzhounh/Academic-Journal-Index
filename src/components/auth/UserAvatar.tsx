@@ -15,9 +15,11 @@ import { signOut } from "firebase/auth";
 import { LogIn, LogOut } from "lucide-react";
 import { useState } from "react";
 import LoginDialog from "./LoginDialog";
+import { useTranslation } from "@/i18n/provider";
 
 export default function UserAvatar() {
   const { user, auth } = useFirebase();
+  const { t } = useTranslation();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -34,7 +36,7 @@ export default function UserAvatar() {
       <>
         <Button variant="outline" size="sm" onClick={() => setIsLoginDialogOpen(true)}>
           <LogIn className="mr-2 h-4 w-4" />
-          Login
+          {t('nav.login')}
         </Button>
         <LoginDialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen} />
       </>
@@ -68,7 +70,7 @@ export default function UserAvatar() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Logout</span>
+          <span>{t('nav.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

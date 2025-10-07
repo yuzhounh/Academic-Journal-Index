@@ -1,0 +1,134 @@
+{
+    "nav": {
+        "search": "Search",
+        "browse": "Browse",
+        "favorites": "My Favorites",
+        "about": "About",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "header": {
+        "title": "Academic Journal Index",
+        "subtitle": "Search journals by title or browse journals by category."
+    },
+    "search": {
+        "placeholder": "Enter a journal name to search...",
+        "ariaLabel": "Search journals",
+        "initial": {
+            "title": "Start your search",
+            "description": "Enter at least 3 characters to begin searching for journals."
+        },
+        "noResults": "No journals found for \"{{searchTerm}}\"."
+    },
+    "categories": {
+        "journals": "journals"
+    },
+    "pagination": {
+        "previous": "Previous",
+        "next": "Next"
+    },
+    "journal": {
+        "back": "Back to search results",
+        "favorite": "Add to favorites",
+        "unfavorite": "Remove from favorites",
+        "basicInfo": "Basic Information",
+        "year": "Year",
+        "review": "Peer-Reviewed",
+        "impactFactor": "Impact Factor",
+        "openAccess": "Open Access",
+        "oa": "OA",
+        "apc": "APC",
+        "googleSearch": "Google Search",
+        "casPartition": "CAS Partition",
+        "casDescription": "Chinese Academy of Sciences (CAS) journal ranking.",
+        "aiSummary": "AI-Powered Analysis",
+        "aiDisclaimer": "AI-generated analysis. Please verify critical information.",
+        "relatedJournals": "Related Journals",
+        "relatedDisclaimer": "Similar journals suggested by AI.",
+        "summaryError": "Failed to generate AI-powered analysis."
+    },
+    "cas": {
+        "authorityLevel": "Authority Level",
+        "authority": {
+            "1": "Level 1",
+            "2": "Level 2",
+            "3": "Level 3"
+        },
+        "majorCategory": "Major Category",
+        "minorCategories": "Minor Categories",
+        "tooltip": {
+            "title": "Authority Journal Ranking Rules",
+            "level1": {
+                "title": "Level 1 Authority Journal",
+                "rule1": "CAS JCR Major Category Partition Q1 journals",
+                "rule2": "Top 50% of CAS JCR Major Category Partition Q2 journals"
+            },
+            "level2": {
+                "title": "Level 2 Authority Journal",
+                "rule1": "Bottom 50% of CAS JCR Major Category Partition Q2 journals",
+                "rule2": "CAS JCR Major Category Partition Q3 journals"
+            },
+            "level3": {
+                "title": "Level 3 Authority Journal",
+                "rule1": "CAS JCR Major Category Partition Q4 journals"
+            }
+        }
+    },
+    "stats": {
+        "title": "Journal Statistics",
+        "totalJournals": "Total Journals",
+        "partitionTitle": "CAS Partition Breakdown",
+        "authorityTitle": "Authority Level Breakdown",
+        "oaTitle": "Open Access Breakdown",
+        "oa": {
+            "open": "Open Access",
+            "closed": "Closed Access"
+        },
+        "count": "Count",
+        "ratio": "Ratio"
+    },
+    "favorites": {
+        "loading": "Loading favorites...",
+        "login": {
+            "title": "Please Log In",
+            "description": "You need to be logged in to view your favorite journals.",
+            "button": "Back to Home"
+        },
+        "empty": {
+            "title": "No Favorites Yet",
+            "description": "You haven't added any journals to your favorites.",
+            "button": "Find Journals to Favorite"
+        }
+    },
+    "about": {
+        "title": "About Academic Journal Index",
+        "p1": "This website, Academic Journal Index (AJI), is a tool designed to help researchers and academics quickly find information about academic journals. You can search for journals by title or browse through different categories.",
+        "p2": "The platform provides key metrics such as Impact Factor, CAS Partition (from the Chinese Academy of Sciences), and authority level, helping users to better evaluate and select journals for their publication needs. You can also create an account to save your favorite journals for easy access.",
+        "p3": "All journal data is based on publicly available information and is intended for reference purposes.",
+        "linksTitle": "Related Links",
+        "contactTitle": "Contact",
+        "contact": {
+            "author": "Author",
+            "email": "Email",
+            "github": "GitHub"
+        }
+    },
+    "auth": {
+        "welcomeBack": "Welcome Back",
+        "createAccount": "Create an Account",
+        "signInToFavorites": "Sign in to access your favorites.",
+        "signUpToFavorites": "Sign up to start saving your favorite journals.",
+        "login": "Login",
+        "register": "Register",
+        "orContinueWith": "Or continue with",
+        "email": "Email",
+        "password": "Password",
+        "googleSignInFailed": "Google Sign-In Failed",
+        "unknownError": "An unknown error occurred.",
+        "loginFailed": "Login Failed",
+        "registrationFailed": "Registration Failed",
+        "checkCredentials": "Please check your credentials and try again."
+    },
+    "yes": "Yes",
+    "no": "No"
+}

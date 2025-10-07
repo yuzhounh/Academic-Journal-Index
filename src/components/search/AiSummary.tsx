@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookCopy } from "lucide-react";
 import type { JournalSummaryInfo } from "@/app/actions";
+import { useTranslation } from "@/i18n/provider";
 
 interface AiSummaryProps {
   journal: Journal;
@@ -23,17 +24,18 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
   const [relatedJournals, setRelatedJournals] = useState<RelatedJournal[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { locale, t } = useTranslation();
 
   useEffect(() => {
     const fetchSummary = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const result: JournalSummaryInfo = await getSummary(journal);
+        const result: JournalSummaryInfo = await getSummary(journal, locale);
         setSummary(result.summary);
         setRelatedJournals(result.relatedJournals || []);
       } catch (e) {
-        setError("Failed to generate summary.");
+        setError(t('journal.summaryError'));
         console.error(e);
       } finally {
         setIsLoading(false);
@@ -43,7 +45,7 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
     if (journal) {
       fetchSummary();
     }
-  }, [journal]);
+  }, [journal, locale, t]);
 
   if (isLoading) {
     return (
@@ -77,7 +79,7 @@ export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) 
           <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <BookCopy className="text-primary"/>
-                Related Journals
+                {t('journal.relatedJournals')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {relatedJournals.map((relatedJournal, index) => (

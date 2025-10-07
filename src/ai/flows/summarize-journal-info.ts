@@ -14,6 +14,7 @@ import { findJournalsTool } from '../tools/find-journals';
 
 const SummarizeJournalInfoInputSchema = z.object({
   journalName: z.string().describe('The name of the journal.'),
+  locale: z.enum(['en', 'zh']).describe('The locale for the output language.'),
 });
 export type SummarizeJournalInfoInput = z.infer<
   typeof SummarizeJournalInfoInputSchema
@@ -41,27 +42,28 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   input: {schema: SummarizeJournalInfoInputSchema},
   output: {schema: SummarizeJournalInfoOutputSchema},
   tools: [findJournalsTool],
-  prompt: `你是一位专业的学术期刊分析师。
+  prompt: `
+    You are a professional academic journal analyst.
+    Your task is to generate a detailed analysis report for the following journal.
+    The entire report MUST be written in the language of the provided locale: {{{locale}}}.
 
-  请根据你的知识库，为以下期刊生成一份详细的分析报告。
+    Journal Name: {{{journalName}}}
 
-  期刊名称: {{{journalName}}}
+    The report should include the following sections.
+    Use plain text format, do not use any Markdown syntax (e.g., #, *, _).
+    Use newlines and simple indentation (spaces) to organize the content for readability.
 
-  报告应包含以下几个部分，全部用中文撰写。
-  请使用纯文本格式，不要使用任何 Markdown 语法（例如 #, *, _ 等）。
-  使用换行和简单的缩进（空格）来组织内容，确保可读性。
+    Report Structure:
+    1. Journal Introduction
+       [Provide a background, history, and publisher introduction for the journal here]
 
-  报告结构如下:
-  1. 期刊简介
-     [此处是期刊的背景、历史、出版商等简介]
+    2. Main Publication Areas
+       [Detail the research directions and subject areas covered by the journal, can be listed as points]
 
-  2. 主要发表领域
-     [此处详细说明期刊覆盖的研究方向和学科领域，可以分点陈述]
+    3. Status in the Field
+       [Analyze the journal's position in its academic field, combining its academic reputation, common metrics, and influence]
 
-  3. 在领域内的地位
-     [此处结合期刊的学术声誉、常见指标和影响力，分析其在学术领域中的地位]
-
-  另外，请使用 findJournalsTool 工具，根据当前期刊的核心学科分类，查找并列出 3-5 种相关的期刊作为推荐，并填充到 relatedJournals 字段中。
+    Additionally, use the findJournalsTool to find and list 3-5 related journals based on the current journal's core subject category, and populate them into the 'relatedJournals' field.
   `,
 });
 

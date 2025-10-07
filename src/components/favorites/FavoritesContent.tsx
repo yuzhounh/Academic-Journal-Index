@@ -13,6 +13,7 @@ import { useMemoFirebase } from "@/firebase/provider";
 import CategoryStats from "@/components/search/CategoryStats";
 import { Journal } from "@/data/journals";
 import { useMemo } from "react";
+import { useTranslation } from "@/i18n/provider";
 
 type FavoriteJournal = {
     id: string;
@@ -49,8 +50,14 @@ const getPartitionColorClass = (partition: string): string => {
 };
 
 const AuthorityBadge = ({ level }: { level: string }) => {
+    const { t } = useTranslation();
     let icon;
     let variant: "authority1" | "authority2" | "authority3" | "secondary" = "secondary";
+    let levelText = level;
+    if (level === "一级") levelText = t('cas.authority.1');
+    if (level === "二级") levelText = t('cas.authority.2');
+    if (level === "三级") levelText = t('cas.authority.3');
+
     switch (level) {
         case "一级":
             icon = <Crown className="h-3 w-3" />;
@@ -70,7 +77,7 @@ const AuthorityBadge = ({ level }: { level: string }) => {
     return (
         <Badge variant={variant} className="gap-1 pl-1 pr-1.5">
             {icon}
-            <span className="text-xs whitespace-nowrap">{level}</span>
+            <span className="text-xs whitespace-nowrap">{levelText}</span>
         </Badge>
     )
 }
@@ -110,6 +117,7 @@ interface FavoritesContentProps {
 
 export default function FavoritesContent({ onJournalSelect }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
+    const { t } = useTranslation();
 
     const favoritesQuery = useMemoFirebase(
         () =>
@@ -134,7 +142,7 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
     if (isUserLoading || isLoading) {
         return (
           <div className="flex justify-center items-center h-64">
-            <div className="text-lg">Loading favorites...</div>
+            <div className="text-lg">{t('favorites.loading')}</div>
           </div>
         );
     }
@@ -142,9 +150,9 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center text-center px-4 py-20 border-2 border-dashed rounded-lg">
-                <h2 className="text-2xl font-bold mb-4">Please Log In</h2>
-                <p className="text-muted-foreground mb-6">You need to be logged in to view your favorite journals.</p>
-                <Button>Back to Home</Button>
+                <h2 className="text-2xl font-bold mb-4">{t('favorites.login.title')}</h2>
+                <p className="text-muted-foreground mb-6">{t('favorites.login.description')}</p>
+                <Button>{t('favorites.login.button')}</Button>
             </div>
         );
     }
@@ -163,15 +171,15 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
                                         <div className="flex items-center gap-2 mt-1">
                                             <p className="text-sm text-muted-foreground">{journal.issn}</p>
                                             <AuthorityBadge level={journal.authorityJournal} />
-                                            {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
+                                            {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
                                         </div>
                                     </div>
                                     <div className="col-span-2 text-center">
-                                        <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                                        <p className="text-xs text-muted-foreground font-semibold">{t('journal.impactFactor')}</p>
                                         <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                                     </div>
                                     <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                                        <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
+                                        <p className="text-xs text-muted-foreground font-semibold mb-1">{t('journal.casPartition')}</p>
                                         <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
                                             <span className="ml-1">
                                                 {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
@@ -185,12 +193,12 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
                 </div>
             ) : (
                 <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
-                    <h3 className="mt-4 text-lg font-medium text-foreground">No Favorites Yet</h3>
+                    <h3 className="mt-4 text-lg font-medium text-foreground">{t('favorites.empty.title')}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        You haven&apos;t added any journals to your favorites.
+                        {t('favorites.empty.description')}
                     </p>
                     <Button className="mt-6">
-                       Find Journals to Favorite
+                       {t('favorites.empty.button')}
                     </Button>
                 </div>
             )}

@@ -19,6 +19,7 @@ import {
 import { Search, Loader2, Crown, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CategoryStats from "./CategoryStats";
+import { useTranslation } from "@/i18n/provider";
 
 interface SearchPageProps {
   journals: Journal[];
@@ -47,8 +48,14 @@ const getPartitionColorClass = (partition: string): string => {
 };
 
 const AuthorityBadge = ({ level }: { level: string }) => {
+    const { t } = useTranslation();
     let icon;
     let variant: "authority1" | "authority2" | "authority3" | "secondary" = "secondary";
+    let levelText = level;
+    if (level === "一级") levelText = t('cas.authority.1');
+    if (level === "二级") levelText = t('cas.authority.2');
+    if (level === "三级") levelText = t('cas.authority.3');
+
     switch (level) {
         case "一级":
             icon = <Crown className="h-3 w-3" />;
@@ -68,7 +75,7 @@ const AuthorityBadge = ({ level }: { level: string }) => {
     return (
         <Badge variant={variant} className="gap-1 pl-1 pr-1.5">
             {icon}
-            <span className="text-xs whitespace-nowrap">{level}</span>
+            <span className="text-xs whitespace-nowrap">{levelText}</span>
         </Badge>
     )
 }
@@ -158,6 +165,7 @@ const formatImpactFactor = (factor: number | string) => {
 function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [currentPage, setCurrentPage] = useState(1);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setSearchTerm(initialSearchTerm);
@@ -208,11 +216,11 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Enter a journal name to search..."
+          placeholder={t('search.placeholder')}
           value={searchTerm}
           onChange={handleSearchChange}
           className="w-full pl-10 h-12 text-lg shadow-md focus-visible:shadow-lg transition-shadow"
-          aria-label="Search journals"
+          aria-label={t('search.ariaLabel')}
         />
       </div>
 
@@ -225,15 +233,15 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
       {showInitialMessage && (
           <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
               <Search className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium text-foreground">Start your search</h3>
+              <h3 className="mt-4 text-lg font-medium text-foreground">{t('search.initial.title')}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                  Enter at least 3 characters to begin searching for journals.
+                  {t('search.initial.description')}
               </p>
           </div>
       )}
       {showNoResultsMessage && (
           <div className="text-center py-10">
-              <p className="text-muted-foreground">No journals found for &quot;{searchTerm}&quot;.</p>
+              <p className="text-muted-foreground">{t('search.noResults', { searchTerm })}</p>
           </div>
       )}
 
@@ -251,15 +259,15 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
                     <div className="flex items-center gap-2 mt-1">
                         <p className="text-sm text-muted-foreground">{journal.issn}</p>
                         <AuthorityBadge level={journal.authorityJournal} />
-                        {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
+                        {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
                     </div>
                 </div>
                 <div className="col-span-2 text-center">
-                    <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                    <p className="text-xs text-muted-foreground font-semibold">{t('journal.impactFactor')}</p>
                     <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                 </div>
                 <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                  <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
+                  <p className="text-xs text-muted-foreground font-semibold mb-1">{t('journal.casPartition')}</p>
                   <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
                       <span className="ml-1">
                         {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
@@ -288,7 +296,9 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
                     ? "pointer-events-none opacity-50"
                     : ""
                 }
-                />
+                >
+                  {t('pagination.previous')}
+                </PaginationPrevious>
             </PaginationItem>
 
             {getPaginationItems(currentPage, totalPages, handlePageChange)}
@@ -306,7 +316,9 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
                     ? "pointer-events-none opacity-50"
                     : ""
                 }
-                />
+                >
+                  {t('pagination.next')}
+                </PaginationNext>
             </PaginationItem>
             </PaginationContent>
         </Pagination>
