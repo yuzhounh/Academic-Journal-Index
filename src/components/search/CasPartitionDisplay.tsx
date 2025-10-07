@@ -141,10 +141,10 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
         <div className="p-3 bg-secondary/50 rounded-lg">
             <div className="flex justify-between items-center">
                 <p className="font-semibold">{journal.majorCategory}</p>
-                {journal.top === "是" && <Badge variant="default" className="bg-amber-500 text-white">Top</Badge>}
-            </div>
-            <div className="mt-1">
-                <PartitionBadge partition={journal.majorCategoryPartition} />
+                <div className="flex items-center gap-2">
+                    {journal.top === "是" && <Badge variant="default" className="bg-amber-500 text-white">Top</Badge>}
+                    <PartitionBadge partition={journal.majorCategoryPartition} />
+                </div>
             </div>
         </div>
       </div>
