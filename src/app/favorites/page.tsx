@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useMemoFirebase } from "@/firebase/provider";
 import CategoryStats from "@/components/search/CategoryStats";
 import { Journal } from "@/data/journals";
+import { useMemo } from "react";
 
 type FavoriteJournal = {
     id: string;
@@ -100,7 +101,6 @@ const adaptFavoritesForStats = (favorites: FavoriteJournal[]): Journal[] => {
         review: '是',
         oaj: '否',
         webOfScience: '',
-        annotation: '',
         minorCategories: [],
     }));
 };
@@ -122,7 +122,7 @@ export default function FavoritesPage() {
     
     const { data: favorites, isLoading } = useCollection<FavoriteJournal>(favoritesQuery);
     
-    const journalsForStats = useMemoFirebase(() => {
+    const journalsForStats = useMemo(() => {
         if (favorites) {
             return adaptFavoritesForStats(favorites);
         }
@@ -187,8 +187,7 @@ export default function FavoritesPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </Card>
-                    ))}
+                        ))}
                     </div>
                 </div>
             ) : (
