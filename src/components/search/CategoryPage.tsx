@@ -21,7 +21,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
@@ -181,8 +186,8 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about'>("search");
   const { user } = useFirebase();
   
-  // State to preserve search query when navigating to detail view
   const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 
   const categories = useMemo(() => {
@@ -254,8 +259,6 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
 
   const handleBackFromDetail = () => {
     setSelectedJournal(null);
-    // No need to reset view, it should persist.
-    // The search term is preserved in `preservedSearchTerm`
   };
 
   const handlePageChange = (page: number) => {
@@ -270,6 +273,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     setSelectedCategory(null);
     setSelectedJournal(null);
     setPreservedSearchTerm("");
+    setMobileMenuOpen(false);
   }
 
   if (selectedJournal) {
@@ -437,6 +441,41 @@ aria-disabled={currentPage === totalPages}
     }
   };
 
+  const navItems = (
+    <>
+      <Button
+        onClick={() => handleViewChange("search")}
+        variant={view === "search" ? "secondary" : "ghost"}
+        className="w-full justify-start"
+      >
+        Search
+      </Button>
+      <Button
+        onClick={() => handleViewChange("categories")}
+        variant={view === "categories" ? "secondary" : "ghost"}
+        className="w-full justify-start"
+      >
+        Browse
+      </Button>
+      {user && (
+          <Button 
+            onClick={() => handleViewChange("favorites")}
+            variant={view === "favorites" ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+              My Favorites
+          </Button>
+      )}
+      <Button
+          onClick={() => handleViewChange("about")}
+          variant={view === "about" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+      >
+          About
+      </Button>
+    </>
+  )
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
@@ -447,40 +486,63 @@ aria-disabled={currentPage === totalPages}
               <span>AJI</span>
             </a>
           </div>
+
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2">
-                <Button
-                  onClick={() => handleViewChange("search")}
-                  variant={view === "search" ? "secondary" : "ghost"}
-                  size="sm"
-                >
-                  Search
-                </Button>
-                <Button
-                  onClick={() => handleViewChange("categories")}
-                  variant={view === "categories" ? "secondary" : "ghost"}
-                  size="sm"
-                >
-                  Browse
-                </Button>
-                {user && (
-                    <Button 
-                      onClick={() => handleViewChange("favorites")}
-                      variant={view === "favorites" ? "secondary" : "ghost"}
-                      size="sm"
-                    >
-                        My Favorites
-                    </Button>
-                )}
-                <Button
-                    onClick={() => handleViewChange("about")}
-                    variant={view === "about" ? "secondary" : "ghost"}
+              <Button
+                onClick={() => handleViewChange("search")}
+                variant={view === "search" ? "secondary" : "ghost"}
+                size="sm"
+              >
+                Search
+              </Button>
+              <Button
+                onClick={() => handleViewChange("categories")}
+                variant={view === "categories" ? "secondary" : "ghost"}
+                size="sm"
+              >
+                Browse
+              </Button>
+              {user && (
+                  <Button 
+                    onClick={() => handleViewChange("favorites")}
+                    variant={view === "favorites" ? "secondary" : "ghost"}
                     size="sm"
-                >
-                    About
-                </Button>
+                  >
+                      My Favorites
+                  </Button>
+              )}
+              <Button
+                  onClick={() => handleViewChange("about")}
+                  variant={view === "about" ? "secondary" : "ghost"}
+                  size="sm"
+              >
+                  About
+              </Button>
             </div>
-            <UserAvatar onViewFavorites={() => handleViewChange("favorites")} />
+
+            <div className="flex items-center gap-2">
+                <UserAvatar onViewFavorites={() => handleViewChange("favorites")} />
+                <div className="sm:hidden">
+                    <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="icon">
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Open menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="pr-0">
+                          <a href="/" className="flex items-center gap-2 text-xl font-bold font-headline mb-6">
+                            <BookOpen className="h-5 w-5 text-primary" />
+                            <span>AJI</span>
+                          </a>
+                          <div className="flex flex-col gap-2">
+                            {navItems}
+                          </div>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+            </div>
           </div>
         </div>
       </header>
@@ -492,35 +554,6 @@ aria-disabled={currentPage === totalPages}
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
             Search journals by title or browse journals by category.
           </p>
-          <div className="mt-4 flex gap-2 sm:hidden">
-            <Button
-              onClick={() => handleViewChange("search")}
-              variant={view === "search" ? "default" : "outline"}
-            >
-              Search Journals
-            </Button>
-            <Button
-              onClick={() => handleViewChange("categories")}
-              variant={view === "categories" ? "default" : "outline"}
-            >
-              Browse Categories
-            </Button>
-             {user && (
-                <Button 
-                  onClick={() => handleViewChange("favorites")}
-                  variant={view === "favorites" ? "default" : "outline"}
-                >
-                    Favorites
-                </Button>
-            )}
-             <Button
-                onClick={() => handleViewChange("about")}
-                variant={view === "about" ? "default" : "outline"}
-                size="sm"
-            >
-                About
-            </Button>
-          </div>
         </div>
         {renderContent()}
       </div>
