@@ -438,7 +438,7 @@ aria-disabled={currentPage === totalPages}
         <div className="max-w-5xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             <h1 className="font-headline text-xl font-bold">
-              <a href="/">JCR</a>
+              <a href="/">AJI</a>
             </h1>
           </div>
           <div className="flex items-center gap-4">
@@ -503,5 +503,3 @@ aria-disabled={currentPage === totalPages}
     </>
   );
 }
-
-    
