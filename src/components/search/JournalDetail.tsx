@@ -25,6 +25,7 @@ import {
   Bot,
   BookCopy,
   Heart,
+  Sparkles,
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import { Badge } from "../ui/badge";
@@ -100,8 +101,9 @@ const formatIssn = (issn: string) => {
 };
 
 export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
+  const [showAiAnalysis, setShowAiAnalysis] = useState<boolean>(false);
   const [summaryInfo, setSummaryInfo] = useState<JournalSummaryInfo | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user, firestore } = useFirebase();
   const { t, locale } = useTranslation();
@@ -120,23 +122,29 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
 
   const isFavorited = !!favorite;
 
+  // Reset AI state when journal changes
   useEffect(() => {
-    const fetchSummary = async () => {
-      if (!journal) return;
-      setIsLoading(true);
-      setError(null);
-      try {
-        const result: JournalSummaryInfo = await getSummary(journal, locale);
-        setSummaryInfo(result);
-      } catch (e) {
-        setError(t('journal.summaryError'));
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchSummary();
-  }, [journal, locale, t]);
+    setShowAiAnalysis(false);
+    setSummaryInfo(null);
+    setIsLoading(false);
+    setError(null);
+  }, [journal]);
+
+  const handleGenerateSummary = async () => {
+    if (!journal) return;
+    setShowAiAnalysis(true);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result: JournalSummaryInfo = await getSummary(journal, locale);
+      setSummaryInfo(result);
+    } catch (e) {
+      setError(t('journal.summaryError'));
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleFavorite = async () => {
     if (!user || !firestore || !favoriteRef) return;
@@ -219,38 +227,56 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
         
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                    <Bot className="text-primary"/>
-                    {t('journal.aiSummary')}
-                </CardTitle>
-                <CardDescription>{t('journal.aiDisclaimer')}</CardDescription>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                            <Bot className="text-primary"/>
+                            {t('journal.aiSummary')}
+                        </CardTitle>
+                        <CardDescription>{t('journal.aiDisclaimer')}</CardDescription>
+                    </div>
+                    {!showAiAnalysis && (
+                        <Button onClick={handleGenerateSummary}>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            {t('journal.generateAnalysis')}
+                        </Button>
+                    )}
+                </div>
             </CardHeader>
             <CardContent>
-                <AiSummaryContent 
-                    summary={summaryInfo?.summary ?? null}
-                    isLoading={isLoading}
-                    error={error}
-                />
+                {showAiAnalysis ? (
+                    <AiSummaryContent 
+                        summary={summaryInfo?.summary ?? null}
+                        isLoading={isLoading}
+                        error={error}
+                    />
+                ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                        <p>{t('journal.generatePrompt')}</p>
+                    </div>
+                )}
             </CardContent>
         </Card>
 
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                    <BookCopy className="text-primary"/>
-                    {t('journal.relatedJournals')}
-                </CardTitle>
-                <CardDescription>{t('journal.relatedDisclaimer')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <RelatedJournals
-                    relatedJournals={summaryInfo?.relatedJournals ?? null}
-                    isLoading={isLoading}
-                    error={error}
-                    onJournalSelect={onJournalSelect}
-                />
-            </CardContent>
-        </Card>
+        {showAiAnalysis && (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                        <BookCopy className="text-primary"/>
+                        {t('journal.relatedJournals')}
+                    </CardTitle>
+                    <CardDescription>{t('journal.relatedDisclaimer')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <RelatedJournals
+                        relatedJournals={summaryInfo?.relatedJournals ?? null}
+                        isLoading={isLoading}
+                        error={error}
+                        onJournalSelect={onJournalSelect}
+                    />
+                </CardContent>
+            </Card>
+        )}
       </div>
     </div>
   );

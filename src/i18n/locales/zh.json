@@ -45,7 +45,9 @@
         "aiDisclaimer": "AI 生成的分析，请核实关键信息。",
         "relatedJournals": "相关期刊",
         "relatedDisclaimer": "AI 建议的相似期刊。",
-        "summaryError": "生成 AI 智能分析失败。"
+        "summaryError": "生成 AI 智能分析失败。",
+        "generateAnalysis": "生成分析",
+        "generatePrompt": "点击按钮以生成 AI 智能摘要并查找相关期刊。"
     },
     "cas": {
         "authorityLevel": "权威级别",
