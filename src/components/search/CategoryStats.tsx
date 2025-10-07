@@ -150,7 +150,7 @@ export default function CategoryStats({ journals }: CategoryStatsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-headline">Category Statistics</CardTitle>
+        <CardTitle className="text-xl font-headline">Journal Statistics</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-center">
