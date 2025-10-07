@@ -147,7 +147,9 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
         majorCategoryPartition: journal.majorCategoryPartition,
         authorityJournal: journal.authorityJournal,
         openAccess: journal.openAccess,
-        issn: journal.issn
+        issn: journal.issn,
+        majorCategory: journal.majorCategory,
+        top: journal.top,
       });
     }
   };

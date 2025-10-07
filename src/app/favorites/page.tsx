@@ -11,6 +11,8 @@ import { Crown, Medal, Star, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useMemoFirebase } from "@/firebase/provider";
+import CategoryStats from "@/components/search/CategoryStats";
+import { Journal } from "@/data/journals";
 
 type FavoriteJournal = {
     id: string;
@@ -23,6 +25,9 @@ type FavoriteJournal = {
     authorityJournal: string;
     openAccess: string;
     issn: string;
+    // Fields needed for CategoryStats
+    majorCategory: string;
+    top: string;
 };
 
 const partitionMap: { [key: string]: string } = {
@@ -78,6 +83,28 @@ const formatImpactFactor = (factor: number | string) => {
     return factor;
 };
 
+// Function to adapt FavoriteJournal to the format expected by CategoryStats
+const adaptFavoritesForStats = (favorites: FavoriteJournal[]): Journal[] => {
+    return favorites.map(fav => ({
+        // Map fields from FavoriteJournal to Journal
+        journalName: fav.journalName,
+        issn: fav.issn,
+        impactFactor: fav.impactFactor,
+        majorCategoryPartition: fav.majorCategoryPartition,
+        authorityJournal: fav.authorityJournal,
+        openAccess: fav.openAccess,
+        majorCategory: fav.majorCategory || "", // Assume it might not be there, provide default
+        top: fav.top || "否",
+        // Add dummy values for other required Journal fields
+        year: new Date().getFullYear(),
+        review: '是',
+        oaj: '否',
+        webOfScience: '',
+        annotation: '',
+        minorCategories: [],
+    }));
+};
+
 export default function FavoritesPage() {
     const { user, isUserLoading, firestore } = useFirebase();
     const router = useRouter();
@@ -94,6 +121,13 @@ export default function FavoritesPage() {
       );
     
     const { data: favorites, isLoading } = useCollection<FavoriteJournal>(favoritesQuery);
+    
+    const journalsForStats = useMemoFirebase(() => {
+        if (favorites) {
+            return adaptFavoritesForStats(favorites);
+        }
+        return [];
+    }, [favorites]);
 
     if (isUserLoading || isLoading) {
         return (
@@ -125,33 +159,37 @@ export default function FavoritesPage() {
             </div>
 
             {favorites && favorites.length > 0 ? (
-                <div className="space-y-4">
-                    {favorites.map((journal) => (
-                        <Card key={journal.id}>
-                            <CardContent className="p-6 grid grid-cols-12 items-start gap-4">
-                                <div className="col-span-7">
-                                    <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <p className="text-sm text-muted-foreground">{journal.issn}</p>
-                                        <AuthorityBadge level={journal.authorityJournal} />
-                                        {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
+                <div className="space-y-8">
+                    <CategoryStats journals={journalsForStats} />
+                    <div className="space-y-4">
+                        {favorites.map((journal) => (
+                            <Card key={journal.id}>
+                                <CardContent className="p-6 grid grid-cols-12 items-start gap-4">
+                                    <div className="col-span-7">
+                                        <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-sm text-muted-foreground">{journal.issn}</p>
+                                            <AuthorityBadge level={journal.authorityJournal} />
+                                            {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-span-2 text-center">
-                                    <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
-                                    <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
-                                </div>
-                                <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                                    <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
-                                    <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
-                                        <span className="ml-1">
-                                            {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
-                                        </span>
+                                    <div className="col-span-2 text-center">
+                                        <p className="text-xs text-muted-foreground font-semibold">Impact Factor</p>
+                                        <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                                     </div>
-                                </div>
-                            </CardContent>
+                                    <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                                        <p className="text-xs text-muted-foreground font-semibold mb-1">CAS Partition</p>
+                                        <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
+                                            <span className="ml-1">
+                                                {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </Card>
                     ))}
+                    </div>
                 </div>
             ) : (
                 <div className="text-center py-20 px-4 border-2 border-dashed rounded-lg">
@@ -167,5 +205,3 @@ export default function FavoritesPage() {
         </div>
     );
 }
-
-    
