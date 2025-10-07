@@ -26,6 +26,9 @@ import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
 import { cn } from "@/lib/utils";
+import UserAvatar from "../auth/UserAvatar";
+import { useFirebase } from "@/firebase";
+import Link from "next/link";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -175,6 +178,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<"categories" | "search">("search");
+  const { user } = useFirebase();
   
   // State to preserve search query when navigating to detail view
   const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
@@ -430,6 +434,39 @@ aria-disabled={currentPage === totalPages}
 
   return (
     <>
+      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
+        <div className="max-w-5xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4">
+            <h1 className="font-headline text-xl font-bold">
+              <a href="/">JCR</a>
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2">
+                <Button
+                  onClick={() => handleViewChange("search")}
+                  variant={view === "search" ? "secondary" : "ghost"}
+                  size="sm"
+                >
+                  Search
+                </Button>
+                <Button
+                  onClick={() => handleViewChange("categories")}
+                  variant={view === "categories" ? "secondary" : "ghost"}
+                  size="sm"
+                >
+                  Browse
+                </Button>
+                {user && (
+                    <Button asChild variant="ghost" size="sm">
+                        <Link href="/favorites">My Favorites</Link>
+                    </Button>
+                )}
+            </div>
+            <UserAvatar />
+          </div>
+        </div>
+      </header>
       <div className="py-4 md:py-8">
         <div className="flex flex-col items-center text-center mb-8">
           <h1 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">
@@ -438,7 +475,7 @@ aria-disabled={currentPage === totalPages}
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">
             Search journals by title or browse journals by category.
           </p>
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex gap-2 sm:hidden">
             <Button
               onClick={() => handleViewChange("search")}
               variant={view === "search" ? "default" : "outline"}
@@ -451,6 +488,11 @@ aria-disabled={currentPage === totalPages}
             >
               Browse Categories
             </Button>
+             {user && (
+                <Button asChild variant="outline">
+                    <Link href="/favorites">Favorites</Link>
+                </Button>
+            )}
           </div>
         </div>
         {renderContent()}
@@ -461,3 +503,5 @@ aria-disabled={currentPage === totalPages}
     </>
   );
 }
+
+    

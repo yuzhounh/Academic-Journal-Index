@@ -157,35 +157,34 @@
       ]
     },
     "FavoriteJournal": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "FavoriteJournal",
       "type": "object",
-      "description": "Represents a user's favorite journal.",
+      "description": "Represents a user's favorite journal, linking a user to a journal.",
       "properties": {
-        "id": {
+        "journalId": {
           "type": "string",
-          "description": "Unique identifier for the favorite journal entity."
+          "description": "The ID of the favorited journal."
         },
         "userId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N FavoriteJournal)"
+          "description": "The ID of the user who favorited the journal."
         },
-        "journalId": {
+        "createdAt": {
           "type": "string",
-          "description": "Reference to Journal. (Relationship: Journal 1:N FavoriteJournal)"
+          "format": "date-time",
+          "description": "The timestamp when the journal was favorited."
         }
       },
       "required": [
-        "id",
+        "journalId",
         "userId",
-        "journalId"
+        "createdAt"
       ]
     }
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google"
     ]
   },
   "firestore": {
@@ -229,7 +228,7 @@
           "schema": {
             "$ref": "#/backend/entities/FavoriteJournal"
           },
-          "description": "Stores user's favorite journals. Includes denormalized 'userId' for authorization independence.",
+          "description": "Stores user's favorite journals. Path-based security ensures users can only access their own favorites.",
           "params": [
             {
               "name": "userId",
@@ -237,12 +236,14 @@
             },
             {
               "name": "favoriteJournalId",
-              "description": "The unique identifier for the favorite journal entry."
+              "description": "The unique identifier for the favorite journal entry (often the journalId itself)."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support user authentication with Google, journal searching and display, and the ability to save favorite journals. The structure emphasizes authorization independence and efficient querying. Journals are stored in a top-level `journals` collection for global access. User-specific data, such as favorite journals, are stored in subcollections under the `users` collection. This approach allows for simple security rules based on path-based ownership.\n\n**Authorization Independence:**\n*   The `favorite_journals` subcollection denormalizes the `userId` within each document. This is crucial for authorization independence. Without denormalization, security rules would need to perform `get()` operations to verify user ownership, violating the Authorization Independence principle.\n\n**QAPs Support:**\n*   **List Journals (Global):** The top-level `journals` collection enables efficient listing and searching of journals.\n*   **List Favorite Journals (User-Specific):** The `/users/{userId}/favorite_journals` path allows secure and efficient listing of a user's favorite journals using path-based authorization.\n\n**Data Integrity:**\n*   The `FavoriteJournal` entity includes both `userId` and `journalId`, maintaining explicit relationships between users and journals."
+    "reasoning": "The Firestore structure is designed to support user authentication with Google, journal searching and display, and the ability to save favorite journals. The structure emphasizes authorization independence and efficient querying. Journals are stored in a top-level `journals` collection for global access. User-specific data, such as favorite journals, are stored in subcollections under the `users` collection. This approach allows for simple security rules based on path-based ownership.\n\n**Authorization Independence:**\n*   The `favorite_journals` subcollection path itself provides the user context, making queries secure and efficient without needing to check fields inside documents.\n\n**QAPs Support:**\n*   **List Journals (Global):** The top-level `journals` collection enables efficient listing and searching of journals.\n*   **List Favorite Journals (User-Specific):** The `/users/{userId}/favorite_journals` path allows secure and efficient listing of a user's favorite journals using path-based authorization."
   }
 }
+
+    

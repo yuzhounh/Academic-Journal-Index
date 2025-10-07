@@ -24,6 +24,7 @@ import {
   Search,
   Bot,
   BookCopy,
+  Heart,
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import { Badge } from "../ui/badge";
@@ -31,6 +32,10 @@ import { getSummary } from "@/app/actions";
 import type { JournalSummaryInfo } from "@/app/actions";
 import AiSummaryContent from "./AiSummaryContent";
 import RelatedJournals from "./RelatedJournals";
+import { useFirebase } from "@/firebase";
+import { doc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+import { useDoc } from "@/firebase/firestore/use-doc";
+import { useMemoFirebase } from "@/firebase/provider";
 
 
 interface JournalDetailProps {
@@ -93,6 +98,19 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   const [summaryInfo, setSummaryInfo] = useState<JournalSummaryInfo | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, firestore } = useFirebase();
+
+  const favoriteRef = useMemoFirebase(
+    () =>
+      user && firestore
+        ? doc(firestore, `users/${user.uid}/favorite_journals`, journal.issn)
+        : null,
+    [user, firestore, journal.issn]
+  );
+
+  const { data: favorite, isLoading: isFavoriteLoading } = useDoc(favoriteRef);
+
+  const isFavorited = !!favorite;
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -112,6 +130,25 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
     fetchSummary();
   }, [journal]);
 
+  const toggleFavorite = async () => {
+    if (!user || !firestore) return;
+    if (isFavorited) {
+      await deleteDoc(favoriteRef!);
+    } else {
+      await setDoc(favoriteRef!, {
+        journalId: journal.issn,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+        journalName: journal.journalName,
+        impactFactor: journal.impactFactor,
+        majorCategoryPartition: journal.majorCategoryPartition,
+        authorityJournal: journal.authorityJournal,
+        openAccess: journal.openAccess,
+        issn: journal.issn
+      });
+    }
+  };
+
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
@@ -119,7 +156,20 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
         <Button variant="outline" size="icon" onClick={onBack} aria-label="Back to search results">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{journal.journalName}</h2>
+        <div className="flex-grow flex items-center gap-4 justify-between">
+          <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{journal.journalName}</h2>
+          {user && (
+            <Button
+              variant={isFavorited ? "default" : "outline"}
+              size="icon"
+              onClick={toggleFavorite}
+              disabled={isFavoriteLoading}
+              aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -194,3 +244,5 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
     </div>
   );
 }
+
+    
