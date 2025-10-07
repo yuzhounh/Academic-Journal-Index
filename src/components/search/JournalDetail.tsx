@@ -100,12 +100,14 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   const [error, setError] = useState<string | null>(null);
   const { user, firestore } = useFirebase();
 
+  const encodedIssn = encodeURIComponent(journal.issn);
+
   const favoriteRef = useMemoFirebase(
     () =>
       user && firestore
-        ? doc(firestore, `users/${user.uid}/favorite_journals`, journal.issn)
+        ? doc(firestore, `users/${user.uid}/favorite_journals`, encodedIssn)
         : null,
-    [user, firestore, journal.issn]
+    [user, firestore, encodedIssn]
   );
 
   const { data: favorite, isLoading: isFavoriteLoading } = useDoc(favoriteRef);
@@ -131,11 +133,12 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   }, [journal]);
 
   const toggleFavorite = async () => {
-    if (!user || !firestore) return;
+    if (!user || !firestore || !favoriteRef) return;
+    
     if (isFavorited) {
-      await deleteDoc(favoriteRef!);
+      await deleteDoc(favoriteRef);
     } else {
-      await setDoc(favoriteRef!, {
+      await setDoc(favoriteRef, {
         journalId: journal.issn,
         userId: user.uid,
         createdAt: serverTimestamp(),
@@ -244,5 +247,3 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
     </div>
   );
 }
-
-    
