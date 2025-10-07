@@ -14,44 +14,6 @@ import { findJournalsTool } from '../tools/find-journals';
 
 const SummarizeJournalInfoInputSchema = z.object({
   journalName: z.string().describe('The name of the journal.'),
-  year: z.string().describe('The publication year of the journal.'),
-  issn: z.string().describe('The ISSN/EISSN of the journal.'),
-  review: z.string().describe('Whether the journal is peer-reviewed.'),
-  oaj: z.string().describe('Whether the journal is indexed in OAJ.'),
-  openAccess: z.string().describe('Whether the journal is open access.'),
-  webOfScience: z.string().describe('Whether the journal is in Web of Science.'),
-  impactFactor: z.string().describe('The impact factor of the journal.'),
-  annotation: z.string().describe('Additional annotations for the journal.'),
-  majorCategory: z.string().describe('The major category of the journal.'),
-  majorCategoryPartition: z
-    .string()
-    .describe('The partition of the major category.'),
-  top: z.string().describe('Whether the journal is a top journal.'),
-  authorityJournal: z.string().describe('The authority level of the journal.'),
-  minorCategory1: z.string().describe('The first minor category of the journal.'),
-  minorCategory1Partition: z
-    .string()
-    .describe('The partition of the first minor category.'),
-  minorCategory2: z.string().describe('The second minor category of the journal.'),
-  minorCategory2Partition: z
-    .string()
-    .describe('The partition of the second minor category.'),
-  minorCategory3: z.string().describe('The third minor category of the journal.'),
-  minorCategory3Partition: z
-    .string()
-    .describe('The partition of the third minor category.'),
-  minorCategory4: z.string().describe('The fourth minor category of the journal.'),
-  minorCategory4Partition: z
-    .string()
-    .describe('The partition of the fourth minor category.'),
-  minorCategory5: z.string().describe('The fifth minor category of the journal.'),
-  minorCategory5Partition: z
-    .string()
-    .describe('The partition of the fifth minor category.'),
-  minorCategory6: z.string().describe('The sixth minor category of the journal.'),
-  minorCategory6Partition: z
-    .string()
-    .describe('The partition of the sixth minor category.'),
 });
 export type SummarizeJournalInfoInput = z.infer<
   typeof SummarizeJournalInfoInputSchema
@@ -81,26 +43,15 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   tools: [findJournalsTool],
   prompt: `你是一位专业的学术期刊分析师。
 
-  请根据下面提供的期刊信息，用中文生成一段详细的分析报告。报告应包含以下几个部分：
-  1. **期刊简介**: 简要介绍该期刊的背景、历史和出版商。
-  2. **主要发表领域**: 详细说明该期刊主要覆盖的研究方向和学科领域。
-  3. **在领域内的地位**: 结合影响因子、中科院分区、权威等级等指标，分析该期刊在其学术领域中的影响力和地位。
-  
-  最后，请使用 findJournalsTool 工具，根据当前期刊的主要学科 (Major Category: {{{majorCategory}}})，查找并列出 3-5 种相关的期刊作为推荐。
+  请根据你的知识库，为以下期刊生成一份详细的分析报告。
 
-  期刊信息如下:
-  - 期刊名称: {{{journalName}}}
-  - 年份: {{{year}}}
-  - ISSN/EISSN: {{{issn}}}
-  - 同行评审: {{{review}}}
-  - 开放获取: {{{openAccess}}}
-  - Web of Science收录: {{{webOfScience}}}
-  - 影响因子: {{{impactFactor}}}
-  - 标注: {{{annotation}}}
-  - 主要学科: {{{majorCategory}}}
-  - 主要学科分区: {{{majorCategoryPartition}}}
-  - Top期刊: {{{top}}}
-  - 权威期刊: {{{authorityJournal}}}
+  期刊名称: {{{journalName}}}
+
+  报告应包含以下几个部分，全部用中文撰写：
+  1.  **期刊简介**: 简要介绍该期刊的背景、历史、出版商等。
+  2.  **主要发表领域**: 详细说明该期刊主要覆盖的研究方向和学科领域。
+  3.  **在领域内的地位**: 结合该期刊的学术声誉、常见指标（如影响因子范围、分区情况等）和影响力，分析其在学术领域中的地位。
+  4.  **相关期刊推荐**: 使用 findJournalsTool 工具，根据当前期刊的主要学科，查找并列出 3-5 种相关的期刊作为推荐。在调用工具时，请使用你判断出的最核心的学科分类作为查询参数。
   `,
 });
 
