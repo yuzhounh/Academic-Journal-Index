@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useFirebase } from "@/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { LogIn, LogOut, Heart } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 
 interface UserAvatarProps {
   onViewFavorites: () => void;
@@ -69,11 +69,6 @@ export default function UserAvatar({ onViewFavorites }: UserAvatarProps) {
             <p className="font-medium">{user.displayName}</p>
             <p className="text-xs text-muted-foreground font-normal truncate">{user.email}</p>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onViewFavorites} className="cursor-pointer">
-          <Heart className="mr-2 h-4 w-4" />
-          <span>My Favorites</span>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
