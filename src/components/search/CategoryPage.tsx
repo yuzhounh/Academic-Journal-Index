@@ -28,8 +28,8 @@ import CategoryStats from "./CategoryStats";
 import { cn } from "@/lib/utils";
 import UserAvatar from "../auth/UserAvatar";
 import { useFirebase } from "@/firebase";
-import Link from "next/link";
 import FavoritesContent from "../favorites/FavoritesContent";
+import AboutPage from "./AboutPage";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -178,7 +178,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [view, setView] = useState<"search" | "categories" | "favorites">("search");
+  const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about'>("search");
   const { user } = useFirebase();
   
   // State to preserve search query when navigating to detail view
@@ -265,7 +265,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     }
   };
   
-  const handleViewChange = (newView: 'search' | 'categories' | 'favorites') => {
+  const handleViewChange = (newView: 'search' | 'categories' | 'favorites' | 'about') => {
     setView(newView);
     setSelectedCategory(null);
     setSelectedJournal(null);
@@ -290,6 +290,8 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
         return <SearchPage journals={journals} onJournalSelect={handleJournalSelect} initialSearchTerm={preservedSearchTerm} />;
       case "favorites":
         return <FavoritesContent onJournalSelect={(journalName) => handleJournalSelectByName(journalName)} />;
+      case "about":
+        return <AboutPage />;
       case "categories":
         if (selectedCategory) {
           return (
@@ -469,6 +471,13 @@ aria-disabled={currentPage === totalPages}
                         My Favorites
                     </Button>
                 )}
+                <Button
+                    onClick={() => handleViewChange("about")}
+                    variant={view === "about" ? "secondary" : "ghost"}
+                    size="sm"
+                >
+                    About
+                </Button>
             </div>
             <UserAvatar onViewFavorites={() => handleViewChange("favorites")} />
           </div>
@@ -503,6 +512,13 @@ aria-disabled={currentPage === totalPages}
                     Favorites
                 </Button>
             )}
+             <Button
+                onClick={() => handleViewChange("about")}
+                variant={view === "about" ? "default" : "outline"}
+                size="sm"
+            >
+                About
+            </Button>
           </div>
         </div>
         {renderContent()}
