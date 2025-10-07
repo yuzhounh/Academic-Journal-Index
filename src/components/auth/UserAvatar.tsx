@@ -16,11 +16,7 @@ import { LogIn, LogOut } from "lucide-react";
 import { useState } from "react";
 import LoginDialog from "./LoginDialog";
 
-interface UserAvatarProps {
-  onViewFavorites: () => void;
-}
-
-export default function UserAvatar({ onViewFavorites }: UserAvatarProps) {
+export default function UserAvatar() {
   const { user, auth } = useFirebase();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
@@ -45,7 +41,16 @@ export default function UserAvatar({ onViewFavorites }: UserAvatarProps) {
     );
   }
 
-  const userInitial = user.displayName ? user.displayName.charAt(0).toUpperCase() : '?';
+  const getInitial = () => {
+    if (user.displayName) {
+      return user.displayName.charAt(0).toUpperCase();
+    }
+    if (user.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "?";
+  };
+  const userInitial = getInitial();
 
   return (
     <DropdownMenu>
