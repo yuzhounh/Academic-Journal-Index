@@ -8,11 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookCopy } from "lucide-react";
 import type { JournalSummaryInfo } from "@/app/actions";
 
-
 interface AiSummaryProps {
   journal: Journal;
   onJournalSelect: (journalName: string) => void;
-  setApc: (apc: { value: string | undefined, url: string | undefined }) => void;
 }
 
 type RelatedJournal = {
@@ -20,7 +18,7 @@ type RelatedJournal = {
   issn: string;
 };
 
-export default function AiSummary({ journal, onJournalSelect, setApc }: AiSummaryProps) {
+export default function AiSummary({ journal, onJournalSelect }: AiSummaryProps) {
   const [summary, setSummary] = useState<string>("");
   const [relatedJournals, setRelatedJournals] = useState<RelatedJournal[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -30,17 +28,12 @@ export default function AiSummary({ journal, onJournalSelect, setApc }: AiSummar
     const fetchSummary = async () => {
       setIsLoading(true);
       setError(null);
-      setApc({ value: undefined, url: undefined }); // Reset APC on new journal
       try {
         const result: JournalSummaryInfo = await getSummary(journal);
         setSummary(result.summary);
         setRelatedJournals(result.relatedJournals || []);
-        if (result.apc) {
-          setApc({ value: result.apc, url: result.apcUrl });
-        }
       } catch (e) {
         setError("Failed to generate summary.");
-        setApc({ value: "Error", url: "#" });
         console.error(e);
       } finally {
         setIsLoading(false);
@@ -50,14 +43,22 @@ export default function AiSummary({ journal, onJournalSelect, setApc }: AiSummar
     if (journal) {
       fetchSummary();
     }
-  }, [journal, setApc]);
+  }, [journal]);
 
   if (isLoading) {
     return (
-        <div className="space-y-2">
+        <div className="space-y-4">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
+            <div className="pt-4 space-y-2">
+                <Skeleton className="h-5 w-48" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                </div>
+            </div>
         </div>
     );
   }
@@ -68,7 +69,7 @@ export default function AiSummary({ journal, onJournalSelect, setApc }: AiSummar
 
   return (
     <div className="space-y-6">
-      <p className="text-base text-foreground/90 leading-relaxed">
+      <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-line">
         {summary}
       </p>
 

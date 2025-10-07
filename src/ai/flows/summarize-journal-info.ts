@@ -58,11 +58,11 @@ export type SummarizeJournalInfoInput = z.infer<
 >;
 
 const SummarizeJournalInfoOutputSchema = z.object({
-  summary: z.string().describe('A summary of the journal information.'),
+  summary: z.string().describe('A comprehensive summary of the journal covering its introduction, main publication areas, and status within its field.'),
   relatedJournals: z.array(z.object({
     journalName: z.string().describe("The name of the related journal."),
     issn: z.string().describe("The ISSN of the related journal."),
-  })).describe("A list of journals related to the current one.")
+  })).describe("A list of 3-5 journals related to the current one based on its main category.")
 });
 export type SummarizeJournalInfoOutput = z.infer<
   typeof SummarizeJournalInfoOutputSchema
@@ -79,37 +79,28 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
   input: {schema: SummarizeJournalInfoInputSchema},
   output: {schema: SummarizeJournalInfoOutputSchema},
   tools: [findJournalsTool],
-  prompt: `你是一位专业的期刊信息总结专家。
+  prompt: `你是一位专业的学术期刊分析师。
 
-  请根据下面提供的期刊信息，用中文生成一段简明扼要的总结。总结应突出期刊的关键指标，如影响因子、学科分区排名和权威等级，并说明该期刊在其研究领域的重要性和地位。
+  请根据下面提供的期刊信息，用中文生成一段详细的分析报告。报告应包含以下几个部分：
+  1. **期刊简介**: 简要介绍该期刊的背景、历史和出版商。
+  2. **主要发表领域**: 详细说明该期刊主要覆盖的研究方向和学科领域。
+  3. **在领域内的地位**: 结合影响因子、中科院分区、权威等级等指标，分析该期刊在其学术领域中的影响力和地位。
   
-  在总结下方，请使用 findJournalsTool 工具根据当前期刊的主要学科或次要学科，查找并列出 3-5 种相关的期刊。
+  最后，请使用 findJournalsTool 工具，根据当前期刊的主要学科 (Major Category: {{{majorCategory}}})，查找并列出 3-5 种相关的期刊作为推荐。
 
-  期刊名称: {{{journalName}}}
-  年份: {{{year}}}
-  ISSN/EISSN: {{{issn}}}
-  同行评审: {{{review}}}
-  OAJ收录: {{{oaj}}}
-  开放获取: {{{openAccess}}}
-  Web of Science收录: {{{webOfScience}}}
-  影响因子: {{{impactFactor}}}
-  标注: {{{annotation}}}
-  主要学科: {{{majorCategory}}}
-  主要学科分区: {{{majorCategoryPartition}}}
-  Top期刊: {{{top}}}
-  权威期刊: {{{authorityJournal}}}
-  次要学科1: {{{minorCategory1}}}
-  次要学科1分区: {{{minorCategory1Partition}}}
-  次要学科2: {{{minorCategory2}}}
-  次要学科2分区: {{{minorCategory2Partition}}}
-  次要学科3: {{{minorCategory3}}}
-  次要学科3分区: {{{minorCategory3Partition}}}
-  次要学科4: {{{minorCategory4}}}
-  次要学科4分区: {{{minorCategory4Partition}}}
-  次要学科5: {{{minorCategory5}}}
-  次要学科5分区: {{{minorCategory5Partition}}}
-  次要学科6: {{{minorCategory6}}}
-  次要学科6分区: {{{minorCategory6Partition}}}
+  期刊信息如下:
+  - 期刊名称: {{{journalName}}}
+  - 年份: {{{year}}}
+  - ISSN/EISSN: {{{issn}}}
+  - 同行评审: {{{review}}}
+  - 开放获取: {{{openAccess}}}
+  - Web of Science收录: {{{webOfScience}}}
+  - 影响因子: {{{impactFactor}}}
+  - 标注: {{{annotation}}}
+  - 主要学科: {{{majorCategory}}}
+  - 主要学科分区: {{{majorCategoryPartition}}}
+  - Top期刊: {{{top}}}
+  - 权威期刊: {{{authorityJournal}}}
   `,
 });
 

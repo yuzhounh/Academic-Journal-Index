@@ -20,10 +20,12 @@ import {
   BookMarked,
   Award,
   DollarSign,
-  Search
+  Search,
+  Bot
 } from "lucide-react";
 import CasPartitionDisplay from "./CasPartitionDisplay";
 import { Badge } from "../ui/badge";
+import AiSummary from "./AiSummary";
 
 interface JournalDetailProps {
   journal: Journal;
@@ -81,7 +83,7 @@ const formatIssn = (issn: string) => {
     return issn;
 };
 
-export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
+export default function JournalDetail({ journal, onBack, onJournalSelect }: JournalDetailProps) {
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-300">
@@ -125,6 +127,19 @@ export default function JournalDetail({ journal, onBack }: JournalDetailProps) {
                 </CardContent>
             </Card>
         </div>
+        
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                    <Bot className="text-primary"/>
+                    AI-Powered Summary
+                </CardTitle>
+                <CardDescription>AI-generated summary. Please verify critical information.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <AiSummary journal={journal} onJournalSelect={onJournalSelect} />
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
