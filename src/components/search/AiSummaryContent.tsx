@@ -28,8 +28,8 @@ export default function AiSummaryContent({ summary, isLoading, error }: AiSummar
   }
 
   return (
-    <p className="text-base text-foreground/90 leading-relaxed whitespace-pre-line">
+    <div className="text-base text-foreground/90 leading-relaxed whitespace-pre-line">
       {summary}
-    </p>
+    </div>
   );
 }

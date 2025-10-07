@@ -20,7 +20,7 @@ export type SummarizeJournalInfoInput = z.infer<
 >;
 
 const SummarizeJournalInfoOutputSchema = z.object({
-  summary: z.string().describe('A comprehensive summary of the journal covering its introduction, main publication areas, and status within its field.'),
+  summary: z.string().describe('A comprehensive summary of the journal covering its introduction, main publication areas, and status within its field. The output should be plain text, using newlines for structure. Do not use any Markdown formatting.'),
   relatedJournals: z.array(z.object({
     journalName: z.string().describe("The name of the related journal."),
     issn: z.string().describe("The ISSN of the related journal."),
@@ -47,11 +47,22 @@ const summarizeJournalInfoPrompt = ai.definePrompt({
 
   期刊名称: {{{journalName}}}
 
-  报告应包含以下几个部分，全部用中文撰写：
-  1.  **期刊简介**: 简要介绍该期刊的背景、历史、出版商等。
-  2.  **主要发表领域**: 详细说明该期刊主要覆盖的研究方向和学科领域。
-  3.  **在领域内的地位**: 结合该期刊的学术声誉、常见指标（如影响因子范围、分区情况等）和影响力，分析其在学术领域中的地位。
-  4.  **相关期刊推荐**: 使用 findJournalsTool 工具，根据当前期刊的主要学科，查找并列出 3-5 种相关的期刊作为推荐。在调用工具时，请使用你判断出的最核心的学科分类作为查询参数。
+  报告应包含以下几个部分，全部用中文撰写。
+  请使用纯文本格式，不要使用任何 Markdown 语法（例如 #, *, _ 等）。
+  使用换行和简单的缩进（空格）来组织内容，确保可读性。
+
+  报告结构如下:
+  1. 期刊简介
+     [此处是期刊的背景、历史、出版商等简介]
+
+  2. 主要发表领域
+     [此处详细说明期刊覆盖的研究方向和学科领域，可以分点陈述]
+
+  3. 在领域内的地位
+     [此处结合期刊的学术声誉、常见指标和影响力，分析其在学术领域中的地位]
+
+  4. 相关期刊推荐
+     使用 findJournalsTool 工具，根据当前期刊的核心学科分类，查找并列出 3-5 种相关的期刊作为推荐。
   `,
 });
 
