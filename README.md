@@ -1,5 +1,5 @@
-# Firebase Studio
+# Academic Journal Index
 
-This is a NextJS starter in Firebase Studio.
+Search journals by title or browse journals by category.
 
-To get started, take a look at src/app/page.tsx.
+https://studio--journal-information-5664-d4572.us-central1.hosted.app/
