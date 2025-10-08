@@ -15,7 +15,7 @@ import {
 import { useMemoFirebase } from "@/firebase/provider";
 import { Journal } from "@/data/journals";
 import { useTranslation } from "@/i18n/provider";
-import { BookText, FolderOpen } from "lucide-react";
+import { BookText, FolderOpen, LogIn } from "lucide-react";
 import CategoryStats from "../search/CategoryStats";
 
 export type JournalList = {
@@ -30,9 +30,10 @@ interface FavoritesContentProps {
     onUncategorizedSelect: () => void;
     allFavorites: (Journal & { journalId: string; listId?: string | undefined; })[] | null;
     onFindJournalsClick: () => void;
+    onLoginClick: () => void;
 }
 
-export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick }: FavoritesContentProps) {
+export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick, onLoginClick }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
 
@@ -80,7 +81,10 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
             <div className="flex flex-col items-center justify-center text-center px-4 py-20 border-2 border-dashed rounded-lg">
                 <h2 className="text-2xl font-bold mb-4">{t('favorites.login.title')}</h2>
                 <p className="text-muted-foreground mb-6">{t('favorites.login.description')}</p>
-                <Button onClick={onFindJournalsClick}>{t('favorites.login.button')}</Button>
+                <Button onClick={onLoginClick}>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    {t('auth.login')}
+                </Button>
             </div>
         );
     }

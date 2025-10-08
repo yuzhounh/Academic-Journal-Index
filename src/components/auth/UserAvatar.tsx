@@ -14,14 +14,16 @@ import { useFirebase } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { LogIn, LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
-import LoginDialog from "./LoginDialog";
 import { useTranslation } from "@/i18n/provider";
 import DeleteAccountDialog from "./DeleteAccountDialog";
 
-export default function UserAvatar() {
+interface UserAvatarProps {
+  onLoginClick: () => void;
+}
+
+export default function UserAvatar({ onLoginClick }: UserAvatarProps) {
   const { user, auth } = useFirebase();
   const { t } = useTranslation();
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -35,13 +37,10 @@ export default function UserAvatar() {
 
   if (!user) {
     return (
-      <>
-        <Button variant="outline" size="sm" onClick={() => setIsLoginDialogOpen(true)}>
-          <LogIn className="mr-2 h-4 w-4" />
-          {t('auth.login')}
-        </Button>
-        <LoginDialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen} />
-      </>
+      <Button variant="outline" size="sm" onClick={onLoginClick}>
+        <LogIn className="mr-2 h-4 w-4" />
+        {t('auth.login')}
+      </Button>
     );
   }
 

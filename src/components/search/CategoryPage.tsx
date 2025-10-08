@@ -42,6 +42,7 @@ import { getMajorCategoryName, getMinorCategoryName } from "@/i18n/categories";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
 import { collection, query, where, or } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/provider";
+import LoginDialog from "../auth/LoginDialog";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -204,6 +205,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   
   const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
 
   const categories = useMemo(() => {
@@ -437,7 +439,13 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
             </div>
           );
         }
-        return <FavoritesContent allFavorites={allFavorites} onJournalListSelect={handleJournalListSelect} onUncategorizedSelect={() => handleCategorySelect("Uncategorized")} onFindJournalsClick={() => handleViewChange('search')} />;
+        return <FavoritesContent 
+                  allFavorites={allFavorites} 
+                  onJournalListSelect={handleJournalListSelect} 
+                  onUncategorizedSelect={() => handleCategorySelect("Uncategorized")} 
+                  onFindJournalsClick={() => handleViewChange('search')}
+                  onLoginClick={() => setIsLoginDialogOpen(true)}
+                />;
       case "about":
         return <AboutPage />;
       case "categories":
@@ -603,15 +611,13 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       >
         {t('nav.browse')}
       </Button>
-      {user && (
-          <Button 
-            onClick={() => handleViewChange("favorites")}
-            variant={view === "favorites" ? "secondary" : "ghost"}
-            className="w-full justify-start"
-          >
-              {t('nav.favorites')}
-          </Button>
-      )}
+      <Button 
+        onClick={() => handleViewChange("favorites")}
+        variant={view === "favorites" ? "secondary" : "ghost"}
+        className="w-full justify-start"
+      >
+          {t('nav.favorites')}
+      </Button>
       <Button
           onClick={() => handleViewChange("about")}
           variant={view === "about" ? "secondary" : "ghost"}
@@ -638,15 +644,13 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       >
         {t('nav.browse')}
       </Button>
-      {user && (
-          <Button 
-            onClick={() => handleViewChange("favorites")}
-            variant={view === "favorites" ? "secondary" : "ghost"}
-            size="sm"
-          >
-              {t('nav.favorites')}
-          </Button>
-      )}
+      <Button 
+        onClick={() => handleViewChange("favorites")}
+        variant={view === "favorites" ? "secondary" : "ghost"}
+        size="sm"
+      >
+          {t('nav.favorites')}
+      </Button>
       <Button
           onClick={() => handleViewChange("about")}
           variant={view === "about" ? "secondary" : "ghost"}
@@ -673,7 +677,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
           <div className="flex items-center justify-end gap-2">
             <LanguageToggle />
             <ThemeToggle />
-            <UserAvatar />
+            <UserAvatar onLoginClick={() => setIsLoginDialogOpen(true)} />
             <div className="sm:hidden">
                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                     <SheetTrigger asChild>
@@ -710,6 +714,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       <footer className="text-center text-sm text-muted-foreground py-4 border-t">
         © 2025 Jing Wang. All Rights Reserved.
       </footer>
+      <LoginDialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen} />
     </>
   );
 }

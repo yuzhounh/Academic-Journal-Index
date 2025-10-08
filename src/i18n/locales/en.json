@@ -100,7 +100,7 @@
         "loading": "Loading favorites...",
         "login": {
             "title": "Please Log In",
-            "description": "You need to be logged in to view your favorite journals.",
+            "description": "You need to be logged in to view and save your favorite journals.",
             "button": "Back to Home"
         },
         "empty": {

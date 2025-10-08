@@ -100,7 +100,7 @@
         "loading": "正在加载收藏...",
         "login": {
             "title": "请登录",
-            "description": "您需要登录才能查看您收藏的期刊。",
+            "description": "您需要登录才能查看和保存您收藏的期刊。",
             "button": "返回首页"
         },
         "empty": {
