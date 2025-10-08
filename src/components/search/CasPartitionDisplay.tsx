@@ -48,7 +48,7 @@ const PartitionBadge = ({ partition }: { partition: string }) => {
         <Badge variant={variant}>
             {mainPartitionText}
         </Badge>
-        {details && <span className="text-xs text-muted-foreground">{details}</span>}
+        {details && <span className="text-xs text-muted-foreground">{details.replace(/[\[\]]/g, '')}</span>}
       </div>
     );
 };
