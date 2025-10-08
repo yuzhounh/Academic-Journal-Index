@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTranslation } from "@/i18n/provider";
-import { getMajorCategoryName, getMinorCategoryName } from "@/i18n/categories";
+import { getMajorCategoryName } from "@/i18n/categories";
 
 const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
     const mainPartition = partition.charAt(0);
@@ -27,7 +27,7 @@ const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "lev
 
 const PartitionBadge = ({ partition }: { partition: string }) => {
     const { t } = useTranslation();
-    const match = partition.match(/(\d+)\s*(\[.+\])?/);
+    const match = partition.match(/(\d+)\s*(.*)/);
     if (!match) return <Badge variant="secondary">{partition}</Badge>;
   
     const [, main, details] = match;
@@ -169,7 +169,7 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
             <div className="space-y-3 p-3 bg-secondary/50 rounded-lg">
             {journal.minorCategories.map((category, index) => (
                 <div key={index} className="flex justify-between items-center text-sm">
-                    <p className="font-medium flex-1 truncate pr-2">{getMinorCategoryName(category.name, locale)}</p>
+                    <p className="font-medium flex-1 truncate pr-2">{category.name}</p>
                     <PartitionBadge partition={category.partition} />
                 </div>
             ))}
