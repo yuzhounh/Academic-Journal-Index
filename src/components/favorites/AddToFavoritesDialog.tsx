@@ -225,7 +225,7 @@ export default function AddToFavoritesDialog({
             </ScrollArea>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('cancel', { ns: 'common' })}</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
           <Button onClick={handleSaveChanges} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t('favorites.dialog.saveButton')}
@@ -235,8 +235,3 @@ export default function AddToFavoritesDialog({
     </Dialog>
   );
 }
-
-// Add a cancel translation to the json files
-const commonEn = { "cancel": "Cancel" };
-const commonZh = { "cancel": "取消" };
-
