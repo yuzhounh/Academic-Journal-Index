@@ -30,9 +30,6 @@ export const deleteUserData = onCall(async (request) => {
   logger.info(`Starting data deletion for user: ${uid}`);
 
   try {
-    // This is the path to the user's document in the top-level 'users' collection.
-    // While we don't have one in this app's structure, it's good practice.
-    // Let's adapt to delete the subcollections directly.
     const userPath = `users/${uid}`;
 
     // Delete subcollections first.
