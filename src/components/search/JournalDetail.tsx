@@ -228,7 +228,10 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                         {t('journal.aiSummary')}
                     </CardTitle>
                     {!showAiAnalysis && (
-                        <Button onClick={handleGenerateSummary}>
+                        <Button
+                          onClick={handleGenerateSummary}
+                          className="bg-primary/10 text-primary hover:bg-primary/20"
+                        >
                             <Sparkles className="mr-2 h-4 w-4" />
                             {t('journal.generateAnalysis')}
                         </Button>
