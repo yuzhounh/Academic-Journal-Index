@@ -182,6 +182,14 @@ const formatImpactFactor = (factor: number | string) => {
   return factor;
 };
 
+const formatIssn = (issn: string) => {
+    const parts = issn.split('/');
+    if (parts.length > 1) {
+        return <>{parts[0]}/<wbr/>{parts.slice(1).join('/')}</>;
+    }
+    return issn;
+};
+
 export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
@@ -344,7 +352,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                         </p>
                          <div className="flex items-center gap-2 mt-1">
                             <p className="text-sm text-muted-foreground">
-                            {journal.issn}
+                            {formatIssn(journal.issn)}
                             </p>
                             <AuthorityBadge level={journal.authorityJournal} />
                             {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
@@ -352,7 +360,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                       </div>
                       <div className="col-span-2 text-center">
                         <p className="text-xs text-muted-foreground font-semibold">
-                          {t('journal.impactFactor')}
+                          {t('journal.casPartitionShort')}
                         </p>
                         <p className="font-medium text-lg">
                           {formatImpactFactor(journal.impactFactor)}

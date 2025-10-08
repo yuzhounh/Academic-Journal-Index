@@ -155,6 +155,14 @@ const formatImpactFactor = (factor: number | string) => {
     return factor;
 };
 
+const formatIssn = (issn: string) => {
+    const parts = issn.split('/');
+    if (parts.length > 1) {
+        return <>{parts[0]}/<wbr/>{parts.slice(1).join('/')}</>;
+    }
+    return issn;
+};
+
 function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [currentPage, setCurrentPage] = useState(1);
@@ -261,7 +269,7 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
                 <div className="col-span-7">
                     <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
                     <div className="flex items-center gap-2 mt-1">
-                        <p className="text-sm text-muted-foreground">{journal.issn}</p>
+                        <p className="text-sm text-muted-foreground">{formatIssn(journal.issn)}</p>
                         <AuthorityBadge level={journal.authorityJournal} />
                         {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
                     </div>

@@ -105,6 +105,14 @@ const adaptFavoritesForStats = (favorites: FavoriteJournal[]): Journal[] => {
     }));
 };
 
+const formatIssn = (issn: string) => {
+    const parts = issn.split('/');
+    if (parts.length > 1) {
+        return <>{parts[0]}/<wbr/>{parts.slice(1).join('/')}</>;
+    }
+    return issn;
+};
+
 interface FavoritesContentProps {
   onJournalSelect: (journalName: string) => void;
 }
@@ -174,7 +182,7 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
                                     <div className="col-span-7">
                                         <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-sm text-muted-foreground">{journal.issn}</p>
+                                            <p className="text-sm text-muted-foreground">{formatIssn(journal.issn)}</p>
                                             <AuthorityBadge level={journal.authorityJournal} />
                                             {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
                                         </div>
