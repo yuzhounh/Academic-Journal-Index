@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -239,6 +240,9 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                         </Button>
                     )}
                 </div>
+                {showAiAnalysis && (
+                    <CardDescription className="pt-2">{t('journal.aiDisclaimer')}</CardDescription>
+                )}
             </CardHeader>
             {showAiAnalysis && (
               <CardContent>
