@@ -62,7 +62,7 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
             }
         });
 
-        return { categorized: categorizedFavorites, uncategorizedCount };
+        return { categorized: categorizedFavorites, uncategorizedCount: uncategorized };
     }, [allFavorites]);
 
 
