@@ -25,6 +25,9 @@ const majorCategoryMap: Record<string, { en: string; zh: string }> = {
     "地球科学与环境生态": { "en": "Geosciences and Environmental Ecology", "zh": "地球科学与环境生态" },
     "交叉学科": { "en": "Interdisciplinary", "zh": "交叉学科" },
     "综合性期刊": { "en": "Comprehensive Journals", "zh": "综合性期刊" },
+    "社会学": { "en": "Sociology", "zh": "社会学" },
+    "文学": { "en": "Literature", "zh": "文学" },
+    "历史学": { "en": "History", "zh": "历史学" }
 };
 
 function toTitleCase(str: string): string {
