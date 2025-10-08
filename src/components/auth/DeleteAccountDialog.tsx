@@ -37,10 +37,12 @@ export default function DeleteAccountDialog({ open, onOpenChange, user }: Delete
       // We will use a Firebase Function for this to ensure all subcollections are deleted.
       const functions = getFunctions();
       const deleteUserData = httpsCallable(functions, 'deleteUserData');
-      await deleteUserData();
+      const result = await deleteUserData();
 
       // After Firestore data is gone, delete the user from Firebase Auth.
-      await deleteUser(user);
+      // Note: The function call above now also handles Auth deletion.
+      // This is left in case the function is modified or fails partially.
+      // await deleteUser(user);
 
       toast({
         title: t('auth.deleteAccountSuccess'),

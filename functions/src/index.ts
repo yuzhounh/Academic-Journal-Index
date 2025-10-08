@@ -12,7 +12,7 @@ const db = admin.firestore();
  *
  * This function is callable from the client-side. It retrieves the user's UID
  * from the authentication context and proceeds to delete all their documents
- * and subcollections from Firestore.
+ * and subcollections from Firestore, and finally deletes the user from Auth.
  *
  * @throws {HttpsError} Throws 'unauthenticated' if the user is not logged in.
  * @throws {HttpsError} Throws 'internal' if any part of the deletion process fails.
@@ -32,18 +32,22 @@ export const deleteUserData = onCall(async (request) => {
   try {
     const userPath = `users/${uid}`;
 
-    // Delete subcollections first.
-    // It's crucial to delete contents of subcollections before deleting the parent doc.
-    await deleteCollection(db, `${userPath}/journal_lists`, 100);
-    logger.info(`Deleted journal_lists for user: ${uid}`);
+    // Gracefully delete subcollections.
+    await deleteCollectionIfExists(db, `${userPath}/journal_lists`, 100);
+    logger.info(`Finished processing journal_lists for user: ${uid}`);
 
-    await deleteCollection(db, `${userPath}/favorite_journals`, 100);
-    logger.info(`Deleted favorite_journals for user: ${uid}`);
+    await deleteCollectionIfExists(db, `${userPath}/favorite_journals`, 100);
+    logger.info(`Finished processing favorite_journals for user: ${uid}`);
     
     // Now, delete the main user document if it exists.
     const userDocRef = db.doc(userPath);
-    await userDocRef.delete();
-    logger.info(`Deleted user document for: ${uid}`);
+    const userDoc = await userDocRef.get();
+    if (userDoc.exists) {
+        await userDocRef.delete();
+        logger.info(`Deleted user document for: ${uid}`);
+    } else {
+        logger.info(`User document for ${uid} did not exist. Skipping deletion.`);
+    }
 
     // Finally, delete the user from Firebase Authentication.
     await admin.auth().deleteUser(uid);
@@ -52,13 +56,42 @@ export const deleteUserData = onCall(async (request) => {
     return {success: true, message: "User data deleted successfully."};
   } catch (error) {
     logger.error(`Error deleting user data for ${uid}:`, error);
+    // Avoid throwing a generic 'internal' error if it's just a sub-process failing.
+    // Log it, but let the user know something went wrong.
+    if (error instanceof HttpsError) {
+        throw error;
+    }
     throw new HttpsError(
       "internal",
-      "An error occurred while deleting user data.",
+      `An error occurred while deleting user data: ${error instanceof Error ? error.message : 'Unknown error'}`,
       error
     );
   }
 });
+
+
+/**
+ * Checks if a collection exists and if so, deletes it and all its documents in batches.
+ * @param {admin.firestore.Firestore} db The Firestore database instance.
+ * @param {string} collectionPath The path to the collection to delete.
+ * @param {number} batchSize The number of documents to delete in each batch.
+ */
+async function deleteCollectionIfExists(
+  db: admin.firestore.Firestore,
+  collectionPath: string,
+  batchSize: number
+) {
+    const collectionRef = db.collection(collectionPath);
+    // Check if the collection is empty by getting just one document.
+    const collectionCheck = await collectionRef.limit(1).get();
+    if (collectionCheck.empty) {
+        logger.info(`Collection ${collectionPath} is empty or does not exist. Skipping deletion.`);
+        return; // Nothing to delete
+    }
+
+    logger.info(`Collection ${collectionPath} found. Proceeding with deletion.`);
+    return deleteCollection(db, collectionPath, batchSize);
+}
 
 
 /**
