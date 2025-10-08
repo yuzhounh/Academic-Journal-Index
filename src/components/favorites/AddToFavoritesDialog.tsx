@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useFirebase } from "@/firebase";
 import {
   Dialog,
@@ -73,7 +73,7 @@ export default function AddToFavoritesDialog({
   );
   const { data: favoritedIn, isLoading: isLoadingFavorites } = useCollection<{listId: string}>(favoritedInListsQuery);
 
-  useMemo(() => {
+  useEffect(() => {
     if (favoritedIn) {
       const listIds = new Set(favoritedIn.map((fav) => fav.listId));
       setSelectedLists(listIds);
@@ -112,6 +112,14 @@ export default function AddToFavoritesDialog({
       });
       
       await batch.commit();
+      
+      // Select the newly created list
+      setSelectedLists(prev => {
+        const newSet = new Set(prev);
+        newSet.add(newListRef.id);
+        return newSet;
+      });
+
       setNewList("");
     } catch (error) {
       console.error("Error creating new list and adding favorite:", error);
