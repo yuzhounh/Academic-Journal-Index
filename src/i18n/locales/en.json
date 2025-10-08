@@ -68,6 +68,7 @@
         "minorCategories": "Minor Categories",
         "tooltip": {
             "title": "Authority Journal Ranking Rules",
+            "ariaLabel": "Information about authority journal ranking rules",
             "level1": {
                 "title": "Level 1 Authority Journal",
                 "rule1": "CAS JCR Major Category Partition Q1 journals",

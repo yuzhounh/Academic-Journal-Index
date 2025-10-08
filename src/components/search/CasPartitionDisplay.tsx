@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTranslation } from "@/i18n/provider";
+import { getMajorCategoryName, getMinorCategoryName } from "@/i18n/categories";
 
 const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
     const mainPartition = partition.charAt(0);
@@ -91,7 +92,7 @@ interface CasPartitionDisplayProps {
 }
 
 export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   return (
     <div className="space-y-4">
@@ -101,7 +102,7 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button aria-label="Authority level rules">
+                  <button aria-label={t('cas.tooltip.ariaLabel')}>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </TooltipTrigger>
@@ -152,7 +153,7 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
         <h4 className="text-sm font-semibold text-muted-foreground mb-2">{t('cas.majorCategory')}</h4>
         <div className="p-3 bg-secondary/50 rounded-lg">
             <div className="flex justify-between items-center">
-                <p className="font-semibold flex-1 truncate pr-2">{journal.majorCategory}</p>
+                <p className="font-semibold flex-1 truncate pr-2">{getMajorCategoryName(journal.majorCategory, locale)}</p>
                 <div className="flex items-center gap-2">
                     {journal.top === "是" && <Badge variant="default" className="bg-amber-500 text-white">Top</Badge>}
                     <PartitionBadge partition={journal.majorCategoryPartition} />
@@ -168,7 +169,7 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
             <div className="space-y-3 p-3 bg-secondary/50 rounded-lg">
             {journal.minorCategories.map((category, index) => (
                 <div key={index} className="flex justify-between items-center text-sm">
-                    <p className="font-medium flex-1 truncate pr-2">{category.name}</p>
+                    <p className="font-medium flex-1 truncate pr-2">{getMinorCategoryName(category.name, locale)}</p>
                     <PartitionBadge partition={category.partition} />
                 </div>
             ))}

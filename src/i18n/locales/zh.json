@@ -68,6 +68,7 @@
         "minorCategories": "小类",
         "tooltip": {
             "title": "权威期刊分级规则",
+            "ariaLabel": "关于权威期刊分级规则的信息",
             "level1": {
                 "title": "一级权威期刊",
                 "rule1": "中科院JCR大类分区一区期刊",

@@ -26,7 +26,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu } from "lucide-react";
+import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu, HelpCircle } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
@@ -38,6 +38,7 @@ import AboutPage from "./AboutPage";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { LanguageToggle } from "../theme/LanguageToggle";
 import { useTranslation } from "@/i18n/provider";
+import { getMajorCategoryName } from "@/i18n/categories";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -187,7 +188,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about'>("search");
   const { user } = useFirebase();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   
   const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -282,13 +283,13 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const getPartitionText = (partition: string) => {
     const mainPartition = partition.charAt(0);
     switch (mainPartition) {
-      case '1': return t('cas.partitions.1');
-      case '2': return t('cas.partitions.2');
-      case '3': return t('cas.partitions.3');
-      case '4': return t('cas.partitions.4');
-      default: return partition;
+        case '1': return t('cas.partitions.1');
+        case '2': return t('cas.partitions.2');
+        case '3': return t('cas.partitions.3');
+        case '4': return t('cas.partitions.4');
+        default: return partition;
     }
-  };
+};
 
   if (selectedJournal) {
     return (
@@ -323,7 +324,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
-                  {selectedCategory}
+                  {getMajorCategoryName(selectedCategory, locale)}
                 </h2>
               </div>
               <div className="mb-8">
@@ -346,7 +347,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                             {journal.issn}
                             </p>
                             <AuthorityBadge level={journal.authorityJournal} />
-                            {journal.openAccess === "是" && <Badge variant="openAccess">OA</Badge>}
+                            {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
                          </div>
                       </div>
                       <div className="col-span-2 text-center">
@@ -437,7 +438,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                   >
                     <CardHeader className="flex-grow pb-2">
                       <CardTitle className="font-headline text-xl">
-                        {category}
+                        {getMajorCategoryName(category, locale)}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
