@@ -35,11 +35,11 @@ import type { JournalSummaryInfo } from "@/app/actions";
 import AiSummaryContent from "./AiSummaryContent";
 import RelatedJournals from "./RelatedJournals";
 import { useFirebase } from "@/firebase";
-import { doc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
-import { useDoc } from "@/firebase/firestore/use-doc";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { useCollection } from "@/firebase/firestore/use-collection";
 import { useMemoFirebase } from "@/firebase/provider";
 import { useTranslation } from "@/i18n/provider";
-
+import AddToFavoritesDialog from "../favorites/AddToFavoritesDialog";
 
 interface JournalDetailProps {
   journal: Journal;
@@ -108,20 +108,22 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   const [error, setError] = useState<string | null>(null);
   const { user, firestore } = useFirebase();
   const { t, locale } = useTranslation();
+  const [isFavoritesDialogOpen, setIsFavoritesDialogOpen] = useState(false);
 
-  const encodedIssn = encodeURIComponent(journal.issn);
-
-  const favoriteRef = useMemoFirebase(
+  const favoritesQuery = useMemoFirebase(
     () =>
       user && firestore
-        ? doc(firestore, `users/${user.uid}/favorite_journals`, encodedIssn)
+        ? query(
+            collection(firestore, `users/${user.uid}/favorite_journals`),
+            where("journalId", "==", journal.issn)
+          )
         : null,
-    [user, firestore, encodedIssn]
+    [user, firestore, journal.issn]
   );
 
-  const { data: favorite, isLoading: isFavoriteLoading } = useDoc(favoriteRef);
+  const { data: favoriteEntries, isLoading: isFavoriteLoading } = useCollection(favoritesQuery);
 
-  const isFavorited = !!favorite;
+  const isFavorited = favoriteEntries ? favoriteEntries.length > 0 : false;
 
   // Reset AI state when journal changes
   useEffect(() => {
@@ -147,26 +149,12 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
     }
   };
 
-  const toggleFavorite = async () => {
-    if (!user || !firestore || !favoriteRef) return;
-    
-    if (isFavorited) {
-      await deleteDoc(favoriteRef);
-    } else {
-      await setDoc(favoriteRef, {
-        journalId: journal.issn,
-        userId: user.uid,
-        createdAt: serverTimestamp(),
-        journalName: journal.journalName,
-        impactFactor: journal.impactFactor,
-        majorCategoryPartition: journal.majorCategoryPartition,
-        authorityJournal: journal.authorityJournal,
-        openAccess: journal.openAccess,
-        issn: journal.issn,
-        majorCategory: journal.majorCategory,
-        top: journal.top,
-      });
+  const handleFavoriteClick = () => {
+    if (!user) {
+        // Optionally, trigger login dialog here
+        return;
     }
+    setIsFavoritesDialogOpen(true);
   };
 
 
@@ -179,15 +167,22 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
         <div className="flex-grow flex items-center gap-4 justify-between">
           <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">{journal.journalName}</h2>
           {user && (
-            <Button
-              variant={isFavorited ? "default" : "outline"}
-              size="icon"
-              onClick={toggleFavorite}
-              disabled={isFavoriteLoading}
-              aria-label={isFavorited ? t('journal.unfavorite') : t('journal.favorite')}
-            >
-              <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
-            </Button>
+            <>
+              <Button
+                variant={isFavorited ? "default" : "outline"}
+                size="icon"
+                onClick={handleFavoriteClick}
+                disabled={isFavoriteLoading}
+                aria-label={t('journal.favorite')}
+              >
+                <Heart className={`h-5 w-5 ${isFavorited ? "fill-current" : ""}`} />
+              </Button>
+              <AddToFavoritesDialog
+                open={isFavoritesDialogOpen}
+                onOpenChange={setIsFavoritesDialogOpen}
+                journal={journal}
+              />
+            </>
           )}
         </div>
       </div>

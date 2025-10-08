@@ -36,7 +36,7 @@ export default function UserAvatar() {
       <>
         <Button variant="outline" size="sm" onClick={() => setIsLoginDialogOpen(true)}>
           <LogIn className="mr-2 h-4 w-4" />
-          {t('nav.login')}
+          {t('auth.login')}
         </Button>
         <LoginDialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen} />
       </>
@@ -70,7 +70,7 @@ export default function UserAvatar() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
-          <span>{t('nav.logout')}</span>
+          <span>{t('auth.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

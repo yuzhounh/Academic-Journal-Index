@@ -157,7 +157,7 @@
     "FavoriteJournal": {
       "title": "FavoriteJournal",
       "type": "object",
-      "description": "Represents a user's favorite journal, linking a user to a journal.",
+      "description": "Represents a user's favorite journal, linking a user to a journal. A journal can exist in multiple lists.",
       "properties": {
         "journalId": {
           "type": "string",
@@ -167,6 +167,10 @@
           "type": "string",
           "description": "The ID of the user who favorited the journal."
         },
+        "listId": {
+          "type": "string",
+          "description": "The ID of the JournalList this favorite belongs to."
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -175,6 +179,32 @@
       },
       "required": [
         "journalId",
+        "userId",
+        "listId",
+        "createdAt"
+      ]
+    },
+    "JournalList": {
+      "title": "Journal List",
+      "type": "object",
+      "description": "Represents a user-created list for organizing favorite journals.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the journal list."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who created this list."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the list was created."
+        }
+      },
+      "required": [
+        "name",
         "userId",
         "createdAt"
       ]
@@ -221,13 +251,33 @@
         }
       },
       {
+        "path": "/users/{userId}/journal_lists/{listId}",
+        "definition": {
+          "entityName": "JournalList",
+          "schema": {
+            "$ref": "#/backend/entities/JournalList"
+          },
+          "description": "Stores user-created journal lists (folders). Path-based security ensures users can only access their own lists.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "listId",
+              "description": "The unique identifier for the journal list."
+            }
+          ]
+        }
+      },
+      {
         "path": "/users/{userId}/favorite_journals/{favoriteJournalId}",
         "definition": {
           "entityName": "FavoriteJournal",
           "schema": {
             "$ref": "#/backend/entities/FavoriteJournal"
           },
-          "description": "Stores user's favorite journals. Path-based security ensures users can only access their own favorites.",
+          "description": "Stores individual favorited journal entries. A favorite links a journal to a user and one of their lists.",
           "params": [
             {
               "name": "userId",
@@ -235,12 +285,12 @@
             },
             {
               "name": "favoriteJournalId",
-              "description": "The unique identifier for the favorite journal entry (often the journalId itself)."
+              "description": "The unique identifier for the favorite journal entry (often a composite ID)."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support user authentication with Google, journal searching and display, and the ability to save favorite journals. The structure emphasizes authorization independence and efficient querying. Journals are stored in a top-level `journals` collection for global access. User-specific data, such as favorite journals, are stored in subcollections under the `users` collection. This approach allows for simple security rules based on path-based ownership.\n\n**Authorization Independence:**\n*   The `favorite_journals` subcollection path itself provides the user context, making queries secure and efficient without needing to check fields inside documents.\n\n**QAPs Support:**\n*   **List Journals (Global):** The top-level `journals` collection enables efficient listing and searching of journals.\n*   **List Favorite Journals (User-Specific):** The `/users/{userId}/favorite_journals` path allows secure and efficient listing of a user's favorite journals using path-based authorization."
+    "reasoning": "The Firestore structure is designed to support user authentication, journal searching, and a multi-list favoriting system. The structure emphasizes authorization independence and efficient querying. Journals are in a top-level collection. User-specific data (journal lists and the favorites within them) are stored in subcollections under each user's document. This allows for simple, powerful security rules based on path ownership.\n\n**Authorization Independence:**\n*   The `/users/{userId}/...` path structure inherently provides the user context for security rules, making it easy to ensure users can only modify their own data.\n\n**QAPs Support:**\n*   **List Journals (Global):** The top-level `journals` collection allows for efficient global searching and filtering.\n*   **List a User's Journal Lists:** Querying `/users/{userId}/journal_lists` is a direct and secure way to fetch all lists for the logged-in user.\n*   **List Journals within a Specific List:** Querying the `favorite_journals` collection with a `where('listId', '==', listId)` clause allows for fetching all journals belonging to a specific user-created list."
   }
 }

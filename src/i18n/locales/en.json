@@ -4,9 +4,7 @@
         "search": "Search",
         "browse": "Browse",
         "favorites": "My Favorites",
-        "about": "About",
-        "login": "Login",
-        "logout": "Logout"
+        "about": "About"
     },
     "header": {
         "title": "Academic Journal Index",
@@ -29,7 +27,7 @@
         "next": "Next"
     },
     "journal": {
-        "back": "Back to search results",
+        "back": "Back to list",
         "favorite": "Add to favorites",
         "unfavorite": "Remove from favorites",
         "basicInfo": "Basic Information",
@@ -49,8 +47,7 @@
         "relatedJournals": "Related Journals",
         "relatedDisclaimer": "Similar journals suggested by AI.",
         "summaryError": "Failed to generate AI-powered analysis.",
-        "generateAnalysis": "Generate Analysis",
-        "generatePrompt": "Click the button to generate an AI-powered summary and find related journals."
+        "generateAnalysis": "Generate Analysis"
     },
     "cas": {
         "authorityLevel": "Authority Level",
@@ -108,8 +105,17 @@
         },
         "empty": {
             "title": "No Favorites Yet",
-            "description": "You haven't added any journals to your favorites.",
+            "description": "You haven't created any journal lists yet.",
             "button": "Find Journals to Favorite"
+        },
+        "listEmpty": "This journal list is empty.",
+        "dialog": {
+            "title": "Add '{{journalName}}' to...",
+            "newListPlaceholder": "New list name...",
+            "createButton": "Create & Add",
+            "saveButton": "Save Changes",
+            "creating": "Creating...",
+            "saving": "Saving..."
         }
     },
     "about": {
@@ -137,7 +143,7 @@
             },
             "favorites": {
                 "title": "Managing Favorites",
-                "p1": "After logging in, you can add any journal to your favorites by clicking the heart icon on its detail page. Your favorites are available on the 'My Favorites' page."
+                "p1": "After logging in, you can add any journal to your favorites by clicking the heart icon on its detail page. Your favorites are available on the 'My Favorites' page, organized in lists."
             },
             "ai": {
                 "title": "AI-Powered Analysis",
@@ -156,6 +162,7 @@
         "signInToFavorites": "Sign in to access your favorites.",
         "signUpToFavorites": "Sign up to start saving your favorite journals.",
         "login": "Login",
+        "logout": "Logout",
         "register": "Register",
         "orContinueWith": "Or continue with",
         "email": "Email",

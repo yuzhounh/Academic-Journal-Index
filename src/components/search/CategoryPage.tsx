@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -26,19 +25,21 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu } from "lucide-react";
+import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu, Folder } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
 import { cn } from "@/lib/utils";
 import UserAvatar from "../auth/UserAvatar";
 import { useFirebase } from "@/firebase";
-import FavoritesContent from "../favorites/FavoritesContent";
+import FavoritesContent, { JournalList } from "../favorites/FavoritesContent";
 import AboutPage from "./AboutPage";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { LanguageToggle } from "../theme/LanguageToggle";
 import { useTranslation } from "@/i18n/provider";
 import { getMajorCategoryName } from "@/i18n/categories";
+import { useCollection, WithId } from "@/firebase/firestore/use-collection";
+import { collection, query, where } from "firebase/firestore";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -193,9 +194,10 @@ const formatIssn = (issn: string) => {
 export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
+  const [selectedJournalList, setSelectedJournalList] = useState<WithId<JournalList> | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<'search' | 'categories' | 'favorites' | 'about'>("search");
-  const { user } = useFirebase();
+  const { user, firestore } = useFirebase();
   const { t, locale } = useTranslation();
   
   const [preservedSearchTerm, setPreservedSearchTerm] = useState("");
@@ -219,6 +221,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     );
   }, [categories]);
 
+  // For Browse view
   const journalsForCategory = useMemo(() => {
     if (!selectedCategory) return [];
     return journals
@@ -230,21 +233,51 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       });
   }, [journals, selectedCategory]);
 
+  // For Favorites view
+  const favoritesInListQuery = useMemo(
+    () =>
+      user && firestore && selectedJournalList
+        ? query(
+            collection(firestore, `users/${user.uid}/favorite_journals`),
+            where("listId", "==", selectedJournalList.id)
+          )
+        : null,
+    [user, firestore, selectedJournalList]
+  );
+
+  const { data: favoriteJournals } = useCollection<Journal & { journalId: string }>(favoritesInListQuery);
+
+  const journalsForList = useMemo(() => {
+    return (favoriteJournals || []).sort((a, b) => {
+      const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
+      const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
+      return factorB - factorA;
+    });
+  }, [favoriteJournals]);
+
+  const journalsToDisplay = view === 'categories' ? journalsForCategory : journalsForList;
+
   const paginatedJournals = useMemo(() => {
     const startIndex = (currentPage - 1) * JOURNALS_PER_PAGE;
-    return journalsForCategory.slice(
+    return journalsToDisplay.slice(
       startIndex,
       startIndex + JOURNALS_PER_PAGE
     );
-  }, [journalsForCategory, currentPage]);
+  }, [journalsToDisplay, currentPage]);
 
-  const totalPages = Math.ceil(journalsForCategory.length / JOURNALS_PER_PAGE);
+  const totalPages = Math.ceil(journalsToDisplay.length / JOURNALS_PER_PAGE);
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setCurrentPage(1);
     setSelectedJournal(null);
   };
+  
+  const handleJournalListSelect = (list: WithId<JournalList>) => {
+    setSelectedJournalList(list);
+    setCurrentPage(1);
+    setSelectedJournal(null);
+  }
 
   const handleJournalSelect = (journal: Journal, searchTerm: string = "") => {
     if (view === 'search') {
@@ -264,9 +297,10 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     [journals]
   );
 
-  const handleBackToCategories = () => {
+  const handleBackToList = () => {
     setSelectedCategory(null);
     setSelectedJournal(null);
+    setSelectedJournalList(null);
   };
 
   const handleBackFromDetail = () => {
@@ -284,20 +318,29 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     setView(newView);
     setSelectedCategory(null);
     setSelectedJournal(null);
+    setSelectedJournalList(null);
     setPreservedSearchTerm("");
     setMobileMenuOpen(false);
   }
 
   const getPartitionText = (partition: string) => {
     const mainPartition = partition.charAt(0);
-    switch (mainPartition) {
-        case '1': return t('cas.partitions.1');
-        case '2': return t('cas.partitions.2');
-        case '3': return t('cas.partitions.3');
-        case '4': return t('cas.partitions.4');
-        default: return partition;
+    if (locale === 'zh') {
+      switch (mainPartition) {
+          case '1': return t('cas.partitions.1');
+          case '2': return t('cas.partitions.2');
+          case '3': return t('cas.partitions.3');
+          case '4': return t('cas.partitions.4');
+          default: return partition;
+      }
+    } else {
+        const match = partition.match(/(\d+)/);
+        if (match) {
+            return `Q${match[1]}`;
+        }
+        return partition;
     }
-};
+  };
 
   if (selectedJournal) {
     return (
@@ -316,7 +359,63 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       case "search":
         return <SearchPage journals={journals} onJournalSelect={handleJournalSelect} initialSearchTerm={preservedSearchTerm} />;
       case "favorites":
-        return <FavoritesContent onJournalSelect={(journalName) => handleJournalSelectByName(journalName)} />;
+        if (selectedJournalList) {
+          return (
+            <div className="animate-in fade-in-50 duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <Button variant="outline" size="icon" onClick={handleBackToList}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Folder className="h-6 w-6 text-primary" />
+                  <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
+                    {selectedJournalList.name}
+                  </h2>
+                </div>
+              </div>
+              <div className="mb-8">
+                <CategoryStats journals={journalsForList} />
+              </div>
+              {paginatedJournals.length > 0 ? (
+                <div className="space-y-4">
+                  {paginatedJournals.map((journal) => (
+                    <Card
+                      key={journal.issn}
+                      className="cursor-pointer hover:shadow-lg hover:border-primary/50 transition-shadow"
+                      onClick={() => handleJournalSelect(journal)}
+                    >
+                      <CardContent className="p-6 grid grid-cols-12 items-start gap-4">
+                        <div className="col-span-7">
+                          <p className="font-headline text-lg font-semibold truncate">{journal.journalName}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-sm text-muted-foreground">{formatIssn(journal.issn)}</p>
+                            <AuthorityBadge level={journal.authorityJournal} />
+                            {journal.openAccess === "是" && <Badge variant="openAccess">{t('journal.oa')}</Badge>}
+                          </div>
+                        </div>
+                        <div className="col-span-2 text-center">
+                          <p className="text-xs text-muted-foreground font-semibold">{t('journal.casPartitionShort')}</p>
+                          <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
+                        </div>
+                        <div className="col-span-3 flex flex-col items-center justify-center text-center">
+                          <p className="text-xs text-muted-foreground font-semibold mb-1">{t('journal.casPartitionShort')}</p>
+                          <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
+                            <span className="ml-1">{getPartitionText(journal.majorCategoryPartition)}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <p className="text-muted-foreground">{t('favorites.listEmpty')}</p>
+                </div>
+              )}
+            </div>
+          );
+        }
+        return <FavoritesContent onJournalListSelect={handleJournalListSelect} />;
       case "about":
         return <AboutPage />;
       case "categories":
@@ -327,7 +426,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={handleBackToCategories}
+                  onClick={handleBackToList}
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
