@@ -42,6 +42,7 @@
         "googleSearch": "Google Search",
         "casPartition": "CAS Partition",
         "casMajorPartition": "CAS Major Category Partition",
+        "casPartitionShort": "CAS Partition",
         "casDescription": "Chinese Academy of Sciences (CAS) journal ranking.",
         "aiSummary": "AI-Powered Analysis",
         "aiDisclaimer": "AI-generated analysis. Please verify critical information.",

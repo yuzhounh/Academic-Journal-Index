@@ -26,7 +26,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu, HelpCircle } from "lucide-react";
+import { ArrowLeft, BookText, Crown, Medal, Star, BookOpen, Menu } from "lucide-react";
 import JournalDetail from "./JournalDetail";
 import SearchPage from "./SearchPage";
 import CategoryStats from "./CategoryStats";
@@ -360,7 +360,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                       </div>
                       <div className="col-span-3 flex flex-col items-center justify-center text-center">
                         <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          {t('journal.casMajorPartition')}
+                          {t('journal.casPartitionShort')}
                         </p>
                         <div
                           className={cn(
