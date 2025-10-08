@@ -1,9 +1,10 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useFirebase } from "@/firebase";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
-import { collection, query, orderBy } from "firebase/firestore";
+import { collection, query, orderBy, where, or } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -14,7 +15,7 @@ import {
 import { useMemoFirebase } from "@/firebase/provider";
 import { Journal } from "@/data/journals";
 import { useTranslation } from "@/i18n/provider";
-import { BookText } from "lucide-react";
+import { BookText, FolderOpen } from "lucide-react";
 import CategoryStats from "../search/CategoryStats";
 
 export type JournalList = {
@@ -26,9 +27,11 @@ export type JournalList = {
 
 interface FavoritesContentProps {
     onJournalListSelect: (list: WithId<JournalList>) => void;
+    onUncategorizedSelect: () => void;
+    allFavorites: (Journal & { journalId: string; listId?: string | undefined; })[] | null;
 }
 
-export default function FavoritesContent({ onJournalListSelect }: FavoritesContentProps) {
+export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
 
@@ -44,16 +47,24 @@ export default function FavoritesContent({ onJournalListSelect }: FavoritesConte
     );
     
     const { data: journalLists, isLoading: isLoadingLists } = useCollection<JournalList>(journalListsQuery);
-
-    const allFavoritesQuery = useMemoFirebase(
-      () =>
-        user && firestore
-          ? query(collection(firestore, `users/${user.uid}/favorite_journals`))
-          : null,
-      [user, firestore]
-    );
     
-    const { data: allFavorites } = useCollection<Journal & { journalId: string }>(allFavoritesQuery);
+    const { categorized, uncategorizedCount } = useMemo(() => {
+        if (!allFavorites) return { categorized: {}, uncategorizedCount: 0 };
+
+        const categorizedFavorites: Record<string, number> = {};
+        let uncategorized = 0;
+
+        allFavorites.forEach(fav => {
+            if (fav.listId && fav.listId.trim() !== '') {
+                categorizedFavorites[fav.listId] = (categorizedFavorites[fav.listId] || 0) + 1;
+            } else {
+                uncategorized++;
+            }
+        });
+
+        return { categorized: categorizedFavorites, uncategorizedCount };
+    }, [allFavorites]);
+
 
     if (isUserLoading || isLoadingLists) {
         return (
@@ -93,11 +104,31 @@ export default function FavoritesContent({ onJournalListSelect }: FavoritesConte
 
     return (
         <div className="animate-in fade-in-50 duration-300">
-            {journalLists && journalLists.length > 0 ? (
+            {allFavorites && allFavorites.length > 0 ? (
                 <div className="space-y-8">
                     <CategoryStats journals={journalsForStats} />
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {journalLists.map((list) => (
+                        {uncategorizedCount > 0 && (
+                            <Card
+                                className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
+                                onClick={onUncategorizedSelect}
+                            >
+                                <CardHeader className="flex-grow pb-2">
+                                    <CardTitle className="font-headline text-xl flex items-center gap-2">
+                                       <FolderOpen /> {t('favorites.uncategorized')}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                        <BookText className="w-4 h-4 mr-2" />
+                                        <span>
+                                            {uncategorizedCount} {t('categories.journals')}
+                                        </span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                        {(journalLists || []).map((list) => (
                            <Card
                            key={list.id}
                            className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
@@ -112,7 +143,7 @@ export default function FavoritesContent({ onJournalListSelect }: FavoritesConte
                              <div className="flex items-center text-sm text-muted-foreground">
                                <BookText className="w-4 h-4 mr-2" />
                                <span>
-                                 {list.journalCount || 0} {t('categories.journals')}
+                                 {categorized[list.id] || 0} {t('categories.journals')}
                                </span>
                              </div>
                            </CardContent>

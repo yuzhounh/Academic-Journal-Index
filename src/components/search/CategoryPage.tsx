@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
@@ -37,9 +38,10 @@ import AboutPage from "./AboutPage";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { LanguageToggle } from "../theme/LanguageToggle";
 import { useTranslation } from "@/i18n/provider";
-import { getMajorCategoryName } from "@/i18n/categories";
+import { getMajorCategoryName, getMinorCategoryName } from "@/i18n/categories";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
-import { collection, query, where } from "firebase/firestore";
+import { collection, query, where, or } from "firebase/firestore";
+import { useMemoFirebase } from "@/firebase/provider";
 
 const JOURNALS_PER_PAGE = 20;
 
@@ -167,7 +169,7 @@ const getPaginationItems = (
 };
 
 const extractRank = (partition: string): number => {
-  const match = partition.match(/\[(\d+)\//);
+  const match = partition.match(/(\d+)\//);
   return match ? parseInt(match[1], 10) : Infinity;
 };
 
@@ -221,9 +223,27 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     );
   }, [categories]);
 
+  // For Favorites view - get all favorite journals first
+  const allFavoritesQuery = useMemoFirebase(
+      () =>
+        user && firestore
+          ? query(collection(firestore, `users/${user.uid}/favorite_journals`))
+          : null,
+      [user, firestore]
+  );
+  const { data: allFavorites } = useCollection<Journal & { journalId: string; listId?: string }>(allFavoritesQuery);
+
+
   // For Browse view
   const journalsForCategory = useMemo(() => {
     if (!selectedCategory) return [];
+    if (selectedCategory === "Uncategorized") {
+        return (allFavorites || []).filter(fav => !fav.listId).sort((a, b) => {
+          const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
+          const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
+          return factorB - factorA;
+        });
+    }
     return journals
       .filter((j) => j.majorCategory === selectedCategory)
       .sort((a, b) => {
@@ -231,17 +251,17 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
         const rankB = extractRank(b.majorCategoryPartition);
         return rankA - rankB;
       });
-  }, [journals, selectedCategory]);
+  }, [journals, selectedCategory, allFavorites]);
 
   // For Favorites view
-  const favoritesInListQuery = useMemo(
-    () =>
-      user && firestore && selectedJournalList
-        ? query(
-            collection(firestore, `users/${user.uid}/favorite_journals`),
-            where("listId", "==", selectedJournalList.id)
-          )
-        : null,
+  const favoritesInListQuery = useMemoFirebase(
+    () => {
+      if (!user || !firestore || !selectedJournalList) return null;
+      return query(
+          collection(firestore, `users/${user.uid}/favorite_journals`),
+          where("listId", "==", selectedJournalList.id)
+      );
+    },
     [user, firestore, selectedJournalList]
   );
 
@@ -255,7 +275,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     });
   }, [favoriteJournals]);
 
-  const journalsToDisplay = view === 'categories' ? journalsForCategory : journalsForList;
+  const journalsToDisplay = (selectedJournalList) ? journalsForList : journalsForCategory;
 
   const paginatedJournals = useMemo(() => {
     const startIndex = (currentPage - 1) * JOURNALS_PER_PAGE;
@@ -271,10 +291,12 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     setSelectedCategory(category);
     setCurrentPage(1);
     setSelectedJournal(null);
+    setSelectedJournalList(null);
   };
   
   const handleJournalListSelect = (list: WithId<JournalList>) => {
     setSelectedJournalList(list);
+    setSelectedCategory(null);
     setCurrentPage(1);
     setSelectedJournal(null);
   }
@@ -359,7 +381,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
       case "search":
         return <SearchPage journals={journals} onJournalSelect={handleJournalSelect} initialSearchTerm={preservedSearchTerm} />;
       case "favorites":
-        if (selectedJournalList) {
+        if (selectedJournalList || selectedCategory === 'Uncategorized') {
           return (
             <div className="animate-in fade-in-50 duration-300">
               <div className="flex items-center gap-4 mb-6">
@@ -369,12 +391,12 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                 <div className="flex items-center gap-2">
                   <Folder className="h-6 w-6 text-primary" />
                   <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
-                    {selectedJournalList.name}
+                    {selectedJournalList?.name || t('favorites.uncategorized')}
                   </h2>
                 </div>
               </div>
               <div className="mb-8">
-                <CategoryStats journals={journalsForList} />
+                <CategoryStats journals={journalsToDisplay} />
               </div>
               {paginatedJournals.length > 0 ? (
                 <div className="space-y-4">
@@ -394,7 +416,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                           </div>
                         </div>
                         <div className="col-span-2 text-center">
-                          <p className="text-xs text-muted-foreground font-semibold">{t('journal.casPartitionShort')}</p>
+                          <p className="text-xs text-muted-foreground font-semibold">{t('journal.impactFactor')}</p>
                           <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                         </div>
                         <div className="col-span-3 flex flex-col items-center justify-center text-center">
@@ -415,7 +437,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
             </div>
           );
         }
-        return <FavoritesContent onJournalListSelect={handleJournalListSelect} />;
+        return <FavoritesContent allFavorites={allFavorites} onJournalListSelect={handleJournalListSelect} onUncategorizedSelect={() => handleCategorySelect("Uncategorized")} />;
       case "about":
         return <AboutPage />;
       case "categories":
@@ -431,11 +453,11 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <h2 className="font-headline text-2xl md:text-3xl font-bold tracking-tight">
-                  {getMajorCategoryName(selectedCategory, locale)}
+                  {selectedCategory === 'Uncategorized' ? t('favorites.uncategorized') : getMajorCategoryName(selectedCategory, locale)}
                 </h2>
               </div>
               <div className="mb-8">
-                <CategoryStats journals={journalsForCategory} />
+                <CategoryStats journals={journalsToDisplay} />
               </div>
               <div className="space-y-4">
                 {paginatedJournals.map((journal) => (
@@ -459,7 +481,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                       </div>
                       <div className="col-span-2 text-center">
                         <p className="text-xs text-muted-foreground font-semibold">
-                          {t('journal.casPartitionShort')}
+                          {t('journal.impactFactor')}
                         </p>
                         <p className="font-medium text-lg">
                           {formatImpactFactor(journal.impactFactor)}
