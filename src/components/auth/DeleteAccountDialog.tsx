@@ -16,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/i18n/provider';
 import { useToast } from '@/hooks/use-toast';
-import { deleteUser, getFunctions, httpsCallable, User } from 'firebase/auth';
+import { deleteUser, User } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 interface DeleteAccountDialogProps {
   open: boolean;
