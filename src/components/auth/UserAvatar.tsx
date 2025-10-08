@@ -12,15 +12,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useFirebase } from "@/firebase";
 import { signOut } from "firebase/auth";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import LoginDialog from "./LoginDialog";
 import { useTranslation } from "@/i18n/provider";
+import DeleteAccountDialog from "./DeleteAccountDialog";
 
 export default function UserAvatar() {
   const { user, auth } = useFirebase();
   const { t } = useTranslation();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false);
 
   const handleSignOut = async () => {
     if (!auth) return;
@@ -55,24 +57,41 @@ export default function UserAvatar() {
   const userInitial = getInitial();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer h-9 w-9">
-          <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
-          <AvatarFallback>{userInitial}</AvatarFallback>
-        </Avatar>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>
-            <p className="font-medium">{user.displayName || "User"}</p>
-            <p className="text-xs text-muted-foreground font-normal truncate">{user.email}</p>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>{t('auth.logout')}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Avatar className="cursor-pointer h-9 w-9">
+            <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+            <AvatarFallback>{userInitial}</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>
+              <p className="font-medium">{user.displayName || "User"}</p>
+              <p className="text-xs text-muted-foreground font-normal truncate">{user.email}</p>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>{t('auth.logout')}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem 
+            onClick={() => setIsDeleteAccountDialogOpen(true)} 
+            className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            <span>{t('auth.deleteAccount')}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {user && (
+        <DeleteAccountDialog
+          open={isDeleteAccountDialogOpen}
+          onOpenChange={setIsDeleteAccountDialogOpen}
+          user={user}
+        />
+      )}
+    </>
   );
 }

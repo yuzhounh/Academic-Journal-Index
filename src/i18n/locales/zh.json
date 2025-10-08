@@ -172,7 +172,15 @@
         "unknownError": "发生未知错误。",
         "loginFailed": "登录失败",
         "registrationFailed": "注册失败",
-        "checkCredentials": "请检查您的凭据并重试。"
+        "checkCredentials": "请检查您的凭据并重试。",
+        "deleteAccount": "注销账户",
+        "deleteAccountConfirmation": {
+            "title": "您确定要注销账户吗？",
+            "description": "此操作无法撤销。这将永久删除您的账户以及所有数据，包括您收藏的期刊和列表。",
+            "button": "是的，注销我的账户"
+        },
+        "deleteAccountSuccess": "您的账户已成功注销。",
+        "deleteAccountError": "注销账户失败，请重试。"
     },
     "yes": "是",
     "no": "否",

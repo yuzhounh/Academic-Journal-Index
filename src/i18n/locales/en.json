@@ -172,7 +172,15 @@
         "unknownError": "An unknown error occurred.",
         "loginFailed": "Login Failed",
         "registrationFailed": "Registration Failed",
-        "checkCredentials": "Please check your credentials and try again."
+        "checkCredentials": "Please check your credentials and try again.",
+        "deleteAccount": "Delete Account",
+        "deleteAccountConfirmation": {
+            "title": "Are you absolutely sure?",
+            "description": "This action cannot be undone. This will permanently delete your account and remove all your data, including your favorited journals and lists.",
+            "button": "Yes, delete my account"
+        },
+        "deleteAccountSuccess": "Your account has been successfully deleted.",
+        "deleteAccountError": "Failed to delete account. Please try again."
     },
     "yes": "Yes",
     "no": "No",
