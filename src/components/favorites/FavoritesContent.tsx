@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { useMemoFirebase } from "@/firebase/provider";
 import CategoryStats from "@/components/search/CategoryStats";
 import { Journal } from "@/data/journals";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "@/i18n/provider";
 
 type FavoriteJournal = {
@@ -120,6 +120,7 @@ interface FavoritesContentProps {
 export default function FavoritesContent({ onJournalSelect }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
+    const [journalsForStats, setJournalsForStats] = useState<Journal[]>([]);
 
     const favoritesQuery = useMemoFirebase(
         () =>
@@ -134,11 +135,12 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
     
     const { data: favorites, isLoading } = useCollection<FavoriteJournal>(favoritesQuery);
     
-    const journalsForStats = useMemo(() => {
+    useEffect(() => {
         if (favorites) {
-            return adaptFavoritesForStats(favorites);
+            setJournalsForStats(adaptFavoritesForStats(favorites));
+        } else {
+            setJournalsForStats([]);
         }
-        return [];
     }, [favorites]);
 
     const getPartitionText = (partition: string) => {
@@ -188,7 +190,7 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
                                         </div>
                                     </div>
                                     <div className="col-span-2 text-center">
-                                        <p className="text-xs text-muted-foreground font-semibold">{t('journal.impactFactor')}</p>
+                                        <p className="text-xs text-muted-foreground font-semibold">{t('journal.casPartitionShort')}</p>
                                         <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                                     </div>
                                     <div className="col-span-3 flex flex-col items-center justify-center text-center">
