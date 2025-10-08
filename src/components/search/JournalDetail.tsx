@@ -227,14 +227,11 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
         
         <Card>
             <CardHeader>
-                <div className="flex justify-between items-start">
-                    <div>
-                        <CardTitle className="flex items-center gap-2 text-xl font-headline">
-                            <Bot className="text-primary"/>
-                            {t('journal.aiSummary')}
-                        </CardTitle>
-                        <CardDescription>{t('journal.aiDisclaimer')}</CardDescription>
-                    </div>
+                <div className="flex justify-between items-center">
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline">
+                        <Bot className="text-primary"/>
+                        {t('journal.aiSummary')}
+                    </CardTitle>
                     {!showAiAnalysis && (
                         <Button onClick={handleGenerateSummary}>
                             <Sparkles className="mr-2 h-4 w-4" />
@@ -243,19 +240,15 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                     )}
                 </div>
             </CardHeader>
-            <CardContent>
-                {showAiAnalysis ? (
-                    <AiSummaryContent 
-                        summary={summaryInfo?.summary ?? null}
-                        isLoading={isLoading}
-                        error={error}
-                    />
-                ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                        <p>{t('journal.generatePrompt')}</p>
-                    </div>
-                )}
-            </CardContent>
+            {showAiAnalysis && (
+              <CardContent>
+                  <AiSummaryContent 
+                      summary={summaryInfo?.summary ?? null}
+                      isLoading={isLoading}
+                      error={error}
+                  />
+              </CardContent>
+            )}
         </Card>
 
         {showAiAnalysis && (
