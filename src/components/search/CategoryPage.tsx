@@ -41,13 +41,6 @@ import { useTranslation } from "@/i18n/provider";
 
 const JOURNALS_PER_PAGE = 20;
 
-const partitionMap: { [key: string]: string } = {
-  "1": "一区",
-  "2": "二区",
-  "3": "三区",
-  "4": "四区",
-};
-
 const getPartitionColorClass = (partition: string): string => {
   const mainPartition = partition.charAt(0);
   switch (mainPartition) {
@@ -286,6 +279,17 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     setMobileMenuOpen(false);
   }
 
+  const getPartitionText = (partition: string) => {
+    const mainPartition = partition.charAt(0);
+    switch (mainPartition) {
+      case '1': return t('cas.partitions.1');
+      case '2': return t('cas.partitions.2');
+      case '3': return t('cas.partitions.3');
+      case '4': return t('cas.partitions.4');
+      default: return partition;
+    }
+  };
+
   if (selectedJournal) {
     return (
       <div className="py-4 md:py-8">
@@ -355,7 +359,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                       </div>
                       <div className="col-span-3 flex flex-col items-center justify-center text-center">
                         <p className="text-xs text-muted-foreground font-semibold mb-1">
-                          {t('journal.casPartition')}
+                          {t('journal.casMajorPartition')}
                         </p>
                         <div
                           className={cn(
@@ -366,9 +370,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
                           )}
                         >
                           <span className={cn("ml-1")}>
-                            {partitionMap[
-                              journal.majorCategoryPartition.charAt(0)
-                            ] || journal.majorCategoryPartition}
+                            {getPartitionText(journal.majorCategoryPartition)}
                           </span>
                         </div>
                       </div>

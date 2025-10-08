@@ -13,13 +13,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useTranslation } from "@/i18n/provider";
 
-const partitionMap: { [key: string]: string } = {
-  "1": "一区",
-  "2": "二区",
-  "3": "三区",
-  "4": "四区",
-};
-
 const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "level3" | "level4" | "secondary" => {
     const mainPartition = partition.charAt(0);
     switch (mainPartition) {
@@ -32,19 +25,29 @@ const getPartitionBadgeVariant = (partition: string): "level1" | "level2" | "lev
 };
 
 const PartitionBadge = ({ partition }: { partition: string }) => {
-    const match = partition.match(/(\d+)\s*\[(\d+\/\d+)\]/);
+    const { t } = useTranslation();
+    const match = partition.match(/(\d+)\s*(\[.+\])?/);
     if (!match) return <Badge variant="secondary">{partition}</Badge>;
   
     const [, main, details] = match;
-    const chinesePartition = partitionMap[main] || main;
+
+    let mainPartitionText;
+    switch (main) {
+        case '1': mainPartitionText = t('cas.partitions.1'); break;
+        case '2': mainPartitionText = t('cas.partitions.2'); break;
+        case '3': mainPartitionText = t('cas.partitions.3'); break;
+        case '4': mainPartitionText = t('cas.partitions.4'); break;
+        default: mainPartitionText = main;
+    }
+    
     const variant = getPartitionBadgeVariant(main);
   
     return (
       <div className="flex items-center gap-2">
         <Badge variant={variant}>
-            {chinesePartition}
+            {mainPartitionText}
         </Badge>
-        <span className="text-xs text-muted-foreground">{details}</span>
+        {details && <span className="text-xs text-muted-foreground">{details}</span>}
       </div>
     );
 };
@@ -83,6 +86,9 @@ const AuthorityLevelDisplay = ({ level }: { level: string }) => {
     )
 }
 
+interface CasPartitionDisplayProps {
+    journal: Journal;
+}
 
 export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProps) {
   const { t } = useTranslation();

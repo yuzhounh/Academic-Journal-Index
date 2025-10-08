@@ -31,13 +31,6 @@ type FavoriteJournal = {
     top: string;
 };
 
-const partitionMap: { [key: string]: string } = {
-  "1": "一区",
-  "2": "二区",
-  "3": "三区",
-  "4": "四区",
-};
-
 const getPartitionColorClass = (partition: string): string => {
     const mainPartition = partition.charAt(0);
     switch (mainPartition) {
@@ -108,6 +101,7 @@ const adaptFavoritesForStats = (favorites: FavoriteJournal[]): Journal[] => {
         oaj: '否',
         webOfScience: '',
         minorCategories: [],
+        annotation: ""
     }));
 };
 
@@ -138,6 +132,17 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
         }
         return [];
     }, [favorites]);
+
+    const getPartitionText = (partition: string) => {
+        const mainPartition = partition.charAt(0);
+        switch (mainPartition) {
+            case '1': return t('cas.partitions.1');
+            case '2': return t('cas.partitions.2');
+            case '3': return t('cas.partitions.3');
+            case '4': return t('cas.partitions.4');
+            default: return partition;
+        }
+    };
 
     if (isUserLoading || isLoading) {
         return (
@@ -179,10 +184,10 @@ export default function FavoritesContent({ onJournalSelect }: FavoritesContentPr
                                         <p className="font-medium text-lg">{formatImpactFactor(journal.impactFactor)}</p>
                                     </div>
                                     <div className="col-span-3 flex flex-col items-center justify-center text-center">
-                                        <p className="text-xs text-muted-foreground font-semibold mb-1">{t('journal.casPartition')}</p>
+                                        <p className="text-xs text-muted-foreground font-semibold mb-1">{t('journal.casMajorPartition')}</p>
                                         <div className={cn("flex items-center font-semibold text-lg", getPartitionColorClass(journal.majorCategoryPartition))}>
                                             <span className="ml-1">
-                                                {partitionMap[journal.majorCategoryPartition.charAt(0)] || journal.majorCategoryPartition}
+                                                {getPartitionText(journal.majorCategoryPartition)}
                                             </span>
                                         </div>
                                     </div>

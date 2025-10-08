@@ -41,6 +41,7 @@
         "apc": "APC",
         "googleSearch": "Google Search",
         "casPartition": "CAS Partition",
+        "casMajorPartition": "CAS Major Category Partition",
         "casDescription": "Chinese Academy of Sciences (CAS) journal ranking.",
         "aiSummary": "AI-Powered Analysis",
         "aiDisclaimer": "AI-generated analysis. Please verify critical information.",
@@ -56,6 +57,12 @@
             "1": "Level 1",
             "2": "Level 2",
             "3": "Level 3"
+        },
+        "partitions": {
+            "1": "Q1",
+            "2": "Q2",
+            "3": "Q3",
+            "4": "Q4"
         },
         "majorCategory": "Major Category",
         "minorCategories": "Minor Categories",

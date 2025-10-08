@@ -41,6 +41,7 @@
         "apc": "文章处理费",
         "googleSearch": "Google 搜索",
         "casPartition": "CAS 分区",
+        "casMajorPartition": "CAS 大类分区",
         "casDescription": "中国科学院期刊分区。",
         "aiSummary": "AI 智能分析",
         "aiDisclaimer": "AI 生成的分析，请核实关键信息。",
@@ -56,6 +57,12 @@
             "1": "一级",
             "2": "二级",
             "3": "三级"
+        },
+        "partitions": {
+            "1": "一区",
+            "2": "二区",
+            "3": "三区",
+            "4": "四区"
         },
         "majorCategory": "大类",
         "minorCategories": "小类",
