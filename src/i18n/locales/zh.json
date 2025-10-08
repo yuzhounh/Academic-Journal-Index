@@ -32,7 +32,7 @@
         "unfavorite": "从收藏中移除",
         "basicInfo": "基本信息",
         "year": "年份",
-        "review": "同行评审",
+        "review": "综述期刊",
         "impactFactor": "影响因子",
         "openAccess": "开放获取",
         "oa": "OA",
@@ -116,7 +116,8 @@
             "saveButton": "保存更改",
             "creating": "创建中...",
             "saving": "保存中..."
-        }
+        },
+        "uncategorized": "未分类"
     },
     "about": {
         "title": "关于学术期刊索引",
@@ -174,5 +175,8 @@
         "checkCredentials": "请检查您的凭据并重试。"
     },
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "common": {
+        "cancel": "取消"
+    }
 }

@@ -32,7 +32,7 @@
         "unfavorite": "Remove from favorites",
         "basicInfo": "Basic Information",
         "year": "Year",
-        "review": "Peer-Reviewed",
+        "review": "Review Journal",
         "impactFactor": "Impact Factor",
         "openAccess": "Open Access",
         "oa": "OA",
@@ -116,7 +116,8 @@
             "saveButton": "Save Changes",
             "creating": "Creating...",
             "saving": "Saving..."
-        }
+        },
+        "uncategorized": "Uncategorized"
     },
     "about": {
         "title": "About Academic Journal Index",
@@ -174,5 +175,8 @@
         "checkCredentials": "Please check your credentials and try again."
     },
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "common": {
+        "cancel": "Cancel"
+    }
 }

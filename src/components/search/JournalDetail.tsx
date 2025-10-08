@@ -16,7 +16,6 @@ import {
   BookOpen,
   CalendarDays,
   Barcode,
-  ShieldCheck,
   Globe,
   TrendingUp,
   BookMarked,
@@ -35,11 +34,11 @@ import type { JournalSummaryInfo } from "@/app/actions";
 import AiSummaryContent from "./AiSummaryContent";
 import RelatedJournals from "./RelatedJournals";
 import { useFirebase } from "@/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import { useCollection } from "@/firebase/firestore/use-collection";
 import { useMemoFirebase } from "@/firebase/provider";
 import { useTranslation } from "@/i18n/provider";
 import AddToFavoritesDialog from "../favorites/AddToFavoritesDialog";
+import { collection, query, where, or } from 'firebase/firestore';
 
 interface JournalDetailProps {
   journal: Journal;
@@ -199,7 +198,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                 <CardContent className="space-y-4">
                     <InfoItem icon={CalendarDays} label={t('journal.year')} value={journal.year} />
                     <InfoItem icon={Barcode} label="ISSN/EISSN" value={formatIssn(journal.issn)} />
-                    <InfoItem icon={ShieldCheck} label={t('journal.review')} value={journal.review === '是' ? t('yes') : t('no')} />
+                    <InfoItem icon={BookCopy} label={t('journal.review')} value={journal.review === '是' ? t('yes') : t('no')} />
                     <InfoItem icon={BookMarked} label="Web of Science" value={journal.webOfScience} />
                     <InfoItem icon={TrendingUp} label={t('journal.impactFactor')} value={formatImpactFactor(journal.impactFactor)} />
                     <InfoItem icon={Globe} label={t('journal.openAccess')} value={journal.openAccess === '是' ? t('yes') : t('no')} isOA={journal.openAccess === '是'} />
@@ -235,7 +234,7 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
                         </Button>
                     )}
                 </div>
-                {showAiAnalysis && (
+                 {showAiAnalysis && (
                     <CardDescription className="pt-2">{t('journal.aiDisclaimer')}</CardDescription>
                 )}
             </CardHeader>
