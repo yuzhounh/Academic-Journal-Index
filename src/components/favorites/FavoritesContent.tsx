@@ -29,9 +29,10 @@ interface FavoritesContentProps {
     onJournalListSelect: (list: WithId<JournalList>) => void;
     onUncategorizedSelect: () => void;
     allFavorites: (Journal & { journalId: string; listId?: string | undefined; })[] | null;
+    onFindJournalsClick: () => void;
 }
 
-export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites }: FavoritesContentProps) {
+export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
 
@@ -79,7 +80,7 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
             <div className="flex flex-col items-center justify-center text-center px-4 py-20 border-2 border-dashed rounded-lg">
                 <h2 className="text-2xl font-bold mb-4">{t('favorites.login.title')}</h2>
                 <p className="text-muted-foreground mb-6">{t('favorites.login.description')}</p>
-                <Button>{t('favorites.login.button')}</Button>
+                <Button onClick={onFindJournalsClick}>{t('favorites.login.button')}</Button>
             </div>
         );
     }
@@ -157,7 +158,7 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
                     <p className="mt-1 text-sm text-muted-foreground">
                         {t('favorites.empty.description')}
                     </p>
-                    <Button className="mt-6">
+                    <Button className="mt-6" onClick={onFindJournalsClick}>
                        {t('favorites.empty.button')}
                     </Button>
                 </div>

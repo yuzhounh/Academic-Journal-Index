@@ -238,7 +238,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   const journalsForCategory = useMemo(() => {
     if (!selectedCategory) return [];
     if (selectedCategory === "Uncategorized") {
-        return (allFavorites || []).filter(fav => !fav.listId).sort((a, b) => {
+        return (allFavorites || []).filter(fav => !fav.listId || fav.listId === '').sort((a, b) => {
           const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
           const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
           return factorB - factorA;
@@ -437,7 +437,7 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
             </div>
           );
         }
-        return <FavoritesContent allFavorites={allFavorites} onJournalListSelect={handleJournalListSelect} onUncategorizedSelect={() => handleCategorySelect("Uncategorized")} />;
+        return <FavoritesContent allFavorites={allFavorites} onJournalListSelect={handleJournalListSelect} onUncategorizedSelect={() => handleCategorySelect("Uncategorized")} onFindJournalsClick={() => handleViewChange('search')} />;
       case "about":
         return <AboutPage />;
       case "categories":
