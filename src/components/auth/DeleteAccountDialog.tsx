@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/i18n/provider';
 import { useToast } from '@/hooks/use-toast';
-import { deleteUser, User } from 'firebase/auth';
+import { User } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 interface DeleteAccountDialogProps {
@@ -34,15 +34,10 @@ export default function DeleteAccountDialog({ open, onOpenChange, user }: Delete
     setIsDeleting(true);
     try {
       // It's critical to delete user data from Firestore first.
-      // We will use a Firebase Function for this to ensure all subcollections are deleted.
+      // We will use a Firebase Function for this to ensure all subcollections and the auth user are deleted.
       const functions = getFunctions();
       const deleteUserData = httpsCallable(functions, 'deleteUserData');
-      const result = await deleteUserData();
-
-      // After Firestore data is gone, delete the user from Firebase Auth.
-      // Note: The function call above now also handles Auth deletion.
-      // This is left in case the function is modified or fails partially.
-      // await deleteUser(user);
+      await deleteUserData();
 
       toast({
         title: t('auth.deleteAccountSuccess'),
