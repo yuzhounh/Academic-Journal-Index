@@ -31,23 +31,34 @@ const majorCategoryMap: Record<string, { en: string; zh: string }> = {
 };
 
 function toTitleCase(str: string): string {
-    return str.replace(/\w\S*/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-    });
+    if (!str) return '';
+    return str.toLowerCase().split(' ').map(word => {
+        if (word.length > 0) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        return '';
+    }).join(' ');
 }
 
 function extractMinorCategoryParts(name: string): { en: string; zh: string } {
-    const zhPartMatch = name.match(/[\u4e00-\u9fa5]+[：\s\w]*/);
-    const zhPart = zhPartMatch ? zhPartMatch[0].trim() : '';
+    if (!name) return { en: '', zh: '' };
+    // Regex to find Chinese characters and the text that follows them.
+    // This assumes the Chinese part comes second.
+    const zhPartMatch = name.match(/[\u4e00-\u9fa5].*/);
+    let zhPart = '';
+    let enPart = name;
 
-    const enPart = name.replace(/[\u4e00-\u9fa5]+[：\s\w]*/, '').trim();
+    if (zhPartMatch) {
+        zhPart = zhPartMatch[0].trim();
+        // The English part is everything before the Chinese part.
+        enPart = name.substring(0, zhPartMatch.index).trim();
+    }
 
     return {
         en: toTitleCase(enPart),
         zh: zhPart
     };
 }
-
 
 export function getMajorCategoryName(name: string, locale: Locale): string {
     if (majorCategoryMap[name]) {
