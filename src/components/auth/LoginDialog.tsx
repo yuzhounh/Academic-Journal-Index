@@ -66,9 +66,6 @@ export default function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     if (!auth) return;
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-      'auth_domain': window.location.hostname
-    });
     try {
       await signInWithPopup(auth, provider);
       onOpenChange(false);
