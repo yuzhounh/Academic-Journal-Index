@@ -113,7 +113,7 @@
             "title": "Add '{{journalName}}' to...",
             "newListPlaceholder": "New list name...",
             "createButton": "Create",
-            "saveButton": "Save Changes",
+            "saveButton": "Save",
             "creating": "Creating...",
             "saving": "Saving..."
         },

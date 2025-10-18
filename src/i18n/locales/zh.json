@@ -113,7 +113,7 @@
             "title": "将 '{{journalName}}' 添加到...",
             "newListPlaceholder": "新列表名称...",
             "createButton": "创建",
-            "saveButton": "保存更改",
+            "saveButton": "保存",
             "creating": "创建中...",
             "saving": "保存中..."
         },
