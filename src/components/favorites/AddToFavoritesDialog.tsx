@@ -31,6 +31,7 @@ import { Journal } from "@/data/journals";
 import { JournalList } from "./FavoritesContent";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/i18n/provider";
+import { toast } from "@/hooks/use-toast";
 
 interface AddToFavoritesDialogProps {
   open: boolean;
@@ -105,16 +106,22 @@ export default function AddToFavoritesDialog({
     }
   };
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = () => {
     if (!user || !firestore) return;
-    setIsSaving(true);
-    
-    const initialListIds = new Set((favoritedIn || []).map(fav => fav.listId).filter(Boolean));
-    
-    const listsToAdd = new Set([...selectedLists].filter(id => !initialListIds.has(id)));
-    const listsToRemove = new Set([...initialListIds].filter(id => !selectedLists.has(id)));
 
-    try {
+    setIsSaving(true);
+
+    // Immediately close the dialog for a faster UX (Optimistic Update)
+    onOpenChange(false);
+
+    // Perform the save operation in the background
+    const performSave = async () => {
+      try {
+        const initialListIds = new Set((favoritedIn || []).map(fav => fav.listId).filter(Boolean));
+        
+        const listsToAdd = new Set([...selectedLists].filter(id => !initialListIds.has(id)));
+        const listsToRemove = new Set([...initialListIds].filter(id => !selectedLists.has(id)));
+
         const batch = writeBatch(firestore);
         const favoriteBaseData = {
           journalId: journalId,
@@ -180,13 +187,21 @@ export default function AddToFavoritesDialog({
 
 
         await batch.commit();
-        onOpenChange(false);
-    } catch (error) {
-        console.error("Error updating favorites:", error);
-    } finally {
-        setIsSaving(false);
-    }
-};
+
+      } catch (error) {
+          console.error("Error updating favorites:", error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not save your changes. Please try again.",
+          });
+      } finally {
+          setIsSaving(false);
+      }
+    };
+
+    performSave();
+  };
 
   const onCheckedChange = (checked: boolean | "indeterminate", listId: string) => {
     setSelectedLists(prev => {
