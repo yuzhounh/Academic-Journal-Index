@@ -124,6 +124,11 @@
             "successDescription": "列表 '{{listName}}' 已被删除。",
             "errorTitle": "删除列表时出错",
             "ariaLabel": "删除列表 {{listName}}"
+        },
+        "renameList": {
+            "title": "重命名列表...",
+            "errorTitle": "重命名列表时出错",
+            "ariaLabel": "重命名列表 {{listName}}"
         }
     },
     "about": {

@@ -15,9 +15,10 @@ import {
 import { useMemoFirebase } from "@/firebase/provider";
 import { Journal } from "@/data/journals";
 import { useTranslation } from "@/i18n/provider";
-import { BookText, FolderOpen, LogIn, Trash2 } from "lucide-react";
+import { BookText, FolderOpen, LogIn, Pencil, Trash2 } from "lucide-react";
 import CategoryStats from "../search/CategoryStats";
 import DeleteJournalListDialog from "./DeleteJournalListDialog";
+import RenameJournalListDialog from "./RenameJournalListDialog";
 
 export type JournalList = {
     name: string;
@@ -42,7 +43,8 @@ interface FavoritesContentProps {
 export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick, onLoginClick, journals }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
-    const [dialogState, setDialogState] = useState<{open: boolean, listId: string, listName: string}>({open: false, listId: '', listName: ''});
+    const [deleteDialogState, setDeleteDialogState] = useState<{open: boolean, listId: string, listName: string}>({open: false, listId: '', listName: ''});
+    const [renameDialogState, setRenameDialogState] = useState<{open: boolean, listId: string, listName: string}>({open: false, listId: '', listName: ''});
     
     // IMPORTANT: All hooks are now called unconditionally at the top.
     const journalListsQuery = useMemoFirebase(
@@ -85,7 +87,12 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
 
     const handleDeleteClick = (e: React.MouseEvent, list: WithId<JournalList>) => {
         e.stopPropagation(); // Prevent card's onClick from firing
-        setDialogState({ open: true, listId: list.id, listName: list.name });
+        setDeleteDialogState({ open: true, listId: list.id, listName: list.name });
+    };
+
+    const handleRenameClick = (e: React.MouseEvent, list: WithId<JournalList>) => {
+        e.stopPropagation(); // Prevent card's onClick from firing
+        setRenameDialogState({ open: true, listId: list.id, listName: list.name });
     };
 
 
@@ -143,15 +150,26 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
                             className="group relative cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
                             onClick={() => onJournalListSelect(list)}
                             >
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute top-2 right-2 h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-destructive/10 hover:text-destructive"
-                                    onClick={(e) => handleDeleteClick(e, list)}
-                                    aria-label={t('favorites.deleteList.ariaLabel', { listName: list.name })}
-                                >
-                                    <Trash2 className="h-5 w-5" />
-                                </Button>
+                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                        onClick={(e) => handleRenameClick(e, list)}
+                                        aria-label={t('favorites.renameList.ariaLabel', { listName: list.name })}
+                                    >
+                                        <Pencil className="h-5 w-5" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={(e) => handleDeleteClick(e, list)}
+                                        aria-label={t('favorites.deleteList.ariaLabel', { listName: list.name })}
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                    </Button>
+                                </div>
                                 <CardHeader className="flex-grow pb-2">
                                     <CardTitle className="font-headline text-xl">
                                     {list.name}
@@ -180,12 +198,20 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
                     </Button>
                 </div>
             )}
-            {dialogState.open && (
+            {deleteDialogState.open && (
                 <DeleteJournalListDialog
-                    open={dialogState.open}
-                    onOpenChange={(open) => setDialogState({ ...dialogState, open })}
-                    listId={dialogState.listId}
-                    listName={dialogState.listName}
+                    open={deleteDialogState.open}
+                    onOpenChange={(open) => setDeleteDialogState({ ...deleteDialogState, open })}
+                    listId={deleteDialogState.listId}
+                    listName={deleteDialogState.listName}
+                />
+            )}
+            {renameDialogState.open && (
+                <RenameJournalListDialog
+                    open={renameDialogState.open}
+                    onOpenChange={(open) => setRenameDialogState({ ...renameDialogState, open })}
+                    listId={renameDialogState.listId}
+                    listName={renameDialogState.listName}
                 />
             )}
         </div>

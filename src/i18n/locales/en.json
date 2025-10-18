@@ -124,6 +124,11 @@
             "successDescription": "The list '{{listName}}' has been deleted.",
             "errorTitle": "Error Deleting List",
             "ariaLabel": "Delete list {{listName}}"
+        },
+        "renameList": {
+            "title": "Rename list...",
+            "errorTitle": "Error Renaming List",
+            "ariaLabel": "Rename list {{listName}}"
         }
     },
     "about": {
