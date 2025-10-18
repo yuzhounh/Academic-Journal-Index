@@ -109,15 +109,17 @@ export default function JournalDetail({ journal, onBack, onJournalSelect }: Jour
   const { t, locale } = useTranslation();
   const [isFavoritesDialogOpen, setIsFavoritesDialogOpen] = useState(false);
 
+  const journalId = journal.issn.split('/')[0];
+
   const favoritesQuery = useMemoFirebase(
     () =>
       user && firestore
         ? query(
             collection(firestore, `users/${user.uid}/favorite_journals`),
-            where("journalId", "==", journal.issn)
+            where("journalId", "==", journalId)
           )
         : null,
-    [user, firestore, journal.issn]
+    [user, firestore, journalId]
   );
 
   const { data: favoriteEntries, isLoading: isFavoriteLoading } = useCollection(favoritesQuery);

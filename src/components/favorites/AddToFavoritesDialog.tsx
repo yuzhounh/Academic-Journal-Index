@@ -50,6 +50,8 @@ export default function AddToFavoritesDialog({
   const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  const journalId = journal.issn.split('/')[0];
+
   const journalListsQuery = useMemoFirebase(
     () =>
       user && firestore
@@ -67,10 +69,10 @@ export default function AddToFavoritesDialog({
       user && firestore
         ? query(
             collection(firestore, `users/${user.uid}/favorite_journals`),
-            where("journalId", "==", journal.issn)
+            where("journalId", "==", journalId)
           )
         : null,
-    [user, firestore, journal.issn]
+    [user, firestore, journalId]
   );
   const { data: favoritedIn, isLoading: isLoadingFavorites } = useCollection<{listId: string}>(favoritedInListsQuery);
 
@@ -81,7 +83,7 @@ export default function AddToFavoritesDialog({
     }
   }, [favoritedIn]);
 
-  const handleCreateAndAdd = async () => {
+  const handleCreateNewList = async () => {
     if (!newList.trim() || !user || !firestore) return;
     setIsCreating(true);
   
@@ -112,17 +114,15 @@ export default function AddToFavoritesDialog({
     const listsToAdd = new Set([...selectedLists].filter(id => !initialListIds.has(id)));
     const listsToRemove = new Set([...initialListIds].filter(id => !selectedLists.has(id)));
 
-    const safeIssn = journal.issn.replace(/\//g, '-');
-
     try {
         const batch = writeBatch(firestore);
 
         // Add to new lists
         listsToAdd.forEach(listId => {
-            const favoriteId = `${safeIssn}_${listId}`;
+            const favoriteId = `${journalId}_${listId}`;
             const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favoriteId);
             batch.set(favoriteRef, {
-                journalId: journal.issn,
+                journalId: journalId,
                 userId: user.uid,
                 listId: listId,
                 createdAt: serverTimestamp(),
@@ -141,7 +141,7 @@ export default function AddToFavoritesDialog({
         if (listsToRemove.size > 0) {
             const q = query(
                 collection(firestore, `users/${user.uid}/favorite_journals`),
-                where('journalId', '==', journal.issn),
+                where('journalId', '==', journalId),
                 where('listId', 'in', Array.from(listsToRemove))
             );
             const snapshot = await getDocs(q);
@@ -156,17 +156,17 @@ export default function AddToFavoritesDialog({
 
         if (willBeInAnyList) {
             // If it's going into lists, ensure any uncategorized version is removed.
-            const uncategorizedQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn), where('listId', '==', ''));
+            const uncategorizedQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journalId), where('listId', '==', ''));
             const uncategorizedDocs = await getDocs(uncategorizedQuery);
             if (!uncategorizedDocs.empty) {
                 batch.delete(uncategorizedDocs.docs[0].ref);
             }
         } else if (isCurrentlyInAnyList && !willBeInAnyList) {
             // If it was in lists but now is in none, it becomes uncategorized.
-            const uncategorizedFavoriteId = `${safeIssn}_uncategorized`;
+            const uncategorizedFavoriteId = `${journalId}_uncategorized`;
             const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
              batch.set(uncategorizedRef, {
-                journalId: journal.issn,
+                journalId: journalId,
                 userId: user.uid,
                 listId: "", // Explicitly uncategorized
                 createdAt: serverTimestamp(),
@@ -181,14 +181,14 @@ export default function AddToFavoritesDialog({
             });
         } else if (!isCurrentlyInAnyList && !willBeInAnyList) {
             // First time favoriting, but into no list -> uncategorized
-            const isAlreadyFavoritedUncategorizedQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn));
+            const isAlreadyFavoritedUncategorizedQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journalId));
             const isAlreadyFavoritedUncategorizedDocs = await getDocs(isAlreadyFavoritedUncategorizedQuery);
 
             if (isAlreadyFavoritedUncategorizedDocs.empty) {
-                const uncategorizedFavoriteId = `${safeIssn}_uncategorized`;
+                const uncategorizedFavoriteId = `${journalId}_uncategorized`;
                 const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
                 batch.set(uncategorizedRef, {
-                    journalId: journal.issn,
+                    journalId: journalId,
                     userId: user.uid,
                     listId: "",
                     createdAt: serverTimestamp(),
@@ -240,7 +240,7 @@ export default function AddToFavoritesDialog({
                     onChange={(e) => setNewList(e.target.value)}
                     disabled={isCreating}
                 />
-                <Button onClick={handleCreateAndAdd} disabled={!newList.trim() || isCreating}>
+                <Button onClick={handleCreateNewList} disabled={!newList.trim() || isCreating}>
                     {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {t('favorites.dialog.createButton')}
                 </Button>
