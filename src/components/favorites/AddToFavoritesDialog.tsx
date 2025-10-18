@@ -134,6 +134,7 @@ export default function AddToFavoritesDialog({
                 issn: journal.issn,
                 majorCategory: journal.majorCategory,
                 top: journal.top,
+                minorCategories: journal.minorCategories || [],
             });
         });
 
@@ -178,6 +179,7 @@ export default function AddToFavoritesDialog({
                 issn: journal.issn,
                 majorCategory: journal.majorCategory,
                 top: journal.top,
+                minorCategories: journal.minorCategories || [],
             });
         } else if (!isCurrentlyInAnyList && !willBeInAnyList) {
             // First time favoriting, but into no list -> uncategorized
@@ -200,6 +202,7 @@ export default function AddToFavoritesDialog({
                     issn: journal.issn,
                     majorCategory: journal.majorCategory,
                     top: journal.top,
+                    minorCategories: journal.minorCategories || [],
                 });
             }
         }

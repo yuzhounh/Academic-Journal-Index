@@ -162,7 +162,7 @@ export default function CasPartitionDisplay({ journal }: CasPartitionDisplayProp
         </div>
       </div>
       
-      {journal.minorCategories.length > 0 && (
+      {journal.minorCategories && journal.minorCategories.length > 0 && (
         <div>
             <Separator className="my-4"/>
             <h4 className="text-sm font-semibold text-muted-foreground mb-2">{t('cas.minorCategories')}</h4>
