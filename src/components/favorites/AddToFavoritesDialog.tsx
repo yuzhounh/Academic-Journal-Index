@@ -223,17 +223,21 @@ export default function AddToFavoritesDialog({
             <ScrollArea className="h-40 rounded-md border p-2">
                 <div className="space-y-2">
                 {(journalLists || []).map((list: WithId<JournalList>) => (
-                    <div key={list.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-secondary">
+                    <label 
+                        key={list.id} 
+                        htmlFor={list.id}
+                        className="flex items-center gap-3 p-2 rounded-md hover:bg-secondary cursor-pointer"
+                    >
                         <Checkbox
                             id={list.id}
                             checked={selectedLists.has(list.id)}
                             onCheckedChange={(checked) => onCheckedChange(checked, list.id)}
                             disabled={isLoadingFavorites}
                         />
-                        <label htmlFor={list.id} className="text-sm font-medium leading-none cursor-pointer">
+                        <span className="text-sm font-medium leading-none">
                             {list.name}
-                        </label>
-                    </div>
+                        </span>
+                    </label>
                 ))}
                 </div>
             </ScrollArea>
