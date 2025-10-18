@@ -86,57 +86,18 @@ export default function AddToFavoritesDialog({
     setIsCreating(true);
   
     try {
-      // Step 1: Create the new list and get its ID
       const newListRef = await addDoc(collection(firestore, `users/${user.uid}/journal_lists`), {
         name: newList.trim(),
         userId: user.uid,
         createdAt: serverTimestamp(),
       });
-      const newListId = newListRef.id;
-  
-      // Step 2: Create a new batch to add the favorite and handle uncategorized entries
-      const batch = writeBatch(firestore);
-      const favoriteId = `${journal.issn}_${newListId}`;
-      const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favoriteId);
       
-      // Check if an uncategorized favorite exists for this journal
-      const uncategorizedQuery = query(
-        collection(firestore, `users/${user.uid}/favorite_journals`), 
-        where('journalId', '==', journal.issn), 
-        where('listId', '==', '')
-      );
-      const uncategorizedDocs = await getDocs(uncategorizedQuery);
-      
-      if (!uncategorizedDocs.empty) {
-        // If an uncategorized version exists, delete it as it's now being categorized.
-        batch.delete(uncategorizedDocs.docs[0].ref);
-      }
-  
-      // Add the journal to the new list
-      batch.set(favoriteRef, {
-        journalId: journal.issn,
-        userId: user.uid,
-        listId: newListId,
-        createdAt: serverTimestamp(),
-        // Denormalized journal data for list view
-        journalName: journal.journalName,
-        impactFactor: journal.impactFactor,
-        majorCategoryPartition: journal.majorCategoryPartition,
-        authorityJournal: journal.authorityJournal,
-        openAccess: journal.openAccess,
-        issn: journal.issn,
-        majorCategory: journal.majorCategory,
-        top: journal.top,
-      });
-      
-      await batch.commit();
-      
-      // Since the action is complete, close the dialog.
-      onOpenChange(false);
-      setNewList("");
+      // Auto-select the newly created list
+      setSelectedLists(prev => new Set(prev).add(newListRef.id));
+      setNewList(""); // Clear the input field
   
     } catch (error) {
-      console.error("Error creating new list and adding favorite:", error);
+      console.error("Error creating new list:", error);
     } finally {
       setIsCreating(false);
     }

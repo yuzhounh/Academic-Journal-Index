@@ -112,7 +112,7 @@
         "dialog": {
             "title": "Add '{{journalName}}' to...",
             "newListPlaceholder": "New list name...",
-            "createButton": "Create & Add",
+            "createButton": "Create",
             "saveButton": "Save Changes",
             "creating": "Creating...",
             "saving": "Saving..."
