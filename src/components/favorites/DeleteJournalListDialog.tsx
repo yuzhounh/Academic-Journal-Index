@@ -50,22 +50,23 @@ export default function DeleteJournalListDialog({ open, onOpenChange, listId, li
       );
       const favoritesSnapshot = await getDocs(favoritesQuery);
 
-      // 3. Update each favorite entry to be uncategorized
+      // 3. Delete old favorite entries and create new uncategorized ones
       favoritesSnapshot.forEach((favDoc) => {
-        const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favDoc.id);
-        // Instead of deleting, we update the listId to "" to move it to uncategorized.
-        // If an uncategorized entry for this journal already exists, this might create a duplicate state
-        // that needs to be handled, but for now we just move them.
-        // A more robust solution might check for an existing uncategorized favorite.
-        const journalId = favDoc.data().journalId;
+        // Delete the old favorite entry from the list
+        batch.delete(favDoc.ref);
+
+        // Create a new uncategorized entry.
+        // IMPORTANT: Sanitize the journalId to prevent invalid document paths.
+        const journalIdWithSlash = favDoc.data().journalId;
+        const journalId = journalIdWithSlash.split('/')[0]; // Use only the ISSN part
         const uncategorizedFavoriteId = `${journalId}_uncategorized`;
         const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
         
-        batch.delete(favoriteRef);
         batch.set(uncategorizedRef, {
-            journalId: journalId,
+            journalId: journalId, // Store the sanitized ID
             userId: user.uid,
-        }, { merge: true }); // Use merge to not overwrite createdAt if it exists
+            createdAt: favDoc.data().createdAt // Preserve original favorite date
+        }, { merge: true }); // Use merge to not overwrite if it already exists
       });
 
       await batch.commit();
