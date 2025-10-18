@@ -166,11 +166,13 @@ const formatIssn = (issn: string) => {
 function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: SearchPageProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [currentPage, setCurrentPage] = useState(1);
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     setSearchTerm(initialSearchTerm);
-    setCurrentPage(1);
+    if (initialSearchTerm) {
+        setCurrentPage(1);
+    }
   }, [initialSearchTerm]);
 
   const filteredJournals = useMemo(() => {
@@ -212,14 +214,18 @@ function SearchClient({ journals, onJournalSelect, initialSearchTerm = "" }: Sea
   const showNoResultsMessage = searchTerm.length >= 3 && filteredJournals.length === 0;
 
   const getPartitionText = (partition: string) => {
-    const mainPartition = partition.charAt(0);
-    switch (mainPartition) {
-      case '1': return t('cas.partitions.1');
-      case '2': return t('cas.partitions.2');
-      case '3': return t('cas.partitions.3');
-      case '4': return t('cas.partitions.4');
-      default: return partition;
+    if (locale === 'zh') {
+        const mainPartition = partition.charAt(0);
+        switch (mainPartition) {
+            case '1': return t('cas.partitions.1');
+            case '2': return t('cas.partitions.2');
+            case '3': return t('cas.partitions.3');
+            case '4': return t('cas.partitions.4');
+            default: return partition;
+        }
     }
+    const match = partition.match(/(\d+)/);
+    return match ? `Q${match[1]}` : partition;
   };
 
   return (

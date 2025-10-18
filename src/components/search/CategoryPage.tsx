@@ -362,22 +362,18 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
   }
 
   const getPartitionText = (partition: string) => {
-    const mainPartition = partition.charAt(0);
     if (locale === 'zh') {
-      switch (mainPartition) {
-          case '1': return t('cas.partitions.1');
-          case '2': return t('cas.partitions.2');
-          case '3': return t('cas.partitions.3');
-          case '4': return t('cas.partitions.4');
-          default: return partition;
-      }
-    } else {
-        const match = partition.match(/(\d+)/);
-        if (match) {
-            return `Q${match[1]}`;
+        const mainPartition = partition.charAt(0);
+        switch (mainPartition) {
+            case '1': return t('cas.partitions.1');
+            case '2': return t('cas.partitions.2');
+            case '3': return t('cas.partitions.3');
+            case '4': return t('cas.partitions.4');
+            default: return partition;
         }
-        return partition;
     }
+    const match = partition.match(/(\d+)/);
+    return match ? `Q${match[1]}` : partition;
   };
 
   if (selectedJournal) {
