@@ -86,7 +86,7 @@
     "stats": {
         "title": "期刊统计",
         "totalJournals": "期刊总数",
-        "partitionTitle": "CAS 分区分布",
+        "partitionTitle": "中科院分区分布",
         "authorityTitle": "权威级别分布",
         "oaTitle": "开放获取分布",
         "oa": {
