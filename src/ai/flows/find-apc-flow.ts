@@ -28,7 +28,7 @@ const findApcPrompt = ai.definePrompt({
     name: 'findApcPrompt',
     input: { schema: FindApcInputSchema },
     output: { schema: FindApcOutputSchema },
-    model: googleAI('gemini-1.5-pro'),
+    model: googleAI('gemini-2.5-flash'),
     prompt: `
       You are an expert academic research assistant.
       Your task is to find the Article Processing Charge (APC) for a "Regular Paper" or "Research Article" in a specific journal.
