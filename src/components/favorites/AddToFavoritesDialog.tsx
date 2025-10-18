@@ -32,6 +32,7 @@ import { JournalList } from "./FavoritesContent";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/i18n/provider";
 import { toast } from "@/hooks/use-toast";
+import { addDocumentNonBlocking } from "@/firebase";
 
 interface AddToFavoritesDialogProps {
   open: boolean;
@@ -63,7 +64,7 @@ export default function AddToFavoritesDialog({
         : null,
     [user, firestore]
   );
-  const { data: journalLists } = useCollection<JournalList>(journalListsQuery);
+  const { data: journalLists, setData: setJournalLists } = useCollection<JournalList>(journalListsQuery);
 
   const favoritedInQuery = useMemoFirebase(
     () =>
@@ -87,22 +88,52 @@ export default function AddToFavoritesDialog({
   const handleCreateNewList = async () => {
     if (!newList.trim() || !user || !firestore) return;
     setIsCreating(true);
-  
+
+    const listName = newList.trim();
+    const tempId = `temp_${Date.now()}`;
+    const newListData = {
+      name: listName,
+      userId: user.uid,
+      // We can't use serverTimestamp here for optimistic update, so we use a client-side date
+      // The real value will be set by the server.
+      createdAt: new Date(), 
+    };
+
+    // Optimistic UI update
+    setJournalLists(prev => [...(prev || []), { ...newListData, id: tempId }]);
+    setSelectedLists(prev => new Set(prev).add(tempId));
+    setNewList("");
+    setIsCreating(false);
+
     try {
-      const newListRef = await addDoc(collection(firestore, `users/${user.uid}/journal_lists`), {
-        name: newList.trim(),
-        userId: user.uid,
-        createdAt: serverTimestamp(),
+      const docRef = await addDoc(collection(firestore, `users/${user.uid}/journal_lists`), {
+          ...newListData,
+          createdAt: serverTimestamp(),
       });
-      
-      // Auto-select the newly created list
-      setSelectedLists(prev => new Set(prev).add(newListRef.id));
-      setNewList(""); // Clear the input field
-  
+
+      // Replace temp ID with real ID
+      setJournalLists(prev => (prev || []).map(list => list.id === tempId ? { ...list, id: docRef.id } : list));
+      setSelectedLists(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(tempId);
+          newSet.add(docRef.id);
+          return newSet;
+      });
+
     } catch (error) {
       console.error("Error creating new list:", error);
-    } finally {
-      setIsCreating(false);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not create the new list.",
+      });
+      // Revert optimistic update
+      setJournalLists(prev => (prev || []).filter(list => list.id !== tempId));
+      setSelectedLists(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(tempId);
+        return newSet;
+      });
     }
   };
 
@@ -116,21 +147,15 @@ export default function AddToFavoritesDialog({
       try {
         const batch = writeBatch(firestore);
         
-        // 1. Get the initial state of favorites for this journal
         const favsQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journalId));
         const existingFavsSnapshot = await getDocs(favsQuery);
         const existingFavDocs = existingFavsSnapshot.docs;
         const initialListIds = new Set(existingFavDocs.map(doc => doc.data().listId).filter(Boolean));
 
-        const isCurrentlyFavorited = existingFavDocs.length > 0;
-        const willBeInAnyList = selectedLists.size > 0;
-        
-        // Lists to add to
         const listsToAdd = new Set([...selectedLists].filter(id => !initialListIds.has(id)));
-        // Lists to remove from
         const listsToRemove = new Set([...initialListIds].filter(id => !selectedLists.has(id)));
 
-        // 2. Handle additions
+        // Handle additions
         listsToAdd.forEach(listId => {
             const favoriteId = `${journalId}_${listId}`;
             const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favoriteId);
@@ -142,42 +167,25 @@ export default function AddToFavoritesDialog({
             });
         });
 
-        // 3. Handle removals
+        // Handle removals
         existingFavDocs.forEach(doc => {
             const listId = doc.data().listId;
-            // If the doc's listId is in the lists to remove, delete it
             if (listId && listsToRemove.has(listId)) {
                 batch.delete(doc.ref);
             }
         });
-
-        // 4. Handle edge cases: uncategorized and complete unfavoriting
-        if (willBeInAnyList) {
-             // If it's going into lists, ensure any uncategorized version is removed.
-            const uncategorizedDoc = existingFavDocs.find(d => !d.data().listId);
-            if (uncategorizedDoc) {
-                batch.delete(uncategorizedDoc.ref);
-            }
-        } else { // will NOT be in any list
-            if (isCurrentlyFavorited) {
-                // If it was favorited but is now in no lists, it means we should unfavorite it completely.
-                // This handles both removing from last list AND toggling off from uncategorized.
-                existingFavDocs.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-            } else {
-                // If it was NOT favorited before, and is NOT going into any list, it becomes uncategorized.
-                const uncategorizedFavoriteId = `${journalId}_uncategorized`;
-                const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
-                batch.set(uncategorizedRef, {
-                    journalId: journalId,
-                    userId: user.uid,
-                    listId: "", // Explicitly uncategorized
-                    createdAt: serverTimestamp(),
-                });
-            }
-        }
         
+        // Final check: if after all changes, the journal is in ZERO lists, it should be unfavorited completely.
+        const finalNumberOfLists = initialListIds.size + listsToAdd.size - listsToRemove.size;
+        
+        if (finalNumberOfLists === 0) {
+            // It's not in any list, so remove all entries for this journalId
+            const allFavsForJournalQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journalId));
+            const snapshot = await getDocs(allFavsForJournalQuery);
+            snapshot.forEach(doc => batch.delete(doc.ref));
+        }
+
+
         await batch.commit();
 
       } catch (error) {
@@ -192,7 +200,21 @@ export default function AddToFavoritesDialog({
       }
     };
 
-    performSave();
+    // Special case: If journal was NOT favorited and user selects NO lists, it means they want to add to "Uncategorized".
+    const wasFavorited = (favoritedIn || []).length > 0;
+    if (!wasFavorited && selectedLists.size === 0) {
+      const uncategorizedFavoriteId = `${journalId}_uncategorized`;
+      const docRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
+      addDocumentNonBlocking(docRef, {
+          journalId: journalId,
+          userId: user.uid,
+          listId: "",
+          createdAt: serverTimestamp(),
+      });
+      onOpenChange(false);
+    } else {
+      performSave();
+    }
   };
 
   const onCheckedChange = (checked: boolean | "indeterminate", listId: string) => {
