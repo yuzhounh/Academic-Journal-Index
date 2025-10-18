@@ -204,7 +204,7 @@ export default function AddToFavoritesDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('favorites.dialog.title', { journalName: journal.journalName })}</DialogTitle>
+          <DialogTitle>{t('favorites.dialog.title')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
             <div className="flex gap-2">
@@ -214,7 +214,7 @@ export default function AddToFavoritesDialog({
                     onChange={(e) => setNewList(e.target.value)}
                     disabled={isCreating}
                 />
-                <Button onClick={handleCreateNewList} disabled={!newList.trim() || isCreating}>
+                <Button onClick={handleCreateNewList} disabled={!newList.trim() || isCreating} className="min-w-[100px]">
                     {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {t('favorites.dialog.createButton')}
                 </Button>
@@ -243,8 +243,8 @@ export default function AddToFavoritesDialog({
             </ScrollArea>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.cancel')}</Button>
-          <Button onClick={handleSaveChanges} disabled={isSaving}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="min-w-[100px]">{t('common.cancel')}</Button>
+          <Button onClick={handleSaveChanges} disabled={isSaving} className="min-w-[100px]">
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t('favorites.dialog.saveButton')}
           </Button>

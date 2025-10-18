@@ -110,7 +110,7 @@
         },
         "listEmpty": "该期刊列表为空。",
         "dialog": {
-            "title": "将 '{{journalName}}' 添加到...",
+            "title": "添加到列表...",
             "newListPlaceholder": "新列表名称...",
             "createButton": "创建",
             "saveButton": "保存"

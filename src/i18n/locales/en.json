@@ -110,7 +110,7 @@
         },
         "listEmpty": "This journal list is empty.",
         "dialog": {
-            "title": "Add '{{journalName}}' to...",
+            "title": "Add to list...",
             "newListPlaceholder": "New list name...",
             "createButton": "Create",
             "saveButton": "Save"
