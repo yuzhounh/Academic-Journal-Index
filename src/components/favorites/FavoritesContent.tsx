@@ -21,8 +21,6 @@ import CategoryStats from "../search/CategoryStats";
 export type JournalList = {
     name: string;
     userId: string;
-    createdAt: any;
-    journalCount?: number;
 };
 
 type FavoriteJournalEntry = {
@@ -43,27 +41,20 @@ interface FavoritesContentProps {
 export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick, onLoginClick, journals }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
-
+    
+    // IMPORTANT: All hooks are now called unconditionally at the top.
     const journalListsQuery = useMemoFirebase(
         () =>
           user && firestore
             ? query(
                 collection(firestore, `users/${user.uid}/journal_lists`),
-                orderBy("createdAt", "desc")
+                orderBy("name", "asc")
               )
             : null,
         [user, firestore]
     );
     
     const { data: journalLists, isLoading: isLoadingLists } = useCollection<JournalList>(journalListsQuery);
-    
-    if (isUserLoading || isLoadingLists) {
-        return (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg">{t('favorites.loading')}</div>
-          </div>
-        );
-    }
     
     const { categorized, uncategorizedCount } = useMemo(() => {
         if (!allFavorites) return { categorized: {}, uncategorizedCount: 0 };
@@ -81,8 +72,25 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
 
         return { categorized: categorizedFavorites, uncategorizedCount: uncategorized };
     }, [allFavorites]);
+    
+    const journalsForStats = useMemo(() => {
+        if (!allFavorites) return [];
+        const journalMap = new Map(journals.map(j => [j.issn.split('/')[0], j]));
+        return allFavorites
+            .map(fav => journalMap.get(fav.journalId))
+            .filter((j): j is Journal => !!j);
+    }, [allFavorites, journals]);
 
 
+    // Conditional rendering logic now comes AFTER all hooks have been called.
+    if (isUserLoading || isLoadingLists) {
+        return (
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg">{t('favorites.loading')}</div>
+          </div>
+        );
+    }
+    
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center text-center px-4 py-20 border-2 border-dashed rounded-lg">
@@ -95,15 +103,6 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
             </div>
         );
     }
-    
-    const journalsForStats = useMemo(() => {
-        if (!allFavorites) return [];
-        const journalMap = new Map(journals.map(j => [j.issn.split('/')[0], j]));
-        return allFavorites
-            .map(fav => journalMap.get(fav.journalId))
-            .filter((j): j is Journal => !!j);
-    }, [allFavorites, journals]);
-
 
     return (
         <div className="animate-in fade-in-50 duration-300">
