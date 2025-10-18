@@ -4,7 +4,7 @@
 import { useState, useMemo } from "react";
 import { useFirebase } from "@/firebase";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
-import { collection, query, orderBy, where, or } from "firebase/firestore";
+import { collection, query, orderBy } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -25,15 +25,22 @@ export type JournalList = {
     journalCount?: number;
 };
 
+type FavoriteJournalEntry = {
+    journalId: string;
+    listId?: string;
+};
+
+
 interface FavoritesContentProps {
     onJournalListSelect: (list: WithId<JournalList>) => void;
     onUncategorizedSelect: () => void;
-    allFavorites: (Journal & { journalId: string; listId?: string | undefined; })[] | null;
+    allFavorites: WithId<FavoriteJournalEntry>[] | null;
     onFindJournalsClick: () => void;
     onLoginClick: () => void;
+    journals: Journal[];
 }
 
-export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick, onLoginClick }: FavoritesContentProps) {
+export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick, onLoginClick, journals }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
 
@@ -88,23 +95,14 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
             </div>
         );
     }
-
-    const journalsForStats: Journal[] = (allFavorites || []).map(fav => ({
-      journalName: fav.journalName,
-      issn: fav.issn,
-      impactFactor: fav.impactFactor,
-      majorCategoryPartition: fav.majorCategoryPartition,
-      authorityJournal: fav.authorityJournal,
-      openAccess: fav.openAccess,
-      majorCategory: fav.majorCategory,
-      top: fav.top,
-      year: new Date().getFullYear(),
-      review: "是",
-      oaj: "否",
-      webOfScience: "",
-      minorCategories: [],
-      annotation: "",
-    }));
+    
+    const journalsForStats = useMemo(() => {
+        if (!allFavorites) return [];
+        const journalMap = new Map(journals.map(j => [j.issn.split('/')[0], j]));
+        return allFavorites
+            .map(fav => journalMap.get(fav.journalId))
+            .filter((j): j is Journal => !!j);
+    }, [allFavorites, journals]);
 
 
     return (

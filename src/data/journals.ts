@@ -1,6 +1,6 @@
 /**
  * @fileoverview This file loads journal data on the server side.
- * It's intended to be used directly by server components.
+ * It's intended to be used by Genkit tools or other server-side logic.
  */
 import fs from 'fs';
 import path from 'path';

@@ -38,9 +38,9 @@ import AboutPage from "./AboutPage";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { LanguageToggle } from "../theme/LanguageToggle";
 import { useTranslation } from "@/i18n/provider";
-import { getMajorCategoryName, getMinorCategoryName } from "@/i18n/categories";
+import { getMajorCategoryName } from "@/i18n/categories";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
-import { collection, query, where, or } from "firebase/firestore";
+import { collection, query } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/provider";
 import LoginDialog from "../auth/LoginDialog";
 
@@ -194,6 +194,11 @@ const formatIssn = (issn: string) => {
     return issn;
 };
 
+type FavoriteJournalEntry = {
+  journalId: string;
+  listId?: string;
+};
+
 export default function CategoryPage({ journals }: CategoryPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
@@ -225,7 +230,9 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
     );
   }, [categories]);
 
-  // For Favorites view - get all favorite journals first
+  const journalMap = useMemo(() => new Map(journals.map(j => [j.issn.split('/')[0], j])), [journals]);
+
+  // For Favorites view - get all favorite journal IDs first
   const allFavoritesQuery = useMemoFirebase(
       () =>
         user && firestore
@@ -233,19 +240,29 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
           : null,
       [user, firestore]
   );
-  const { data: allFavorites } = useCollection<Journal & { journalId: string; listId?: string }>(allFavoritesQuery);
-
+  const { data: allFavoriteEntries } = useCollection<FavoriteJournalEntry>(allFavoritesQuery);
 
   // For Browse view
   const journalsForCategory = useMemo(() => {
     if (!selectedCategory) return [];
+    
+    // Uncategorized favorites logic
     if (selectedCategory === "Uncategorized") {
-        return (allFavorites || []).filter(fav => !fav.listId || fav.listId === '').sort((a, b) => {
-          const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
-          const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
-          return factorB - factorA;
-        });
+        const uncategorizedIds = (allFavoriteEntries || [])
+            .filter(fav => !fav.listId || fav.listId === '')
+            .map(fav => fav.journalId);
+
+        return uncategorizedIds
+            .map(id => journalMap.get(id))
+            .filter((j): j is Journal => !!j)
+            .sort((a, b) => {
+                const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
+                const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
+                return factorB - factorA;
+            });
     }
+
+    // Regular category logic from all journals
     return journals
       .filter((j) => j.majorCategory === selectedCategory)
       .sort((a, b) => {
@@ -253,29 +270,26 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
         const rankB = extractRank(b.majorCategoryPartition);
         return rankA - rankB;
       });
-  }, [journals, selectedCategory, allFavorites]);
+  }, [journals, selectedCategory, allFavoriteEntries, journalMap]);
 
-  // For Favorites view
-  const favoritesInListQuery = useMemoFirebase(
-    () => {
-      if (!user || !firestore || !selectedJournalList) return null;
-      return query(
-          collection(firestore, `users/${user.uid}/favorite_journals`),
-          where("listId", "==", selectedJournalList.id)
-      );
-    },
-    [user, firestore, selectedJournalList]
-  );
-
-  const { data: favoriteJournals } = useCollection<Journal & { journalId: string }>(favoritesInListQuery);
+  // For Favorites list view
+  const favoriteJournalIdsInList = useMemo(() => {
+    if (!selectedJournalList || !allFavoriteEntries) return [];
+    return allFavoriteEntries
+      .filter(fav => fav.listId === selectedJournalList.id)
+      .map(fav => fav.journalId);
+  }, [selectedJournalList, allFavoriteEntries]);
 
   const journalsForList = useMemo(() => {
-    return (favoriteJournals || []).sort((a, b) => {
-      const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
-      const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
-      return factorB - factorA;
-    });
-  }, [favoriteJournals]);
+    return favoriteJournalIdsInList
+      .map(id => journalMap.get(id))
+      .filter((j): j is Journal => !!j)
+      .sort((a, b) => {
+        const factorA = typeof a.impactFactor === 'number' ? a.impactFactor : 0;
+        const factorB = typeof b.impactFactor === 'number' ? b.impactFactor : 0;
+        return factorB - factorA;
+      });
+  }, [favoriteJournalIdsInList, journalMap]);
 
   const journalsToDisplay = (selectedJournalList) ? journalsForList : journalsForCategory;
 
@@ -440,11 +454,12 @@ export default function CategoryPage({ journals }: CategoryPageProps) {
           );
         }
         return <FavoritesContent 
-                  allFavorites={allFavorites} 
+                  allFavorites={allFavoriteEntries} 
                   onJournalListSelect={handleJournalListSelect} 
                   onUncategorizedSelect={() => handleCategorySelect("Uncategorized")} 
                   onFindJournalsClick={() => handleViewChange('search')}
                   onLoginClick={() => setIsLoginDialogOpen(true)}
+                  journals={journals}
                 />;
       case "about":
         return <AboutPage />;

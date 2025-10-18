@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A tool for finding journals based on a query.
@@ -5,7 +6,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { journals, Journal } from '@/data/journal-data-server';
+import { journals, Journal } from '@/data/journals';
 
 const FindJournalsInputSchema = z.object({
   query: z.string().describe('The search query for journals. Can be a topic, category, or partial name.'),
