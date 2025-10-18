@@ -33,10 +33,10 @@ export const deleteUserData = onCall(async (request) => {
     const userPath = `users/${uid}`;
 
     // Gracefully delete subcollections.
-    await deleteCollectionIfExists(db, `${userPath}/journal_lists`, 100);
+    await deleteCollection(db, `${userPath}/journal_lists`, 100);
     logger.info(`Finished processing journal_lists for user: ${uid}`);
 
-    await deleteCollectionIfExists(db, `${userPath}/favorite_journals`, 100);
+    await deleteCollection(db, `${userPath}/favorite_journals`, 100);
     logger.info(`Finished processing favorite_journals for user: ${uid}`);
     
     // Now, delete the main user document if it exists.
@@ -71,31 +71,8 @@ export const deleteUserData = onCall(async (request) => {
 
 
 /**
- * Checks if a collection exists and if so, deletes it and all its documents in batches.
- * @param {admin.firestore.Firestore} db The Firestore database instance.
- * @param {string} collectionPath The path to the collection to delete.
- * @param {number} batchSize The number of documents to delete in each batch.
- */
-async function deleteCollectionIfExists(
-  db: admin.firestore.Firestore,
-  collectionPath: string,
-  batchSize: number
-) {
-    const collectionRef = db.collection(collectionPath);
-    // Check if the collection is empty by getting just one document.
-    const collectionCheck = await collectionRef.limit(1).get();
-    if (collectionCheck.empty) {
-        logger.info(`Collection ${collectionPath} is empty or does not exist. Skipping deletion.`);
-        return; // Nothing to delete
-    }
-
-    logger.info(`Collection ${collectionPath} found. Proceeding with deletion.`);
-    return deleteCollection(db, collectionPath, batchSize);
-}
-
-
-/**
  * Deletes a collection and all its documents in batches.
+ * This function is safe to call on non-existent collections.
  * @param {admin.firestore.Firestore} db The Firestore database instance.
  * @param {string} collectionPath The path to the collection to delete.
  * @param {number} batchSize The number of documents to delete in each batch.
@@ -127,7 +104,7 @@ async function deleteQueryBatch(
   const snapshot = await query.get();
 
   if (snapshot.size === 0) {
-    // When there are no more documents to delete, we're done.
+    // When there are no more documents to delete (or the collection was empty), we're done.
     resolve(0);
     return;
   }
