@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useFirebase } from "@/firebase";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
   serverTimestamp,
   where,
   getDocs,
+  addDoc,
 } from "firebase/firestore";
 import { useMemoFirebase } from "@/firebase/provider";
 import { Journal } from "@/data/journals";
@@ -85,31 +86,37 @@ export default function AddToFavoritesDialog({
     setIsCreating(true);
 
     try {
-      const batch = writeBatch(firestore);
-      const newListRef = doc(collection(firestore, `users/${user.uid}/journal_lists`));
-      batch.set(newListRef, {
+      // Step 1: Create the new list and get its ID
+      const newListRef = await addDoc(collection(firestore, `users/${user.uid}/journal_lists`), {
         name: newList.trim(),
         userId: user.uid,
         createdAt: serverTimestamp(),
       });
-      
-      const favoriteId = `${journal.issn}_${newListRef.id}`;
+      const newListId = newListRef.id;
+
+      // Step 2: Create a new batch to add the favorite and handle uncategorized entries
+      const batch = writeBatch(firestore);
+      const favoriteId = `${journal.issn}_${newListId}`;
       const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favoriteId);
       
-      // Check if an uncategorized favorite exists
-      const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
-      const uncategorizedFavoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
-      const uncategorizedDoc = await getDocs(query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn), where('listId', '==', '')));
+      // Check if an uncategorized favorite exists for this journal
+      const uncategorizedQuery = query(
+        collection(firestore, `users/${user.uid}/favorite_journals`), 
+        where('journalId', '==', journal.issn), 
+        where('listId', '==', '')
+      );
+      const uncategorizedDocs = await getDocs(uncategorizedQuery);
       
-      if (!uncategorizedDoc.empty) {
-        // Delete the uncategorized version, as it's now being categorized.
-        batch.delete(uncategorizedDoc.docs[0].ref);
+      if (!uncategorizedDocs.empty) {
+        // If an uncategorized version exists, delete it as it's now being categorized.
+        batch.delete(uncategorizedDocs.docs[0].ref);
       }
 
+      // Add the journal to the new list
       batch.set(favoriteRef, {
         journalId: journal.issn,
         userId: user.uid,
-        listId: newListRef.id,
+        listId: newListId,
         createdAt: serverTimestamp(),
         // Denormalized journal data for list view
         journalName: journal.journalName,
@@ -122,12 +129,13 @@ export default function AddToFavoritesDialog({
         top: journal.top,
       });
       
+      // Commit the second batch
       await batch.commit();
       
-      // Select the newly created list
+      // Update local state to reflect the new list being selected
       setSelectedLists(prev => {
         const newSet = new Set(prev);
-        newSet.add(newListRef.id);
+        newSet.add(newListId);
         return newSet;
       });
 
@@ -185,20 +193,20 @@ export default function AddToFavoritesDialog({
         }
         
         // Handle uncategorized state
-        const isCurrentlyFavorited = favoritedIn && favoritedIn.length > 0;
-        const willBeFavorited = selectedLists.size > 0;
-        
-        const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
-        const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
+        const isCurrentlyInAnyList = initialListIds.size > 0;
+        const willBeInAnyList = selectedLists.size > 0;
 
-        if (willBeFavorited) {
+        if (willBeInAnyList) {
             // If it's going into lists, ensure any uncategorized version is removed.
-            const uncategorizedDoc = await getDocs(query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn), where('listId', '==', '')));
-            if (!uncategorizedDoc.empty) {
-                batch.delete(uncategorizedDoc.docs[0].ref);
+            const uncategorizedQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn), where('listId', '==', ''));
+            const uncategorizedDocs = await getDocs(uncategorizedQuery);
+            if (!uncategorizedDocs.empty) {
+                batch.delete(uncategorizedDocs.docs[0].ref);
             }
-        } else if (isCurrentlyFavorited && !willBeFavorited) {
+        } else if (isCurrentlyInAnyList && !willBeInAnyList) {
             // If it was in lists but now is in none, it becomes uncategorized.
+            const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
+            const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
              batch.set(uncategorizedRef, {
                 journalId: journal.issn,
                 userId: user.uid,
@@ -213,23 +221,31 @@ export default function AddToFavoritesDialog({
                 majorCategory: journal.majorCategory,
                 top: journal.top,
             });
-        } else if (!isCurrentlyFavorited && !willBeFavorited) {
+        } else if (!isCurrentlyInAnyList && !willBeInAnyList) {
             // First time favoriting, but into no list -> uncategorized
-            batch.set(uncategorizedRef, {
-                journalId: journal.issn,
-                userId: user.uid,
-                listId: "",
-                createdAt: serverTimestamp(),
-                journalName: journal.journalName,
-                impactFactor: journal.impactFactor,
-                majorCategoryPartition: journal.majorCategoryPartition,
-                authorityJournal: journal.authorityJournal,
-                openAccess: journal.openAccess,
-                issn: journal.issn,
-                majorCategory: journal.majorCategory,
-                top: journal.top,
-            });
+            const isAlreadyFavoritedUncategorizedQuery = query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn));
+            const isAlreadyFavoritedUncategorizedDocs = await getDocs(isAlreadyFavoritedUncategorizedQuery);
+
+            if (isAlreadyFavoritedUncategorizedDocs.empty) {
+                const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
+                const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
+                batch.set(uncategorizedRef, {
+                    journalId: journal.issn,
+                    userId: user.uid,
+                    listId: "",
+                    createdAt: serverTimestamp(),
+                    journalName: journal.journalName,
+                    impactFactor: journal.impactFactor,
+                    majorCategoryPartition: journal.majorCategoryPartition,
+                    authorityJournal: journal.authorityJournal,
+                    openAccess: journal.openAccess,
+                    issn: journal.issn,
+                    majorCategory: journal.majorCategory,
+                    top: journal.top,
+                });
+            }
         }
+
 
         await batch.commit();
         onOpenChange(false);
@@ -301,5 +317,3 @@ export default function AddToFavoritesDialog({
     </Dialog>
   );
 }
-
-    
