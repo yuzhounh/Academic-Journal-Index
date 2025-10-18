@@ -84,7 +84,7 @@ export default function AddToFavoritesDialog({
   const handleCreateAndAdd = async () => {
     if (!newList.trim() || !user || !firestore) return;
     setIsCreating(true);
-
+  
     try {
       // Step 1: Create the new list and get its ID
       const newListRef = await addDoc(collection(firestore, `users/${user.uid}/journal_lists`), {
@@ -93,7 +93,7 @@ export default function AddToFavoritesDialog({
         createdAt: serverTimestamp(),
       });
       const newListId = newListRef.id;
-
+  
       // Step 2: Create a new batch to add the favorite and handle uncategorized entries
       const batch = writeBatch(firestore);
       const favoriteId = `${journal.issn}_${newListId}`;
@@ -111,7 +111,7 @@ export default function AddToFavoritesDialog({
         // If an uncategorized version exists, delete it as it's now being categorized.
         batch.delete(uncategorizedDocs.docs[0].ref);
       }
-
+  
       // Add the journal to the new list
       batch.set(favoriteRef, {
         journalId: journal.issn,
@@ -129,17 +129,12 @@ export default function AddToFavoritesDialog({
         top: journal.top,
       });
       
-      // Commit the second batch
       await batch.commit();
       
-      // Update local state to reflect the new list being selected
-      setSelectedLists(prev => {
-        const newSet = new Set(prev);
-        newSet.add(newListId);
-        return newSet;
-      });
-
+      // Since the action is complete, close the dialog.
+      onOpenChange(false);
       setNewList("");
+  
     } catch (error) {
       console.error("Error creating new list and adding favorite:", error);
     } finally {
