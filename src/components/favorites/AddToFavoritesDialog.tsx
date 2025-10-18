@@ -75,8 +75,8 @@ export default function AddToFavoritesDialog({
 
   useEffect(() => {
     if (favoritedIn) {
-      const listIds = new Set(favoritedIn.map((fav) => fav.listId));
-      setSelectedLists(listIds);
+        const listIds = new Set(favoritedIn.map((fav) => fav.listId).filter(Boolean));
+        setSelectedLists(listIds);
     }
   }, [favoritedIn]);
 
@@ -95,6 +95,17 @@ export default function AddToFavoritesDialog({
       
       const favoriteId = `${journal.issn}_${newListRef.id}`;
       const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favoriteId);
+      
+      // Check if an uncategorized favorite exists
+      const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
+      const uncategorizedFavoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
+      const uncategorizedDoc = await getDocs(query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn), where('listId', '==', '')));
+      
+      if (!uncategorizedDoc.empty) {
+        // Delete the uncategorized version, as it's now being categorized.
+        batch.delete(uncategorizedDoc.docs[0].ref);
+      }
+
       batch.set(favoriteRef, {
         journalId: journal.issn,
         userId: user.uid,
@@ -132,7 +143,7 @@ export default function AddToFavoritesDialog({
     if (!user || !firestore) return;
     setIsSaving(true);
     
-    const initialListIds = new Set((favoritedIn || []).map(fav => fav.listId));
+    const initialListIds = new Set((favoritedIn || []).map(fav => fav.listId).filter(Boolean));
     
     const listsToAdd = new Set([...selectedLists].filter(id => !initialListIds.has(id)));
     const listsToRemove = new Set([...initialListIds].filter(id => !selectedLists.has(id)));
@@ -173,6 +184,53 @@ export default function AddToFavoritesDialog({
             });
         }
         
+        // Handle uncategorized state
+        const isCurrentlyFavorited = favoritedIn && favoritedIn.length > 0;
+        const willBeFavorited = selectedLists.size > 0;
+        
+        const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
+        const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
+
+        if (willBeFavorited) {
+            // If it's going into lists, ensure any uncategorized version is removed.
+            const uncategorizedDoc = await getDocs(query(collection(firestore, `users/${user.uid}/favorite_journals`), where('journalId', '==', journal.issn), where('listId', '==', '')));
+            if (!uncategorizedDoc.empty) {
+                batch.delete(uncategorizedDoc.docs[0].ref);
+            }
+        } else if (isCurrentlyFavorited && !willBeFavorited) {
+            // If it was in lists but now is in none, it becomes uncategorized.
+             batch.set(uncategorizedRef, {
+                journalId: journal.issn,
+                userId: user.uid,
+                listId: "", // Explicitly uncategorized
+                createdAt: serverTimestamp(),
+                journalName: journal.journalName,
+                impactFactor: journal.impactFactor,
+                majorCategoryPartition: journal.majorCategoryPartition,
+                authorityJournal: journal.authorityJournal,
+                openAccess: journal.openAccess,
+                issn: journal.issn,
+                majorCategory: journal.majorCategory,
+                top: journal.top,
+            });
+        } else if (!isCurrentlyFavorited && !willBeFavorited) {
+            // First time favoriting, but into no list -> uncategorized
+            batch.set(uncategorizedRef, {
+                journalId: journal.issn,
+                userId: user.uid,
+                listId: "",
+                createdAt: serverTimestamp(),
+                journalName: journal.journalName,
+                impactFactor: journal.impactFactor,
+                majorCategoryPartition: journal.majorCategoryPartition,
+                authorityJournal: journal.authorityJournal,
+                openAccess: journal.openAccess,
+                issn: journal.issn,
+                majorCategory: journal.majorCategory,
+                top: journal.top,
+            });
+        }
+
         await batch.commit();
         onOpenChange(false);
     } catch (error) {
@@ -243,3 +301,5 @@ export default function AddToFavoritesDialog({
     </Dialog>
   );
 }
+
+    
