@@ -112,12 +112,14 @@ export default function AddToFavoritesDialog({
     const listsToAdd = new Set([...selectedLists].filter(id => !initialListIds.has(id)));
     const listsToRemove = new Set([...initialListIds].filter(id => !selectedLists.has(id)));
 
+    const safeIssn = journal.issn.replace(/\//g, '-');
+
     try {
         const batch = writeBatch(firestore);
 
         // Add to new lists
         listsToAdd.forEach(listId => {
-            const favoriteId = `${journal.issn}_${listId}`;
+            const favoriteId = `${safeIssn}_${listId}`;
             const favoriteRef = doc(firestore, `users/${user.uid}/favorite_journals`, favoriteId);
             batch.set(favoriteRef, {
                 journalId: journal.issn,
@@ -161,7 +163,7 @@ export default function AddToFavoritesDialog({
             }
         } else if (isCurrentlyInAnyList && !willBeInAnyList) {
             // If it was in lists but now is in none, it becomes uncategorized.
-            const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
+            const uncategorizedFavoriteId = `${safeIssn}_uncategorized`;
             const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
              batch.set(uncategorizedRef, {
                 journalId: journal.issn,
@@ -183,7 +185,7 @@ export default function AddToFavoritesDialog({
             const isAlreadyFavoritedUncategorizedDocs = await getDocs(isAlreadyFavoritedUncategorizedQuery);
 
             if (isAlreadyFavoritedUncategorizedDocs.empty) {
-                const uncategorizedFavoriteId = `${journal.issn}_uncategorized`;
+                const uncategorizedFavoriteId = `${safeIssn}_uncategorized`;
                 const uncategorizedRef = doc(firestore, `users/${user.uid}/favorite_journals`, uncategorizedFavoriteId);
                 batch.set(uncategorizedRef, {
                     journalId: journal.issn,
