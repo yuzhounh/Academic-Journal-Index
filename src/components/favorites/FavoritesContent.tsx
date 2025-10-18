@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useFirebase } from "@/firebase";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
 import { collection, query, orderBy } from "firebase/firestore";
@@ -57,6 +57,14 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
     
     const { data: journalLists, isLoading: isLoadingLists } = useCollection<JournalList>(journalListsQuery);
     
+    if (isUserLoading || isLoadingLists) {
+        return (
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg">{t('favorites.loading')}</div>
+          </div>
+        );
+    }
+    
     const { categorized, uncategorizedCount } = useMemo(() => {
         if (!allFavorites) return { categorized: {}, uncategorizedCount: 0 };
 
@@ -75,14 +83,6 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
     }, [allFavorites]);
 
 
-    if (isUserLoading || isLoadingLists) {
-        return (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg">{t('favorites.loading')}</div>
-          </div>
-        );
-    }
-    
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center text-center px-4 py-20 border-2 border-dashed rounded-lg">
