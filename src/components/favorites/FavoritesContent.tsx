@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFirebase } from "@/firebase";
 import { useCollection, WithId } from "@/firebase/firestore/use-collection";
 import { collection, query, orderBy } from "firebase/firestore";
@@ -15,8 +15,9 @@ import {
 import { useMemoFirebase } from "@/firebase/provider";
 import { Journal } from "@/data/journals";
 import { useTranslation } from "@/i18n/provider";
-import { BookText, FolderOpen, LogIn } from "lucide-react";
+import { BookText, FolderOpen, LogIn, Trash2 } from "lucide-react";
 import CategoryStats from "../search/CategoryStats";
+import DeleteJournalListDialog from "./DeleteJournalListDialog";
 
 export type JournalList = {
     name: string;
@@ -41,6 +42,7 @@ interface FavoritesContentProps {
 export default function FavoritesContent({ onJournalListSelect, onUncategorizedSelect, allFavorites, onFindJournalsClick, onLoginClick, journals }: FavoritesContentProps) {
     const { user, isUserLoading, firestore } = useFirebase();
     const { t } = useTranslation();
+    const [dialogState, setDialogState] = useState<{open: boolean, listId: string, listName: string}>({open: false, listId: '', listName: ''});
     
     // IMPORTANT: All hooks are now called unconditionally at the top.
     const journalListsQuery = useMemoFirebase(
@@ -80,6 +82,11 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
             .map(fav => journalMap.get(fav.journalId))
             .filter((j): j is Journal => !!j);
     }, [allFavorites, journals]);
+
+    const handleDeleteClick = (e: React.MouseEvent, list: WithId<JournalList>) => {
+        e.stopPropagation(); // Prevent card's onClick from firing
+        setDialogState({ open: true, listId: list.id, listName: list.name });
+    };
 
 
     // Conditional rendering logic now comes AFTER all hooks have been called.
@@ -132,24 +139,33 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
                         )}
                         {(journalLists || []).map((list) => (
                            <Card
-                           key={list.id}
-                           className="cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
-                           onClick={() => onJournalListSelect(list)}
-                         >
-                           <CardHeader className="flex-grow pb-2">
-                             <CardTitle className="font-headline text-xl">
-                               {list.name}
-                             </CardTitle>
-                           </CardHeader>
-                           <CardContent>
-                             <div className="flex items-center text-sm text-muted-foreground">
-                               <BookText className="w-4 h-4 mr-2" />
-                               <span>
-                                 {categorized[list.id] || 0} {t('categories.journals')}
-                               </span>
-                             </div>
-                           </CardContent>
-                         </Card>
+                            key={list.id}
+                            className="group relative cursor-pointer hover:shadow-lg hover:border-primary transition-all duration-200 flex flex-col"
+                            onClick={() => onJournalListSelect(list)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 h-8 w-8 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={(e) => handleDeleteClick(e, list)}
+                                    aria-label={t('favorites.deleteList.ariaLabel', { listName: list.name })}
+                                >
+                                    <Trash2 className="h-5 w-5" />
+                                </Button>
+                                <CardHeader className="flex-grow pb-2">
+                                    <CardTitle className="font-headline text-xl">
+                                    {list.name}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                    <BookText className="w-4 h-4 mr-2" />
+                                    <span>
+                                        {categorized[list.id] || 0} {t('categories.journals')}
+                                    </span>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
                 </div>
@@ -163,6 +179,14 @@ export default function FavoritesContent({ onJournalListSelect, onUncategorizedS
                        {t('favorites.empty.button')}
                     </Button>
                 </div>
+            )}
+            {dialogState.open && (
+                <DeleteJournalListDialog
+                    open={dialogState.open}
+                    onOpenChange={(open) => setDialogState({ ...dialogState, open })}
+                    listId={dialogState.listId}
+                    listName={dialogState.listName}
+                />
             )}
         </div>
     );

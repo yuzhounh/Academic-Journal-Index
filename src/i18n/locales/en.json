@@ -113,11 +113,18 @@
             "title": "Add '{{journalName}}' to...",
             "newListPlaceholder": "New list name...",
             "createButton": "Create",
-            "saveButton": "Save",
-            "creating": "Creating...",
-            "saving": "Saving..."
+            "saveButton": "Save"
         },
-        "uncategorized": "Uncategorized"
+        "uncategorized": "Uncategorized",
+        "deleteList": {
+            "title": "Delete '{{listName}}'?",
+            "description": "This action cannot be undone. All journals in this list will be moved to Uncategorized.",
+            "confirmButton": "Yes, delete list",
+            "successTitle": "List Deleted",
+            "successDescription": "The list '{{listName}}' has been deleted.",
+            "errorTitle": "Error Deleting List",
+            "ariaLabel": "Delete list {{listName}}"
+        }
     },
     "about": {
         "title": "About Academic Journal Index",
@@ -144,7 +151,7 @@
             },
             "favorites": {
                 "title": "Managing Favorites",
-                "p1": "After logging in, you can add any journal to your favorites by clicking the heart icon on its detail page. Your favorites are available on the 'My Favorites' page, organized in lists."
+                "p1": "After logging in, you can add any journal to your favorites by clicking the heart icon on its detail page. Your favorites are available on the 'Favorites' page, organized in lists."
             },
             "ai": {
                 "title": "AI-Powered Analysis",

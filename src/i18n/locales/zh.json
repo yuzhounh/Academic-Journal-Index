@@ -113,11 +113,18 @@
             "title": "将 '{{journalName}}' 添加到...",
             "newListPlaceholder": "新列表名称...",
             "createButton": "创建",
-            "saveButton": "保存",
-            "creating": "创建中...",
-            "saving": "保存中..."
+            "saveButton": "保存"
         },
-        "uncategorized": "未分类"
+        "uncategorized": "未分类",
+        "deleteList": {
+            "title": "删除 '{{listName}}'？",
+            "description": "此操作无法撤销。此列表中的所有期刊将被移至“未分类”。",
+            "confirmButton": "是的，删除列表",
+            "successTitle": "列表已删除",
+            "successDescription": "列表 '{{listName}}' 已被删除。",
+            "errorTitle": "删除列表时出错",
+            "ariaLabel": "删除列表 {{listName}}"
+        }
     },
     "about": {
         "title": "关于学术期刊索引",
