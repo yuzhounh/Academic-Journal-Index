@@ -18,17 +18,16 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>('zh');
+  const [locale, setLocale] = useState<Locale>('en'); // Default to English
 
   useEffect(() => {
     // This effect runs only on the client side
     const browserLang = navigator.language;
     if (browserLang.toLowerCase().startsWith('zh')) {
         setLocale('zh');
-    } else {
-        setLocale('en');
     }
-  }, []); // Empty dependency array means this runs once on mount
+    // No 'else' needed, as the default state is 'en'.
+  }, []);
 
   const t = useCallback((key: string, replacements?: { [key: string]: string | number }) => {
     const keys = key.split('.');
